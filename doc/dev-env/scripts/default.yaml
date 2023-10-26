@@ -1,0 +1,36 @@
+# Sample config for Grafana Agent
+# For a full configuration reference, see: https://grafana.com/docs/agent/latest/configuration/.
+server:
+  log_level: warn
+
+metrics:
+  global:
+    scrape_interval: 1m
+  wal_directory: '/var/lib/grafana-agent'
+  configs:
+    - name: vscode
+      scrape_configs:
+        - job_name: vscode
+          scrape_interval: 1m
+          static_configs:
+            - targets:
+                - localhost:9931
+              labels:
+                instance: <instance>
+                job: vscode
+      remote_write:
+        - basic_auth:
+            password: 
+            username: 
+          url: https://bolobeach.theworkpc.com/mimir/api/v1/push    
+          headers:
+            X-Scope-OrgID: <instance>
+
+integrations:
+  agent:
+    enabled: true
+  node_exporter:
+    enabled: true
+    include_exporter_metrics: true
+    disable_collectors:
+      - "mdadm"
