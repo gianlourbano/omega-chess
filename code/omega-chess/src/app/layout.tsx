@@ -29,7 +29,7 @@ export default function RootLayout({
                     }}
                 >
                     <main className="sm:grid grid-cols-5 gap-1 h-screen">
-                        <aside className=" sm:sticky sm:top-0 hidden p-2 sm:block">
+                        <aside className=" sm:sticky sm:top-0 hidden sm:block">
                             <Menu />
                         </aside>
                         <div className="col-span-4">{children}</div>

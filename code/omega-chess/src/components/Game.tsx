@@ -1,14 +1,20 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef, forwardRef } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess, Move, Square } from "chess.js";
+import { CustomSquareProps } from "react-chessboard/dist/chessboard/types";
+import Button from "./Button";
+import CustomDialog from "./CustomDialog";
+import { redirect } from "next/navigation";
 
 interface PlayerInfoProps {
     name: string;
     color: string;
     time?: number;
     turn?: boolean;
+    pCaptured: number;
+    oCaptured: number;
 }
 
 const PlayerInfo = (props: PlayerInfoProps) => {
@@ -16,9 +22,13 @@ const PlayerInfo = (props: PlayerInfoProps) => {
 
     return (
         <div
-            className={`border p-2 w-[40%] rounded-lg text-lg ${turnClassName}`}
+            className={`flex flex-row items-center border p-2 sm:w-[40%] w-full rounded-lg text-lg ${turnClassName}`}
         >
-            <div>{props.name}</div>
+            <div>{props.name} </div>
+            <div className="flex flex-col items-center ml-auto">
+                <p>Pawns: {props.pCaptured}</p>
+                <p>Others: {props.oCaptured}</p>
+            </div>
         </div>
     );
 };
@@ -62,13 +72,47 @@ const Game = () => {
 
     const [gameOver, setGameOver] = useState(false);
 
+    const [captures, setCaptures] = useState<{ [key: string]: number }>({
+        wP: 0,
+        wO: 0,
+        bP: 0,
+        bO: 0,
+    });
+
     const addMessage = (message: string) => {
+        if (messages.length > 0) {
+            if (messages[messages.length - 1] === message) return;
+            //if message contains error remove the last message
+            if (message.includes("error")) {
+                setMessages((messages) => [...messages.slice(0, -1), message]);
+                return;
+            }
+        }
         setMessages((messages) => [...messages, message]);
     };
 
-    const checkForCapture = (move: Move) => {
-        if (game.get(move.to) !== null) {
-            addMessage(getTurn() + " captured " + game.get(move.to)?.type);
+    const checkForCapture = () => {
+        const h = game.history({ verbose: true })[game.history().length - 1];
+        if (h.captured) {
+            addMessage(
+                getTurn(true) +
+                    " captured " +
+                    (h.captured === "p" ? "Pawn" : "a piece")
+            );
+
+            if (getTurn(true) === "White") {
+                setCaptures({
+                    ...captures,
+                    [h.captured === "p" ? "wP" : "wO"]:
+                        captures[h.captured === "p" ? "wP" : "wO"] + 1,
+                });
+            } else {
+                setCaptures({
+                    ...captures,
+                    [h.captured === "p" ? "bP" : "bO"]:
+                        captures[h.captured === "p" ? "bP" : "bO"] + 1,
+                });
+            }
         }
     };
 
@@ -106,27 +150,36 @@ const Game = () => {
     }
 
     function selectRandomMove() {
-        setTimeout(() => {
-            let advMove =
-                game.moves()[Math.floor(Math.random() * game.moves().length)];
-            game.move(advMove);
-            setGamePosition(game.fen());
+        setTimeout(
+            () => {
+                let advMove =
+                    game.moves()[
+                        Math.floor(Math.random() * game.moves().length)
+                    ];
+                game.move(advMove);
+                checkForCapture();
+                setGamePosition(game.fen());
 
-            postMoveChecks();
-        }, 500);
+                postMoveChecks();
+            },
+            game.isCheck() ? 1500 : 500
+        );
     }
 
     function onDrop(sourceSquare: Square, targetSquare: Square, piece: any) {
         let move = null;
         try {
-            move = game.move({
+            move = {
                 from: sourceSquare,
                 to: targetSquare,
                 promotion: piece[1].toLowerCase() ?? "q",
-            });
+            };
+            move = game.move(move);
+            checkForCapture();
             setGamePosition(game.fen());
         } catch (e: any) {
             addMessage(reduceError(e.message));
+            return false;
         }
 
         // illegal move
@@ -139,19 +192,108 @@ const Game = () => {
         return true;
     }
 
+    const messagesEndRef = useRef<null | HTMLDivElement>(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    const getAllPawns = (color: string) => {
+        const pieces: Square[] = [];
+        game.board().forEach((row, i) => {
+            row.forEach((piece, j) => {
+                if (piece?.type === "p" && piece?.color === color) {
+                    pieces.push(piece.square);
+                }
+            });
+        });
+        return pieces;
+    };
+
+    const getAllPawnsCaptures = (color: string, pawns: Square[]) => {
+        const captures: Square[] = [];
+        pawns.forEach((pawn) => {
+            const moves = game.moves({ square: pawn, verbose: true });
+            moves.forEach((move) => {
+                if (move.captured) {
+                    captures.push(move.to);
+                }
+            });
+        });
+
+        let message = "";
+
+        switch (captures.length) {
+            case 0:
+                message =
+                    "There are no pawn captures for " +
+                    (color === "w" ? "White" : "Black");
+                break;
+            case 1:
+                message =
+                    "There is 1 pawn capture for " +
+                    (color === "w" ? "White" : "Black");
+                break;
+            default:
+                message =
+                    "There are " +
+                    captures.length +
+                    " pawn captures for " +
+                    (color === "w" ? "White" : "Black");
+                break;
+        }
+
+        addMessage(message);
+    };
+
+    const whoWon = () => {
+        if (game.isCheckmate()) {
+            return game.turn() === "w" ? "Black won!" : "White won!";
+        } else if (game.isDraw())
+            return "Draw";
+        else if(game.isStalemate())
+            return "Stalemate";
+        else
+            return "White lost!"
+    }
+
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
+            <CustomDialog
+                open={gameOver}
+                title="Game Over"
+                handleContinue={() => {setGameOver(false)}}
+                actions={
+                    <Button
+                        color="lime"
+                        onClick={() => {
+                            setGameOver(false);
+                            resetAll();
+                        }}
+                        className="text-slate-700"
+                    >
+                        New Game
+                    </Button>
+                }
+                contentText={`${whoWon()}`}
+            />
             <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
                 <PlayerInfo
                     name="RandomBot"
                     color="black"
                     turn={game.turn() === "b"}
+                    pCaptured={captures.bP}
+                    oCaptured={captures.bO}
                 />
                 <Chessboard
                     id="PlayVsStockfish"
                     position={gamePosition}
                     onPieceDrop={onDrop}
-                    //customPieces={customPieces}
+                    customPieces={customPieces}
                     customBoardStyle={{
                         borderRadius: "5px",
                         boxShadow: isCheck
@@ -165,17 +307,33 @@ const Game = () => {
                     name="Player"
                     color="white"
                     turn={game.turn() === "w"}
+                    pCaptured={captures.wP}
+                    oCaptured={captures.wO}
                 />
             </div>
-            <div className="flex flex-col gap-1">
-                Umpire
-                {messages.map((message, index) => (
-                    <p key={index}>{message}</p>
-                ))}
+            <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
+                <h1 className="text-3xl text-center">Umpire</h1>
+                <Button
+                    color="lime"
+                    onClick={() => getAllPawnsCaptures("w", getAllPawns("w"))}
+                >
+                    Pawn Captures?
+                </Button>
+                <Button color="lime" onClick={() => setGameOver(true)}>
+                    Surrender
+                </Button>
+
+                <div className="overflow-y-auto flex flex-col gap-1">
+                    {messages.map((message, index) => (
+                        <p key={index} className="rounded p-2">
+                            {message}
+                        </p>
+                    ))}
+                    <div ref={messagesEndRef}></div>
+                </div>
             </div>
         </div>
     );
 };
 
 export default Game;
- ..
