@@ -1,6 +1,6 @@
 "use client"
 
-import { WebAppProvider } from "@vkruglikov/react-telegram-web-app";
+import { BackButton, WebAppProvider } from "@vkruglikov/react-telegram-web-app";
 
 interface TelegramWebAppProviderProps {
     options: any;
@@ -11,6 +11,7 @@ interface TelegramWebAppProviderProps {
 const TelegramWebAppProvider = ({ children, options } : TelegramWebAppProviderProps) => (
     <WebAppProvider options={options}>
         {children}
+        <BackButton />
     </WebAppProvider>
 );
 

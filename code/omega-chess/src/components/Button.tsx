@@ -14,9 +14,13 @@ interface ButtonProps {
 const Button = (props: ButtonProps) => {
     return (
         <button
-            className={`bg-${props.color}-500 hover:bg-${props.color}-600 text-white font-bold py-2 px-4 rounded flex items-center gap-1 justify-center ${props.className}`}
+            className={`text-white font-bold py-2 px-4 rounded flex items-center gap-1 justify-center ${props.className}`}
             onClick={props.onClick}
             disabled={props.disabled}
+            style={{
+                cursor: props.disabled ? "not-allowed" : "pointer",
+                backgroundColor: props.disabled ? `var(--zinc-500)` : `var(--${props.color}-500)`,
+            }}
         >
             
             {props.disabled && <Image src="/lock.png" width={32} height={32} alt="lock" />}

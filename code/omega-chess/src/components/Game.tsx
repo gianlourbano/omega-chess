@@ -83,7 +83,7 @@ const Game = () => {
         if (game.isStalemate()) addMessage("Stalemate"!);
         if (game.isCheck()) {
             setIsCheck(true);
-            addMessage(getTurn() + " Check"!);
+            addMessage(getTurn() + " is in Check"!);
         } else {
             setIsCheck(false);
         }
@@ -140,8 +140,8 @@ const Game = () => {
     }
 
     return (
-        <div className="grid grid-cols-[auto_1fr] p-4 gap-2 w-full">
-            <div className="flex flex-col gap-2 max-h-screen">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-2">
+            <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
                 <PlayerInfo
                     name="RandomBot"
                     color="black"
@@ -155,7 +155,9 @@ const Game = () => {
                     customBoardStyle={{
                         borderRadius: "5px",
                         boxShadow: isCheck
-                            ? "0px 0px 15px 5px #FF0000"
+                            ? game.turn() === "w"
+                                ? "0px 0px 15px 5px #FF0000"
+                                : "0px 0px 15px 5px #19FF6C"
                             : "0 5px 15px rgba(0, 0, 0, 0.5)",
                     }}
                 />
@@ -165,7 +167,7 @@ const Game = () => {
                     turn={game.turn() === "w"}
                 />
             </div>
-            <div className="flex flex-col gap-1 overflow-y-scroll min-h-0 max-h-full">
+            <div className="flex flex-col gap-1">
                 Umpire
                 {messages.map((message, index) => (
                     <p key={index}>{message}</p>
@@ -176,3 +178,4 @@ const Game = () => {
 };
 
 export default Game;
+ ..
