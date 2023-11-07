@@ -2,8 +2,17 @@ services:
   chess:
     container_name: chess
     build:
-      context: ./
+      context: ./omega-chess/
     image: chess:1.0
+    networks:
+      - default
+    restart: unless-stopped
+
+  tbot:
+    container_name: tbot
+    build:
+      context: ./telegram-bot-server/
+    image: tbot:1.0
     networks:
       - default
     restart: unless-stopped
