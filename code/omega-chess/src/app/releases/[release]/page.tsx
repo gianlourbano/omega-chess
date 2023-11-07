@@ -16,7 +16,7 @@ const Page = ({ params }: { params: { release: string } }) => {
         <div className="text-center">
             <h1 className="text-4xl font-medium">404</h1>
             <p className="text-2xl font-medium m-6">Oops! Something went wrong</p>
-            <p className="text-xl font-medium m-6">It seems the release you're looking for doesn't exist</p>
+            <p className="text-xl font-medium m-6">It seems the release you&apos;re looking for doesn&apos;t exist</p>
             <a href="/releases/" className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Go Back</a>
         </div>
     </div>

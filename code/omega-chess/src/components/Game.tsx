@@ -306,7 +306,7 @@ const Game = () => {
                     id="PlayVsStockfish"
                     position={gamePosition}
                     onPieceDrop={onDrop}
-                    //customPieces={customPieces}
+                    customPieces={customPieces}
                     customBoardStyle={{
                         borderRadius: "5px",
                         boxShadow: isCheck
