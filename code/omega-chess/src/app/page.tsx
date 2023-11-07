@@ -1,6 +1,5 @@
 "use client";
 
-
 import Image from "next/image";
 import Button from "@/components/Button";
 import Releases from "@/components/Releases";
@@ -9,19 +8,20 @@ import { Drawer as MUIDrawer } from "@mui/material";
 import Menu from "@/components/sidemenu/menu";
 
 export default function Home() {
-    
     const [open, setOpen] = useState(false);
-    
+
     return (
         <main className="h-full grid grid-cols-4 w-full p-2">
-            <MUIDrawer
-                anchor="left"
-                open={open}
-                onClose={() => setOpen(false)}
-            >
+            <MUIDrawer anchor="left" open={open} onClose={() => setOpen(false)}>
                 <Menu onOpen={() => setOpen(false)} />
             </MUIDrawer>
-            <Button color="lime" onClick={() => setOpen(true)} className="sm:hidden">Menu</Button>
+            <Button
+                color="lime"
+                onClick={() => setOpen(true)}
+                className="sm:hidden"
+            >
+                Menu
+            </Button>
             <div className="col-span-4 sm:col-span-3">
                 <div className="flex flex-col sm:flex-row justify-evenly items-center w-full p-6">
                     <Image
@@ -47,7 +47,9 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <Releases />
+            <div className="hidden sm:block">
+                <Releases />
+            </div>
         </main>
     );
 }
