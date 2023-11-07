@@ -7,12 +7,13 @@ import CustomLink from "../CustomLink";
 interface MenuItemProps {
     title: string;
     href?: string;
+    disabled?: boolean;
 }
 
 const MenuItem = (props: MenuItemProps) => {
     return (
         <motion.h1 whileHover={{ scale: 1.05 }} className="text-xl">
-            <CustomLink disabled href={`/${props.href && props.title}`}>{props.title}</CustomLink>
+            <CustomLink disabled={props.disabled} href={`${props.href ? props.href :  "/" + props.title}`}>{props.title}</CustomLink>
         </motion.h1>
     );
 };
@@ -30,11 +31,13 @@ const Menu = (props: MenuProps) => {
             </CustomLink>
             <hr />
             <div className="p-4 flex flex-col gap-2">
-                <MenuItem title="Profile / Login / SignUp" />
-                <MenuItem title="Games" />
-                <MenuItem title="Leaderboard" />
-                <MenuItem title="Settings" />
-                <MenuItem title="About" />
+                <MenuItem title="Kriegspiel Rules" href="/kriegspiel/rules"/>
+                <MenuItem title="Releases" href="/releases"/>
+                <MenuItem disabled title="Profile / Login / SignUp" />
+                <MenuItem disabled title="Games" />
+                <MenuItem  disabled title="Leaderboard" />
+                <MenuItem disabled title="Settings" />
+                <MenuItem disabled title="About" />
             </div>
         </motion.div>
     );

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import useSWR from "swr";
+import CustomLink from "./CustomLink";
 
 
 interface ReleaseItemProps {
@@ -11,11 +12,11 @@ interface ReleaseItemProps {
 }
 
 const ReleaseItem = (props: ReleaseItemProps) => (
-    <div className="w-full flex flex-col gap-2 border rounded-lg p-3">
-        <h1 className="text-lg">{props.title}</h1>
-        <p className="text-sm">{props.description}</p>
+    <div className="w-full flex flex-col gap-2 bg-zinc-700 rounded-lg p-3">
+        <h1 className="text-2xl">{props.title}</h1>
+        <p className="text-md">{props.description}</p>
 
-        {props.link && <Link href={props.link}>Read more</Link>}
+        {props.link && <CustomLink href={props.link} className="self-start text-md bg-zinc-800 p-3 rounded-md">Read more</CustomLink>}
     </div>
 );
 
@@ -25,8 +26,8 @@ const Releases = () => {
     const { data, error, isLoading } = useSWR("/api/releases", fetcher);
 
     return (
-        <div className="hidden h-full p-2 border rounded-lg sm:flex flex-col">
-            <h1 className="text-3xl text-center mb-3">Releases / News</h1>
+        <div className="h-full p-2 flex flex-col">
+            <h1 className="text-4xl mb-3">Releases / News</h1>
             <div>
                 {isLoading && <p>Loading...</p>}
                 {error && <p>Error loading releases</p>}
