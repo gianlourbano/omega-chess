@@ -14,12 +14,11 @@ interface ButtonProps {
 const Button = (props: ButtonProps) => {
     return (
         <button
-            className={`text-white font-bold py-2 px-4 rounded flex items-center gap-1 justify-center ${props.className}`}
+            className={`font-bold py-2 px-4 rounded flex items-center gap-1 justify-center ${props.className}`}
             onClick={props.onClick}
             disabled={props.disabled}
             style={{
                 cursor: props.disabled ? "not-allowed" : "pointer",
-                backgroundColor: props.disabled ? `var(--zinc-500)` : `var(--${props.color}-500)`,
             }}
         >
             

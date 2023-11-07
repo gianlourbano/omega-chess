@@ -254,32 +254,45 @@ const Game = () => {
         if (game.isCheckmate()) {
             return game.turn() === "w" ? "Black won!" : "White won!";
         } else if (game.isDraw())
-            return "Draw";
+            return "Draw!";
         else if(game.isStalemate())
-            return "Stalemate";
+            return "Stalemate!";
         else
             return "White lost!"
+    }
+
+    const pawns = () => {
+        return "Pawns captures: " + (captures.wP);
+    }
+
+    const others = () => {
+        return "Others captures: " + (captures.wO);
     }
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
             <CustomDialog
                 open={gameOver}
-                title="Game Over"
+                title="Game Over!"
                 handleContinue={() => {setGameOver(false)}}
                 actions={
+                    <div className="flex flex-row gap-3 p-1">
                     <Button
                         color="lime"
                         onClick={() => {
                             setGameOver(false);
                             resetAll();
                         }}
-                        className="text-slate-700"
                     >
                         New Game
                     </Button>
+                    <Button color="lime" onClick={() => {setGameOver(false)}}>Continue</Button>
+                    </div>
                 }
-                contentText={`${whoWon()}`}
+                contentText={<div>{whoWon()}
+                <p>{pawns()}</p>
+                <p>{others()}</p>
+                </div>}
             />
             <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
                 <PlayerInfo
@@ -293,7 +306,7 @@ const Game = () => {
                     id="PlayVsStockfish"
                     position={gamePosition}
                     onPieceDrop={onDrop}
-                    customPieces={customPieces}
+                    //customPieces={customPieces}
                     customBoardStyle={{
                         borderRadius: "5px",
                         boxShadow: isCheck
@@ -313,13 +326,14 @@ const Game = () => {
             </div>
             <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
                 <h1 className="text-3xl text-center">Umpire</h1>
-                <Button
+                <Button className="rounded-lg tetx bg-zinc-600" 
                     color="lime"
                     onClick={() => getAllPawnsCaptures("w", getAllPawns("w"))}
                 >
                     Pawn Captures?
                 </Button>
-                <Button color="lime" onClick={() => setGameOver(true)}>
+                <Button className="rounded-lg tetx bg-zinc-600"
+                    color="lime" onClick={() => setGameOver(true)}>
                     Surrender
                 </Button>
 

@@ -9,7 +9,7 @@ interface CustomDialogProps {
     open: boolean;
     children?: React.ReactNode;
     title: string;
-    contentText: string;
+    contentText: React.ReactNode;
     handleContinue: () => void;
     actions?: React.ReactNode;
 }
@@ -42,7 +42,6 @@ export default function CustomDialog({
                 {/* Force users to make input without option to cancel */}
                 {/* <Button onClick={handleClose}>Cancel</Button> */}
                 {actions}
-                <Button onClick={handleContinue}>Continue</Button>
             </DialogActions>
         </Dialog>
     );
