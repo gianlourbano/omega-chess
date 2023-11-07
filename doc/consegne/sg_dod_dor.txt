@@ -1,0 +1,19 @@
+SPRINT GOAL
+SPRINT 1: avere una prima versione di una board giocabile, dove
+	  posso muovere i pezzi, avere un umpire che regola il gioco
+	  e potervi accedere da telegram con un'iniziale implementazione
+	  del bot
+
+DEFINITION OF DONE
+- US done quando:
+  - supera i test preliminari
+  - svolge la sua funzione adeguatamente
+  - se ha un'interfaccia grafica deve rispettare il design
+
+DEFINITION OF READY
+- US pronta per essere implementata:
+  - capita da tutti
+  - stimata
+  - si conoscono gli strumenti con cui implementarla
+  - divisa in task
+  - si ha un'idea del design
