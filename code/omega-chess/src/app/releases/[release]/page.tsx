@@ -12,11 +12,14 @@ const Page = ({ params }: { params: { release: string } }) => {
 
     if (data?.error)
         return (
-            <div>
-                Failed to load (404)
-                <br />
-                <p>{data?.error}</p>
-            </div>
+            <div className="flex justify-center items-center h-screen bg-zinc-900">
+        <div className="text-center">
+            <h1 className="text-4xl font-medium">404</h1>
+            <p className="text-2xl font-medium m-6">Oops! Something went wrong</p>
+            <p className="text-xl font-medium m-6">It seems the release you're looking for doesn't exist</p>
+            <a href="/releases/" className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Go Back</a>
+        </div>
+    </div>
         );
 
     return (
