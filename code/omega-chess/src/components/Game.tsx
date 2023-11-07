@@ -62,6 +62,14 @@ const Game = () => {
         setGamePosition(game.fen());
         setCustomPieces(hidden);
         setMessages([]);
+        setCaptures({
+            wP: 0,
+            wO: 0,
+            bP: 0,
+            bO: 0,
+        });
+        setGameOver(false);
+        setIsCheck(false);
     };
 
     const [gamePosition, setGamePosition] = useState(game.fen());
@@ -253,46 +261,55 @@ const Game = () => {
     const whoWon = () => {
         if (game.isCheckmate()) {
             return game.turn() === "w" ? "Black won!" : "White won!";
-        } else if (game.isDraw())
-            return "Draw!";
-        else if(game.isStalemate())
-            return "Stalemate!";
-        else
-            return "White lost!"
-    }
+        } else if (game.isDraw()) return "Draw!";
+        else if (game.isStalemate()) return "Stalemate!";
+        else return "White lost!";
+    };
 
     const pawns = () => {
-        return "Pawns captures: " + (captures.wP);
-    }
+        return "Pawns captures: " + captures.wP;
+    };
 
     const others = () => {
-        return "Others captures: " + (captures.wO);
-    }
+        return "Others captures: " + captures.wO;
+    };
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
             <CustomDialog
                 open={gameOver}
                 title="Game Over!"
-                handleContinue={() => {setGameOver(false)}}
+                handleContinue={() => {
+                    setGameOver(false);
+                }}
                 actions={
                     <div className="flex flex-row gap-3 p-1">
-                    <Button
-                        color="lime"
-                        onClick={() => {
-                            setGameOver(false);
-                            resetAll();
-                        }}
-                    >
-                        New Game
-                    </Button>
-                    <Button color="lime" onClick={() => {setGameOver(false)}}>Continue</Button>
+                        <Button
+                            color="lime"
+                            onClick={() => {
+                                setGameOver(false);
+                                resetAll();
+                            }}
+                        >
+                            New Game
+                        </Button>
+                        <Button
+                            color="lime"
+                            onClick={() => {
+                                setGameOver(false);
+                            }}
+                        >
+                            Continue
+                        </Button>
                     </div>
                 }
-                contentText={<div>{whoWon()}
-                <p>{pawns()}</p>
-                <p>{others()}</p>
-                </div>}
+                contentText={
+                    <div>
+                        {whoWon()}
+                        <p>{pawns()}</p>
+                        <p>{others()}</p>
+                    </div>
+                }
             />
             <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
                 <PlayerInfo
@@ -326,14 +343,18 @@ const Game = () => {
             </div>
             <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
                 <h1 className="text-3xl text-center">Umpire</h1>
-                <Button className="rounded-lg tetx bg-zinc-600" 
+                <Button
+                    className="rounded-lg tetx bg-zinc-600"
                     color="lime"
                     onClick={() => getAllPawnsCaptures("w", getAllPawns("w"))}
                 >
                     Pawn Captures?
                 </Button>
-                <Button className="rounded-lg tetx bg-zinc-600"
-                    color="lime" onClick={() => setGameOver(true)}>
+                <Button
+                    className="rounded-lg tetx bg-zinc-600"
+                    color="lime"
+                    onClick={() => setGameOver(true)}
+                >
                     Surrender
                 </Button>
 
