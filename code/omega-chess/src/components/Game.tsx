@@ -7,6 +7,7 @@ import { CustomSquareProps } from "react-chessboard/dist/chessboard/types";
 import Button from "./Button";
 import CustomDialog from "./CustomDialog";
 import { redirect } from "next/navigation";
+import AutoScrollBox from "./AutoScrollBox";
 
 interface PlayerInfoProps {
     name: string;
@@ -200,16 +201,6 @@ const Game = () => {
         return true;
     }
 
-    const messagesEndRef = useRef<null | HTMLDivElement>(null);
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
-
     const getAllPawns = (color: string) => {
         const pieces: Square[] = [];
         game.board().forEach((row, i) => {
@@ -358,13 +349,19 @@ const Game = () => {
                     Surrender
                 </Button>
 
-                <div className="overflow-y-auto flex flex-col gap-1">
+                <AutoScrollBox items={messages} className="hidden sm:block">
                     {messages.map((message, index) => (
                         <p key={index} className="rounded p-2">
                             {message}
                         </p>
                     ))}
-                    <div ref={messagesEndRef}></div>
+                </AutoScrollBox>
+                <div className="sm:hidden flex flex-col-reverse gap-1 overflow-y-auto">
+                    {messages.map((message, index) => (
+                        <p key={index} className="rounded p-2">
+                            {message}
+                        </p>
+                    ))}
                 </div>
             </div>
         </div>
