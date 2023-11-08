@@ -3,6 +3,10 @@ let releases = [
         title: "alpha 0.1.0",
         description: "First release of Omega Chess!",
         link: "/releases/alpha-0.1.0",
+    }, {
+        title: "alpha 0.2.0",
+        description: "First release of Omega Chess!",
+        link: "/releases/alpha-0.1.0",
     }
 ]
 releases = releases.reverse();

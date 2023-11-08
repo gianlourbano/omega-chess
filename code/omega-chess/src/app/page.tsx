@@ -37,10 +37,10 @@ export default function Home() {
                             The more you fuck around the more you find out!
                         </p>
                         <div className="flex flex-col gap-2 w-[50%]">
-                            <Button color="lime" disabled>
+                            <Button color="primary" disabled>
                                 Play Online
                             </Button>
-                            <Button color="sky" link="/kriegspiel">
+                            <Button color="secondary" link="/kriegspiel">
                                 Play Computer
                             </Button>
                         </div>
