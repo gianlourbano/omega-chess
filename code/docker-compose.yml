@@ -1,0 +1,50 @@
+services:
+  chess:
+    container_name: chess
+    build:
+      context: ./omega-chess/
+    image: chess:1.0
+    networks:
+      - default
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f https://localhost/api/health || exit 1"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  tbot:
+    container_name: tbot
+    build:
+      context: ./telegram-bot-server/
+    image: tbot:1.0
+    networks:
+      - default
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f https://localhost/health || exit 1"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    user: root
+    container_name: nginx
+    image: nginx
+    volumes:
+      - ./nginx/default_https.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt/:/etc/letsencrypt/
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "service", "nginx", "status"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
