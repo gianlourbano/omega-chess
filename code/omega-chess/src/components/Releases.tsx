@@ -6,12 +6,11 @@ import Image from "next/image";
 interface ReleaseItemProps {
     title: string;
     description: string;
-    link?: string;
     new?: boolean;
 }
 
 const ReleaseItem = (props: ReleaseItemProps) => {
-    const newClassname = "bg-green-500 text-white rounded-md p-1 text-sm";
+    const newClassname = "bg-green-500 text-white rounded-md p-1";
     const regularClassname = "bg-zinc-700";
 
     return (
@@ -26,16 +25,16 @@ const ReleaseItem = (props: ReleaseItemProps) => {
                 )}
                 {props.title}
             </h1>
-            <p className="text-md">{props.description}</p>
+            <p className="text-sm">{props.description}</p>
 
-            {props.link && (
-                <CustomLink
-                    href={props.link}
-                    className="self-start text-md bg-zinc-800 p-3 rounded-md"
-                >
-                    Read more
-                </CustomLink>
-            )}
+            <CustomLink
+                href={`/releases/${props.title
+                    .toLowerCase()
+                    .replace(" ", "-")}`}
+                className="self-start text-md bg-zinc-800 p-2 px-3 rounded-md"
+            >
+                Read more
+            </CustomLink>
         </div>
     );
 };
@@ -58,7 +57,6 @@ const Releases = () => {
                                 key={index}
                                 title={release.title}
                                 description={release.description}
-                                link={release.link}
                                 new={index === 0}
                             />
                         ))}

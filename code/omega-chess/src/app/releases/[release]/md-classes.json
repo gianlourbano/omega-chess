@@ -1,0 +1,15 @@
+{
+    "h1": "text-3xl font-bold p-1",
+    "h2": "text-2xl font-bold",
+    "h3": "text-xl font-bold",
+    "h4": "text-lg font-bold",
+    "h5": "text-base font-bold",
+
+    "p": "text-base",
+    "a": "p-2 md-link",
+    "ul": "list-disc list-inside",
+    "ol": "list-decimal list-inside",
+    "li": "mb-2",
+    "blockquote": "border-l-4 border-gray-300 pl-4 italic my-4",
+    "hr": "border-gray-300 my-4"
+}

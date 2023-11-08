@@ -15,13 +15,20 @@
     "@vkruglikov/react-telegram-web-app": "^2.1.5",
     "chess.js": "^1.0.0-beta.6",
     "framer-motion": "^10.16.4",
+    "gray-matter": "^4.0.3",
     "n": "^9.2.0",
     "next": "^14.0.0",
     "react": "^18.2.0",
     "react-chessboard": "^4.3.1",
     "react-dom": "^18",
+    "rehype-class-names": "^1.0.14",
+    "rehype-format": "^4.0.1",
+    "rehype-stringify": "^9.0.3",
+    "remark-parse": "^10.0.2",
+    "remark-rehype": "^10.1.0",
     "socket.io-client": "^4.7.2",
-    "swr": "^2.2.4"
+    "swr": "^2.2.4",
+    "unified": "^11.0.4"
   },
   "devDependencies": {
     "@types/node": "^20",
