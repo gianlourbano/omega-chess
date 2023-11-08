@@ -25,7 +25,7 @@ interface MenuProps {
 const Menu = (props: MenuProps) => {
     return (
         <motion.div className=" bg-zinc-900 text-slate-50 h-full sm:p-2 flex flex-col" onClick={props.onOpen} >
-            <CustomLink className="w-full mb-4 flex flex-col items-center" href="/">
+            <CustomLink className="w-full my-4 flex flex-col items-center" href="/">
                 <Image src="/pawn.png" width={100} height={100} alt="Logo" />
                 <h1 className="text-3xl">Omega Chess</h1>
             </CustomLink>

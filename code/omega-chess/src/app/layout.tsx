@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import TelegramWebAppProvider from "@/components/TelegramWebAppProvider";
 import Menu from "@/components/sidemenu/menu";
+import MobileMenu from "@/components/sidemenu/mobileMenu";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -28,10 +29,12 @@ export default function RootLayout({
                         smoothButtonsTransition: true,
                     }}
                 >
+                    
                     <main className="sm:grid grid-cols-5 gap-1 h-screen">
                         <aside className=" sm:sticky sm:top-0 hidden sm:block">
                             <Menu />
                         </aside>
+                        <MobileMenu />
                         <div className="col-span-4">{children}</div>
                     </main>
                 </TelegramWebAppProvider>

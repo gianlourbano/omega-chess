@@ -18,7 +18,7 @@ const getReleases = () => {
     filteredFiles.forEach((file: any) => {
         const fileData = fs.readFileSync(path.join(releasesDir, file), "utf8");
         const { data } = matter(fileData);
-        releases.push(data);
+        if(data) releases.push(data);
     });
 
     const num = /[0-9]+/g

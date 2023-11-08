@@ -2,7 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
-.md-link{
-    @apply text-blue-500;
-    @apply hover:text-blue-700
+.md-link {
+    @apply text-blue-500 hover:text-blue-700;
+}
+
+.md-headers {
+    @apply mb-4;
+}
+
+.md-paragraph {
+    @apply ml-6 my-2;
+    
+}
+
+.md-lists {
+    @apply ml-6 mb-2;
+}
+
+.md-pre {
+    font-family: Menlo, Monaco, "Courier New", monospace;
+    background-color: #333;
+    padding: 1rem;
+    line-height: 1.25;
+    overflow-x: auto;
+    margin: 1rem;
+}
+
+.md-blockquote {
+    border-left: 3px solid #01ff70;
+    page-break-inside: avoid;
+    @apply italic my-4;
+}
+
+.md-blockquote h2 {
+    @apply text-xl ml-2;
 }

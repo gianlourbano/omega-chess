@@ -8,6 +8,7 @@ import remarkRehype from "remark-rehype";
 import rehypeFormat from "rehype-format";
 import rehypeStringify from "rehype-stringify";
 import addClasses from "rehype-class-names";
+import rehypeExternalLinks from 'rehype-external-links'
 
 import Content from "./content";
 
@@ -34,6 +35,7 @@ async function getPostData(id) {
         .use(remarkParse)
         .use(remarkRehype)
         .use(rehypeFormat)
+        .use(rehypeExternalLinks, { target: "_blank", rel: ["noopener"] })
         .use(rehypeStringify)
         .use(addClasses, styles)
         .process(matterResult.content);
