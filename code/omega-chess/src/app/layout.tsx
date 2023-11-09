@@ -4,7 +4,7 @@ import "./globals.css";
 import TelegramWebAppProvider from "@/components/TelegramWebAppProvider";
 import Menu from "@/components/sidemenu/menu";
 import MobileMenu from "@/components/sidemenu/mobileMenu";
-
+import NextAuthProvider from "@/components/Auth/NextAuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,23 +21,27 @@ export default function RootLayout({
     return (
         <html lang="en">
             <head>
-                <script src="https://telegram.org/js/telegram-web-app.js" async/>
+                <script
+                    src="https://telegram.org/js/telegram-web-app.js"
+                    async
+                />
             </head>
             <body className={`${inter.className} bg-zinc-800 text-slate-50`}>
-                <TelegramWebAppProvider
-                    options={{
-                        smoothButtonsTransition: true,
-                    }}
-                >
-                    
-                    <main className="sm:grid grid-cols-5 gap-1 h-screen">
-                        <aside className=" sm:sticky sm:top-0 hidden sm:block">
-                            <Menu />
-                        </aside>
-                        <MobileMenu />
-                        <div className="col-span-4">{children}</div>
-                    </main>
-                </TelegramWebAppProvider>
+                <NextAuthProvider>
+                    <TelegramWebAppProvider
+                        options={{
+                            smoothButtonsTransition: true,
+                        }}
+                    >
+                        <main className="sm:grid grid-cols-5 gap-1 h-screen">
+                            <aside className=" sm:sticky sm:top-0 hidden sm:block">
+                                <Menu />
+                            </aside>
+                            <MobileMenu />
+                            <div className="col-span-4">{children}</div>
+                        </main>
+                    </TelegramWebAppProvider>
+                </NextAuthProvider>
             </body>
         </html>
     );
