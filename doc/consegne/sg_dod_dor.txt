@@ -7,7 +7,6 @@ SPRINT 1: avere una prima versione di una board giocabile, dove
 DEFINITION OF DONE
 - US done quando:
   - supera i test preliminari
-  - svolge la sua funzione adeguatamente
   - se ha un'interfaccia grafica deve rispettare il design
 
 DEFINITION OF READY
@@ -16,4 +15,4 @@ DEFINITION OF READY
   - stimata
   - si conoscono gli strumenti con cui implementarla
   - divisa in task
-  - si ha un'idea del design
+  - è avvenuta una discussione (con accordo) sul design della funzionalità
