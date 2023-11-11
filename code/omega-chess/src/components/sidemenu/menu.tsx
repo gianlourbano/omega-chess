@@ -33,9 +33,9 @@ const Menu = (props: MenuProps) => {
             <div className="p-4 flex flex-col gap-2">
                 <MenuItem title="Kriegspiel Rules" href="/kriegspiel/rules"/>
                 <MenuItem title="Releases" href="/releases"/>
-                <MenuItem disabled title="Profile / Login / SignUp" />
+                <MenuItem title="Profile / Login / SignUp" href="/profile"/>
                 <MenuItem disabled title="Games" />
-                <MenuItem  disabled title="Leaderboard" />
+                <MenuItem disabled title="Leaderboard" />
                 <MenuItem disabled title="Settings" />
                 <MenuItem disabled title="About" />
             </div>
