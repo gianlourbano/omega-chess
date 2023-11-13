@@ -39,6 +39,15 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+  
+  db-backend:
+    container_name: darkboard-backend
+    build:
+      context: ./darkboard-backend/
+    image: darkboard-backend:1.0
+    networks:
+      - default
+    restart: unless-stopped
 
   nginx:
     user: root
