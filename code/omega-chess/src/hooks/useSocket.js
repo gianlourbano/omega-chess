@@ -1,26 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import io from "socket.io-client";
 
-const SOCKET_BASE_URL = "http://192.168.1.5:8085"
+const SOCKET_BASE_URL = "http://127.0.0.1:8085"
 
 export const useSocket = (room, username) => {
-  const [socket, setSocket] = useState();
-  const [socketResponse, setSocketResponse] = useState({
-    room: "",
-    content: "",
-    username: "",
-    messageType: "",
-    createdDateTime: "",
-  });
+  const [socket, setSocket] = useState(null);
+  const [socketResponse, setSocketResponse] = useState("");
   const [isConnected, setConnected] = useState(false);
   const sendData = useCallback(
-    (payload) => {
-      socket.emit("send_message", {
-        room: room,
-        content: payload.content,
-        username: username,
-        messageType: "CLIENT",
-      });
+    (event, payload) => {
+      socket.emit(event, payload);
     },
     [socket, room]
   );
@@ -33,18 +22,12 @@ export const useSocket = (room, username) => {
     s.on("connect", () => setConnected(true));
     s.on("read_message", (res) => {
       console.log(res);
-      setSocketResponse({
-        room: res.room,
-        content: res.content,
-        username: res.username,
-        messageType: res.messageType,
-        createdDateTime: res.createdDateTime,
-      });
+      setSocketResponse(res);
     });
     return () => {
       s.disconnect();
     };
   }, [room]);
 
-  return { socketResponse, isConnected, sendData };
+  return { socket, sendData, socketResponse, isConnected};
 };

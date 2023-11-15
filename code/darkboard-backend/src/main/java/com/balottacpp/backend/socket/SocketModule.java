@@ -5,7 +5,6 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.balottacpp.backend.constants.Constants;
-import com.balottacpp.backend.model.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -23,16 +22,17 @@ public class SocketModule {
         this.socketService = socketService;
         server.addConnectListener(onConnected());
         server.addDisconnectListener(onDisconnected());
-        server.addEventListener("send_message", Message.class, onChatReceived());
+        // server.addEventListener("send_message", Message.class, onChatReceived());
+        server.addEventListener("make_move", String.class, onMoveReceived());
 
     }
 
-    private DataListener<Message> onChatReceived() {
-        return (senderClient, data, ackSender) -> {
-            log.info(data.toString());
-            socketService.saveMessage(senderClient, data);
-        };
-    }
+    // private DataListener<Message> onChatReceived() {
+    //     return (senderClient, data, ackSender) -> {
+    //         log.info(data.toString());
+    //         socketService.saveMessage(senderClient, data);
+    //     };
+    // }
 
     private ConnectListener onConnected() {
         return (client) -> {
@@ -42,11 +42,22 @@ public class SocketModule {
             String room = params.get("room").stream().collect(Collectors.joining());
             String username = params.get("username").stream().collect(Collectors.joining());
             client.joinRoom(room);
-            socketService.saveInfoMessage(client, String.format(Constants.WELCOME_MESSAGE, username), room);
             log.info("Socket ID[{}] - room[{}] - username [{}]  Connected to chat module through",
                     client.getSessionId().toString(), room, username);
+            socketService.createNewGame(client, room);
         };
 
+    }
+
+    private DataListener<String> onMoveReceived() {
+        return (senderClient, data, ackSender) -> {
+            var params = senderClient.getHandshakeData().getUrlParams();
+            String room = params.get("room").stream().collect(Collectors.joining());
+            String username = params.get("username").stream().collect(Collectors.joining());
+            log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
+                    senderClient.getSessionId().toString(), room, username, data);
+            socketService.makeMove(senderClient, room, data);
+        };
     }
 
     private DisconnectListener onDisconnected() {
@@ -54,9 +65,11 @@ public class SocketModule {
             var params = client.getHandshakeData().getUrlParams();
             String room = params.get("room").stream().collect(Collectors.joining());
             String username = params.get("username").stream().collect(Collectors.joining());
-            socketService.saveInfoMessage(client, String.format(Constants.DISCONNECT_MESSAGE, username), room);
             log.info("Socket ID[{}] - room[{}] - username [{}]  discnnected to chat module through",
                     client.getSessionId().toString(), room, username);
+            client.leaveRoom(room);
+            socketService.endGame(client, room);
+            socketService.printGameInfo();
         };
     }
 

@@ -1,9 +1,7 @@
 package com.balottacpp.backend.socket;
 
 import com.corundumstudio.socketio.SocketIOClient;
-import com.balottacpp.backend.model.Message;
-import com.balottacpp.backend.model.MessageType;
-import com.balottacpp.backend.service.MessageService;
+import com.balottacpp.backend.service.GameService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,33 +11,52 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class SocketService {
 
-    private final MessageService messageService;
+    private final GameService gameService;
 
-    public void sendSocketMessage(SocketIOClient senderClient, Message message, String room) {
+    // public void sendSocketMessage(SocketIOClient senderClient, Message message, String room) {
+    //     for (SocketIOClient client : senderClient.getNamespace().getRoomOperations(room).getClients()) {
+    //         if (!client.getSessionId().equals(senderClient.getSessionId())) {
+    //             client.sendEvent("read_message",
+    //                     message);
+    //         }
+    //     }
+    // }
+
+    public void makeMove(SocketIOClient senderClient, String room, String move) {
+        gameService.makeMove(room, move);
         for (SocketIOClient client : senderClient.getNamespace().getRoomOperations(room).getClients()) {
             if (!client.getSessionId().equals(senderClient.getSessionId())) {
                 client.sendEvent("read_message",
-                        message);
+                        "Move made!");
             }
         }
     }
 
-    public void saveMessage(SocketIOClient senderClient, Message message) {
-        Message storedMessage = messageService.saveMessage(Message.builder()
-                .messageType(MessageType.CLIENT)
-                .content(message.getContent())
-                .room(message.getRoom())
-                .username(message.getUsername())
-                .build());
-        sendSocketMessage(senderClient, storedMessage, message.getRoom());
+    public void createNewGame(SocketIOClient senderClient, String room) {
+        gameService.startGame(room, senderClient);
+        for (SocketIOClient client : senderClient.getNamespace().getRoomOperations(room).getClients()) {
+            if (!client.getSessionId().equals(senderClient.getSessionId())) {
+                client.sendEvent("read_message",
+                        "New game started!");
+            }
+        }
     }
 
-    public void saveInfoMessage(SocketIOClient senderClient, String message, String room) {
-        Message storedMessage = messageService.saveMessage(Message.builder()
-                .messageType(MessageType.SERVER)
-                .content(message)
-                .room(room)
-                .build());
-        sendSocketMessage(senderClient, storedMessage, room);
+    public void endGame(SocketIOClient senderClient, String room) {
+        gameService.endGame(room);
+        for (SocketIOClient client : senderClient.getNamespace().getRoomOperations(room).getClients()) {
+            if (!client.getSessionId().equals(senderClient.getSessionId())) {
+                client.sendEvent("read_message",
+                        "Game ended!");
+            }
+        }
+    }
+
+    public int getNumberOfGames() {
+        return gameService.getNumberOfGames();
+    }
+
+    public void printGameInfo() {
+        gameService.printGameInfo();
     }
 }
