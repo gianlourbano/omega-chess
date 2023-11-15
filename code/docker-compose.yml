@@ -20,9 +20,10 @@ services:
     networks:
       - default
     restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: asdrubale
+    ports:
+      - "27017:27017"
+    volumes:
+      - /usr/mongodb:/data/db
 
   tbot:
     container_name: tbot
