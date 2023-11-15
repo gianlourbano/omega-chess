@@ -25,6 +25,11 @@ public class SocketModule {
         // server.addEventListener("send_message", Message.class, onChatReceived());
         server.addEventListener("make_move", String.class, onMoveReceived());
 
+        server.addEventListener("test_ack", String.class, (client, data, ackSender) -> {
+            log.info("test_ack received");
+            ackSender.sendAckData("test_ack", "test_ack");
+        });
+
     }
 
     // private DataListener<Message> onChatReceived() {
@@ -56,7 +61,9 @@ public class SocketModule {
             String username = params.get("username").stream().collect(Collectors.joining());
             log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
                     senderClient.getSessionId().toString(), room, username, data);
-            socketService.makeMove(senderClient, room, data);
+            boolean res = socketService.makeMove(senderClient, room, data);
+
+            ackSender.sendAckData(res ? "valid" : "invalid");
         };
     }
 

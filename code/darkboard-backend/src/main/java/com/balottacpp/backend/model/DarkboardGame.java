@@ -32,7 +32,7 @@ public class DarkboardGame {
         }
 
         public void chessboardStateChanged() {
-            System.out.println("Chessboard state changed");
+            System.out.println("Chessboard state changed - " + client.getSessionId().toString());
             client.sendEvent("chessboard_changed", umpire.toFen());
         }
     }
@@ -118,6 +118,7 @@ public class DarkboardGame {
 		}
 
 		public void communicateOutcome(Player p, int outcome) {
+			System.out.println("Outcome: " + outcome);
 			if (!p.isHuman() || finished) return;
 			String s = (p.isWhite? "White":"Black");
 			String t = (!p.isWhite? "White":"Black");
@@ -216,10 +217,16 @@ public class DarkboardGame {
 		System.out.println("Game Over!");
     }
 
-    public void makeMove(String move) {
+    public boolean makeMove(String move) {
         // build move
         System.out.println("Move: " + move);
 
-        player.provideMove(umpire.parseString(move, true));
+		Move m = umpire.parseString(move, true);
+
+		boolean res = umpire.isLegalMove(m, umpire.turn);
+
+        player.provideMove(m);
+
+		return res;
     }
 }

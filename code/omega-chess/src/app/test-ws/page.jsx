@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Chessboard } from "react-chessboard";
 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 const hidden = {
     bK: () => {
@@ -35,45 +35,48 @@ const Msg = (props) => {
     const [gamePosition, setGamePosition] = useState(game.fen());
     const [customPieces, setCustomPieces] = useState(hidden);
 
-    const {socket, socketResponse, isConnected, sendData } = useSocket(
+    const { socket, socketResponse, isConnected, sendData } = useSocket(
         props.room,
         props.username
     );
 
     useEffect(() => {
-        if(socket) {
-            socket.on("chessboard_changed", (res) => setTimeout(() => setGamePosition(res), 150));
+        if (socket) {
+            socket.on("chessboard_changed", (res) =>
+                setGamePosition(res)
+            );
         }
-    }, [socket])
+    }, [socket]);
 
-
-    function onDrop(sourceSquare, targetSquare, piece) {
+    async function onDrop(sourceSquare, targetSquare, piece) {
         let move = null;
-            move = {
-                from: sourceSquare,
-                to: targetSquare,
-                promotion: piece[1].toLowerCase() ?? "q",
-            };
+        move = {
+            from: sourceSquare,
+            to: targetSquare,
+            promotion: piece[1].toLowerCase() ?? "q",
+        };
 
-            const game_copy = new Chess(gamePosition);
-            const san = game_copy.move(move).san
-            console.log(san);
-            sendData("make_move", san);
+        const game_copy = new Chess(gamePosition);
+        const san = game_copy.move(move).san;
+        console.log(san);
+        const valid = new Promise(resolve => socket.emit("make_move", san, res => {
+            resolve(res === "valid")
+        }))
 
-        return true;
+        return valid;
     }
 
     const [messageList, setMessageList] = useState([]);
 
     const AddMessage = (message) => {
         setMessageList([...messageList, message]);
-    }
+    };
 
     useEffect(() => {
-        if(socketResponse) {
+        if (socketResponse) {
             AddMessage(socketResponse);
         }
-    }, [socketResponse])
+    }, [socketResponse]);
 
     return (
         <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
@@ -81,15 +84,34 @@ const Msg = (props) => {
                 {isConnected ? <p>Connected</p> : <p>Not Connected</p>}
                 <span className="room_name">Room: {props.room} </span>
                 <span className="user_name">Welcome: {props.username} </span>
-                <button onClick={() => setCustomPieces({})}>Show Opponent Pieces</button>
-                <button onClick={() => setCustomPieces(hidden)}>Hide Opponent Pieces</button>
+                <button onClick={() => setCustomPieces({})}>
+                    Show Opponent Pieces
+                </button>
+                <button onClick={() => setCustomPieces(hidden)}>
+                    Hide Opponent Pieces
+                </button>
+                <button
+                    onClick={() =>
+                        socket.emit("test_ack", "test", (res) => {
+                            console.log(res);
+                        })
+                    }
+                >
+                    Test
+                </button>
             </header>
             <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
-                <Chessboard position={gamePosition} onPieceDrop={onDrop} customPieces={customPieces}/>
+                <Chessboard
+                    position={gamePosition}
+                    onPieceDrop={onDrop}
+                    customPieces={customPieces}
+                />
             </div>
             <div className="flex flex-col border p-2 rounded-md">
                 Umpire
-                {messageList.map((message, index) => <div key={index}>{message}</div>)}
+                {messageList.map((message, index) => (
+                    <div key={index}>{message}</div>
+                ))}
             </div>
         </main>
     );

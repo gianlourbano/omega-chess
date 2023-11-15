@@ -22,14 +22,8 @@ public class SocketService {
     //     }
     // }
 
-    public void makeMove(SocketIOClient senderClient, String room, String move) {
-        gameService.makeMove(room, move);
-        for (SocketIOClient client : senderClient.getNamespace().getRoomOperations(room).getClients()) {
-            if (!client.getSessionId().equals(senderClient.getSessionId())) {
-                client.sendEvent("read_message",
-                        "Move made!");
-            }
-        }
+    public boolean makeMove(SocketIOClient senderClient, String room, String move) {
+        return gameService.makeMove(room, move);
     }
 
     public void createNewGame(SocketIOClient senderClient, String room) {

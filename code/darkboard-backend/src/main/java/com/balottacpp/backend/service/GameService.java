@@ -25,9 +25,9 @@ public class GameService {
         games.remove(room);
     }
 
-    public void makeMove(String room, String move) {
+    public boolean makeMove(String room, String move) {
         DarkboardGame game = games.get(room);
-        game.makeMove(move);
+        return game.makeMove(move);
     }
 
     public int getNumberOfGames() {

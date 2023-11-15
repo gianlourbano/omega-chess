@@ -1,6 +1,10 @@
 package com.balottacpp.backend.config;
 
 import com.corundumstudio.socketio.SocketIOServer;
+import com.corundumstudio.socketio.SocketConfig;
+
+import lombok.val;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +22,9 @@ public class SocketIOConfig {
     public SocketIOServer socketIOServer() {
         com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
         config.setHostname(host);
+        SocketConfig sockConfig = new SocketConfig();
+        sockConfig.setReuseAddress(true);
+        config.setSocketConfig(sockConfig);
         config.setPort(port);
         // config.setContext("/socket.io");
         return new SocketIOServer(config);
