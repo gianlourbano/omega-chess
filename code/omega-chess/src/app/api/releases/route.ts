@@ -9,7 +9,7 @@ const getReleases = () => {
 
     const files = fs.readdirSync(releasesDir);
 
-    const regex = /^(alpha|hotfix|release)-[0-9]+\.[0-9]+\.[0-9]+\.md$/g;
+    const regex = /^(minor|hotfix|release)-[0-9]+\.[0-9]+\.[0-9]+\.md$/g;
 
     //get all files that matches the regex in the folder
     const filteredFiles = files.filter((file: any) => file.match(regex));

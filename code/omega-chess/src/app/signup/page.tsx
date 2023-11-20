@@ -67,7 +67,7 @@ const SignUpPage = () => {
         
         if(!errors){
             console.log("test");
-            //requestRegister
+            requestRegister(e)
         }
         
         setError(errors);
@@ -117,7 +117,7 @@ const SignUpPage = () => {
                 />
                 <button
                     className="px-4 py-2 border rounded"
-                    onClick={(e) => validateForm(e)}
+                    onClick={validateForm}
                 >   Sign Up
                 </button>
             </form>

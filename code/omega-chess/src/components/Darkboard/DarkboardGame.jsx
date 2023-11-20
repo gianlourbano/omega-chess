@@ -28,15 +28,13 @@ const hidden = {
     },
 };
 
-const SOCKET_BASE_URL = "http://127.0.0.1:8085"
-
 const DarkboardGame = ({room }) => {
     const [socket, setSocket] = useState(null);
 
     const username = "gianlo";
 
     useEffect(() => {
-        const s = io(SOCKET_BASE_URL, {
+        const s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
             reconnection: false,
             query: `username=${username}&room=${room}`, //"room=" + room+",username="+username,
           });

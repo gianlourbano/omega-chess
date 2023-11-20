@@ -23,6 +23,8 @@ const authOptions: NextAuthOptions = {
                 token.refreshToken = user.refreshToken;
                 token.accessTokenExpires = user.accessTokenExpires;
                 token.id = user.id;
+                token.username = user.username;
+                token.email = user.email;
             }
 
             return token;
@@ -37,6 +39,9 @@ const authOptions: NextAuthOptions = {
                     accessToken: token.accessToken as string,
                     refreshToken: token.refreshToken as string,
                     id: token.id,
+                    username: token.username,
+                    email: token.email,
+                    
                 },
                 error: token.error,
             };

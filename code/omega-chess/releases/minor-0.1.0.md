@@ -1,5 +1,5 @@
 ---
-title: Alpha 0.1.0
+title: Minor 0.1.0
 description: The first alpha release of Omega Chess.
 version: "0.1.0"
 ---
