@@ -3,7 +3,6 @@ declare global {
   var mongoose: any // This must be a `var` and not a `let / const`
 }
 
-
 const MONGODB_URI = process.env.MONGODB_URI!
 
 if (!MONGODB_URI) {

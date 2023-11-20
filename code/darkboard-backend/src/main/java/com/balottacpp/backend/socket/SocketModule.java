@@ -24,12 +24,7 @@ public class SocketModule {
         server.addDisconnectListener(onDisconnected());
         // server.addEventListener("send_message", Message.class, onChatReceived());
         server.addEventListener("make_move", String.class, onMoveReceived());
-
-        server.addEventListener("test_ack", String.class, (client, data, ackSender) -> {
-            log.info("test_ack received");
-            ackSender.sendAckData("test_ack", "test_ack");
-        });
-
+        server.addEventListener("start_game", String.class, onReady());
     }
 
     // private DataListener<Message> onChatReceived() {
@@ -49,9 +44,20 @@ public class SocketModule {
             client.joinRoom(room);
             log.info("Socket ID[{}] - room[{}] - username [{}]  Connected to chat module through",
                     client.getSessionId().toString(), room, username);
-            socketService.createNewGame(client, room);
+            //socketService.createNewGame(client, room);
         };
 
+    }
+
+    private DataListener<String> onReady() {
+        return (senderClient, data, ackSender) -> {
+            var params = senderClient.getHandshakeData().getUrlParams();
+            String room = params.get("room").stream().collect(Collectors.joining());
+            String username = params.get("username").stream().collect(Collectors.joining());
+            log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
+                    senderClient.getSessionId().toString(), room, username, data);
+            socketService.createNewGame(senderClient, room);
+        };
     }
 
     private DataListener<String> onMoveReceived() {

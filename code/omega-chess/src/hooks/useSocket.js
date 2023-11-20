@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import io from "socket.io-client";
+import * as io from "socket.io-client";
 
-const SOCKET_BASE_URL = "http://127.0.0.1:8085"
+
 
 export const useSocket = (room, username) => {
   const [socket, setSocket] = useState(null);

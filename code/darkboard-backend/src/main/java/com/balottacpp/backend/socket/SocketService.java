@@ -28,12 +28,6 @@ public class SocketService {
 
     public void createNewGame(SocketIOClient senderClient, String room) {
         gameService.startGame(room, senderClient);
-        for (SocketIOClient client : senderClient.getNamespace().getRoomOperations(room).getClients()) {
-            if (!client.getSessionId().equals(senderClient.getSessionId())) {
-                client.sendEvent("read_message",
-                        "New game started!");
-            }
-        }
     }
 
     public void endGame(SocketIOClient senderClient, String room) {

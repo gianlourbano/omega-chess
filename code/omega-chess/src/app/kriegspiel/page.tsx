@@ -1,9 +1,9 @@
 "use client";
 
-import Game from "@/components/Game";
+import DarkboardGame from "@/components/Darkboard/DarkboardGame";
 
 const Page = () => {
-    return <Game />;
+    return <DarkboardGame />;
 };
 
 export default Page;
