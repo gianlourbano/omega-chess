@@ -2,7 +2,7 @@
 
 import CustomLink from "@/components/CustomLink";
 import { signIn, useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container } from "@mui/material";
@@ -13,6 +13,7 @@ const LoginPage = () => {
     const [error, setError] = useState("");
     const [register, setRegister] = useState(false);
 
+    const router = useRouter();
 
     const requestLogin = async (e: any) => {
         e.preventDefault();
@@ -24,7 +25,7 @@ const LoginPage = () => {
         }).then((data) => {
             data?.error
                 ? credentialsError(e)
-                : redirect("/");
+                : router.push("/");
         });
     };
 

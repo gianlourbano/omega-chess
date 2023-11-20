@@ -30,11 +30,32 @@
 });
  */
 
-import User from "@/db/models/User"
+import User from "@/db/models/User";
+import mongoDriver from "@/db/mongoDriver";
+import bcrypt from "bcrypt";
 
 export async function POST(req: Request) {
-    const {username, password, email} = req.json();
+    await mongoDriver();
 
-    const u = await User.findOne({})
+    const { username, password, email } = await req.json();
 
+    const u = await User.findOne({ username });
+    if (u) {
+        return Response.json("Username already in use.", {status: 400});
+    }
+
+    const e = await User.findOne({ email });
+    if (e) {
+      return Response.json("Email already in use.", {status: 400});
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    //hash password with salt and bcrypt
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = new User({ username, password: hashedPassword, email, salt });
+
+    await user.save();
+
+    return Response.json("User registered successfully", {status: 200})
 }

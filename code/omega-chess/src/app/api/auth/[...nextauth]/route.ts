@@ -1,16 +1,18 @@
+import User from "@/db/models/User";
 import NextAuth from "next-auth";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
+import bcrypt from "bcrypt";
+import mongoDriver from "@/db/mongoDriver";
 
 const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
     },
 
-    // pages: {
-    //     signIn: "/login",
-    // },
+    pages: {
+        signIn: "/login",
+    },
 
     callbacks: {
         async jwt({ token, user, session }) {
@@ -20,7 +22,6 @@ const authOptions: NextAuthOptions = {
                 token.accessToken = user.accessToken;
                 token.refreshToken = user.refreshToken;
                 token.accessTokenExpires = user.accessTokenExpires;
-                token.role = user.role;
                 token.id = user.id;
             }
 
@@ -29,14 +30,12 @@ const authOptions: NextAuthOptions = {
 
         //  The session receives the token from JWT
         async session({ session, token, user }) {
-            
             return {
                 ...session,
                 user: {
                     ...session.user,
                     accessToken: token.accessToken as string,
                     refreshToken: token.refreshToken as string,
-                    role: token.role,
                     id: token.id,
                 },
                 error: token.error,
@@ -54,6 +53,7 @@ const authOptions: NextAuthOptions = {
                     type: "text",
                     placeholder: "jsmith",
                 },
+                email: { label: "email", type: "text" },
                 password: { label: "password", type: "password" },
             },
             async authorize(credentials, req) {
@@ -61,33 +61,78 @@ const authOptions: NextAuthOptions = {
                     return null;
                 }
 
-                const authResponse = await fetch(
-                    "http://localhost:3000/api/users/login",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(credentials),
-                    }
-                );
+				await mongoDriver();
 
-                if (!authResponse.ok) {
+                const user = await User.findOne({
+                    username: credentials.username,
+                });
+
+                if (!user) {
+                    //user not found in database
+
                     return null;
                 }
 
-                const user = authResponse.json();
+                if (!bcrypt.compare(credentials.password, user.password)) {
+                    //wrong password
 
-                return user;
+                    return null;
+                }
+
+                const actualUser = {
+                    username: user.username,
+                    id: user._id,
+                    email: user.email,
+					accessToken: "",
+					refreshToken: "",
+					accessTokenExpires: 0,
+                };
+
+				console.log("User: " ,  actualUser);
+
+                return actualUser;
             },
         }),
     ],
 };
 
+const handler = NextAuth(authOptions);
 
-const  handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
 
-export { handler as GET, handler as POST}
+/**
+ * SQUEALER GIANLO
+ * 
+ * router.post("/login", async (req, res) => {
+    const user = await usersDB.searchUserByName(req.body.username);
+
+    if (!user) {
+        res.status(401).json({
+            ok: false,
+            error: "Username not found",
+        });
+        return;
+    }
+
+    if (!bcrypt.compare(req.body.password, user.password)) {
+        res.status(400).json({
+            ok: false,
+            error: "Wrong password",
+        });
+        return;
+    }
+
+    // what im sending to the session
+    const actualUser = {
+        name: user.name,
+        id: user._id,
+        role: user.role,
+    };
+    res.status(200).json(actualUser);
+});
+ * 
+ * 
+ */
 
 /*  
     //compose
