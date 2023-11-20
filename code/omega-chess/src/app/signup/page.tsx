@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container } from "@mui/material";
+import User from "../../db/models/User";
+//devo capire come unire il tutto
 
 const SignUpPage = () => {
     const [email, setEmail] = useState("");
@@ -81,7 +83,7 @@ const SignUpPage = () => {
             <h1 className="text-3xl text-center">Omega Chess</h1>
             <br/>
             <form className="flex flex-col gap-2">
-            <input
+                <input
                     className="text-slate-800 p-2 rounded-md"
                     id="Email"
                     type="text"
