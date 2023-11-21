@@ -25,6 +25,7 @@ public class SocketModule {
         // server.addEventListener("send_message", Message.class, onChatReceived());
         server.addEventListener("make_move", String.class, onMoveReceived());
         server.addEventListener("start_game", String.class, onReady());
+        server.addEventListener("resign_game", String.class, onResignReceived());    
     }
 
     // private DataListener<Message> onChatReceived() {
@@ -33,6 +34,17 @@ public class SocketModule {
     //         socketService.saveMessage(senderClient, data);
     //     };
     // }
+
+    private DataListener<String> onResignReceived() {
+        return (senderClient, data, ackSender) -> {
+            var params = senderClient.getHandshakeData().getUrlParams();
+            String room = params.get("room").stream().collect(Collectors.joining());
+            String username = params.get("username").stream().collect(Collectors.joining());
+            log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
+                    senderClient.getSessionId().toString(), room, username, data);
+            socketService.resignGame(senderClient, room);
+        };
+    }
 
     private ConnectListener onConnected() {
         return (client) -> {

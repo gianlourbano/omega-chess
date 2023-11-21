@@ -40,6 +40,10 @@ public class SocketService {
         }
     }
 
+    public void resignGame(SocketIOClient senderClient, String room) {
+        gameService.resignGame(room);
+    }
+
     public int getNumberOfGames() {
         return gameService.getNumberOfGames();
     }

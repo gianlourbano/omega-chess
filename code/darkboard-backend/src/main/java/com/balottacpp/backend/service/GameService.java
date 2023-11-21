@@ -34,6 +34,11 @@ public class GameService {
         return games.size();
     }
 
+    public void resignGame(String room) {
+        DarkboardGame game = games.get(room);
+        game.resignGame();
+    }
+
     public void printGameInfo() {
         System.out.println("Number of games: " + games.size());
         for (String key : games.keySet()) {

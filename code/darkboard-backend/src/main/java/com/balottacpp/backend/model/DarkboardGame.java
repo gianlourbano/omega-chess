@@ -19,9 +19,21 @@ import umpire.local.StepwiseLocalUmpire;
 
 public class DarkboardGame {
 
+	SocketIOClient client;
+
     StepwiseLocalUmpire umpire;
 
-    private HumanPlayer player;
+	class SocketPlayer extends HumanPlayer {
+		public SocketPlayer(boolean isWhite) {
+			super(isWhite);
+		}
+
+		public void receiveAftermath(ExtendedPGNGame game) {
+			client.sendEvent("game_over", game.toString());
+		}
+	}
+
+    private SocketPlayer player;
     private String room;
 
     public class ChessboardSocket implements ChessboardStateListener {
@@ -195,10 +207,11 @@ public class DarkboardGame {
 
         UmpireText ut = new UmpireText(client);
         ChessboardSocket cs = new ChessboardSocket(client);
+		this.client = client;
 
 
 
-        player = new HumanPlayer(true);
+        player = new SocketPlayer(true);
         player.addPlayerListener(ut);
         umpire = new StepwiseLocalUmpire(player, new DeepDarkboard101(false, op.openingBookWhite, op.openingBookBlack, "rjay"));
         umpire.addListener(cs);
@@ -215,7 +228,13 @@ public class DarkboardGame {
 			umpire.stepwiseArbitrate(m);
 		}
 		System.out.println("Game Over!");
+		//client.sendEvent("game_over", umpire.transcript.toString());
+		
     }
+
+	public void resignGame() {
+		umpire.resign(player);
+	}
 
     public boolean makeMove(String move) {
         // build move
