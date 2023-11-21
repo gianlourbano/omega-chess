@@ -19,6 +19,8 @@ const PlayDarkboardButton = () => {
                     setStatus("Server offline");
                 }
             }).catch(err => setStatus("Servers are offline!"));
+
+        
     }, []);
 
     const handleClick = () => {

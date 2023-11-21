@@ -76,7 +76,6 @@ const DarkboardGame = ({room }) => {
             
 
         } catch (e) {
-            addMessage(e.message);
             return false;
         }
         return true;
@@ -93,7 +92,7 @@ const DarkboardGame = ({room }) => {
                     id="PlayVsStockfish"
                     position={gamePosition}
                     onPieceDrop={onDrop}
-                    //customPieces={customPieces}
+                    customPieces={customPieces}
                     customBoardStyle={{
                         borderRadius: "5px",
                     }}
@@ -104,7 +103,7 @@ const DarkboardGame = ({room }) => {
 
                 <AutoScrollBox items={messages} className="hidden sm:block">
                     {messages.map((message, index) => (
-                        <p key={index} className="rounded p-2">
+                        <p key={index} className="rounded p-1">
                             {message}
                         </p>
                     ))}

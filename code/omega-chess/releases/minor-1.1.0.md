@@ -1,6 +1,6 @@
 ---
 title: "Minor 1.1.0"
-description: "Second hotfix of Omega Chess."
+description: "Second minor release of Omega Chess."
 version: "1.1.0"
 ---
 

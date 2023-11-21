@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import CustomLink from "../CustomLink";
 import { signOut, useSession } from "next-auth/react";
 import Button from "../Button";
+import { useEffect, useState } from "react";
 
 interface MenuItemProps {
     title: string;
@@ -66,8 +67,53 @@ const Menu = (props: MenuProps) => {
                 <MenuItem disabled title="Settings" />
                 <MenuItem disabled title="About" />
             </div>
+            <Info />
         </motion.div>
     );
 };
+
+const Info = () => {
+    const [serverStatus, setServerStatus] = useState("Offline");
+    const [dbStatus, setDbStatus] = useState("Offline");
+    const [botStatus, setBotStatus] = useState("Offline");
+    const [clientVersion, setClientVersion] = useState("0.0.0");
+    
+    useEffect(() => {
+        fetch(`${process.env.NEXT_PUBLIC_DB_BACKEND_BASE_URL}/healthcheck`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status === "OK") {
+                    setDbStatus("Online");
+                }
+            }).catch(err => {});
+
+            fetch(`${process.env.NEXT_PUBLIC_BOT_BASE_URL}/health`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status === "OK") {
+                    setDbStatus("Online");
+                }
+            }).catch(err => {});
+
+        fetch("/api/healthcheck").then((res) => res.json()).then((data) => {
+            if (data.status === "OK") {
+                setServerStatus("Online");
+            }
+        }).catch(err => {});
+
+        fetch("/api/releases").then((res) => res.json()).then((data) => {
+            setClientVersion(data[0].version)
+        }).catch(err => {});
+    }, [])
+
+    return (
+        <div className="flex flex-col text-md mt-auto">
+            <div className="flex flex-row items-center"><span className={`w-1 h-[90%] rounded-sm mr-1 ${serverStatus === "Offline" ? "bg-red-600" : "bg-green-500"}`}/>Server status: {serverStatus} </div>
+            <div className="flex flex-row items-center"><span className={`w-1 h-[90%] rounded-sm mr-1 ${botStatus === "Offline" ? "bg-red-600" : "bg-green-500"}`}/>Bot status: {botStatus} </div>
+            <div className="flex flex-row items-center"><span className={`w-1 h-[90%] rounded-sm mr-1 ${dbStatus === "Offline" ? "bg-red-600" : "bg-green-500"}`}/>Darkboard status: {dbStatus} </div>
+            <div>Client version: v{clientVersion} </div>
+        </div>
+    );
+}
 
 export default Menu;

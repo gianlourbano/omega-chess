@@ -76,7 +76,7 @@ bot.action('newgame', (ctx) => {
 })
 
 app.get("/health", (req, res) => {
-    res.send("OK");
+    res.send({status: "OK"});
 });
 
 app.listen(process.env.PORT || 4000, () => {
