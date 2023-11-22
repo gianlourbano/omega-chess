@@ -9,7 +9,7 @@ export async function GET(
 
     await mongoDriver();
 
-    const user = await User.findOne({ username: params.username }, "username friends email").populate("friends", "username email");
+    const user = await User.findOne({ username: params.username }, "username friends email scores").populate("friends", "username email");
 
     if (!user) {
         return Response.json("User not found.", { status: 404 });
@@ -24,7 +24,7 @@ export async function PUT(
 ) {
     await mongoDriver();
 
-    const { newUsername, newEmail, oldPassword, newPassword } = await req.json();
+    const { newUsername, newEmail, oldPassword, newPassword, newFriend, removeFriend } = await req.json();
 
     if(newUsername) {
         const old = await User.findOne({username: newUsername})
@@ -61,6 +61,47 @@ export async function PUT(
         user.salt = salt;
         user.password = newpass;
         await user.save();
+    }
+
+    if(newFriend) {
+        if(params.username === newFriend) {
+            return Response.json({error: "\"I just seen a real one and had to add him to my friends\""}, {status: 400})
+        }
+
+        const user = await User.findOne({username: params.username});
+
+        const newf = await User.findOne({username: newFriend})
+
+        if (!newf) {
+            return Response.json({error: "User doesn't exist!"}, {status: 400})
+        }
+
+        if(user.friends.includes(newf._id) || newf.friends.includes(user._id))
+            return Response.json({error: "You are already friends!"}, {status: 400})
+        
+        user.friends.push(newf._id);
+        newf.friends.push(user._id);
+
+        await newf.save();
+        await user.save();
+    }
+
+    if(removeFriend) {
+
+        const friend = await User.findOne({username: removeFriend})
+        const user = await User.findOne({username: params.username})
+
+        
+        try {
+            //remove user from friend's friends
+            friend.friends = friend.friends.filter((f: any) => f.toString() !== user._id.toString())
+            await friend.save();
+            //remove friend from user's friends
+            user.friends = user.friends.filter((f: any) => f.toString() !== friend._id.toString())
+            await user.save();
+        } catch (e) {
+            return Response.json("Error while removing friend", {status: 500})
+        }
     }
 
     return Response.json("OK", {status: 200})

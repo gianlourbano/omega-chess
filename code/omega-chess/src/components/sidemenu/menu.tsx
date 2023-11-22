@@ -48,8 +48,8 @@ const Menu = (props: MenuProps) => {
             <hr />
             {session && session.user && (
                 <>
-                    <div className="p-4">
-                        <div>Welcome back, {session?.user.username}</div>
+                    <div className="p-4 gap-2 flex flex-col items-center justify-evenly">
+                        <div className="font-bold">Welcome back, {session?.user.username}</div>
                         <Button color="secondary" onClick={() => signOut({callbackUrl: "/login"})}>
                             Logout
                         </Button>
@@ -60,8 +60,8 @@ const Menu = (props: MenuProps) => {
             <div className="p-4 flex flex-col gap-2">
                 <MenuItem title="Kriegspiel Rules" href="/kriegspiel/rules" />
                 <MenuItem title="Releases" href="/releases" />
-                <MenuItem title="Profile" href="/profile" />
-                <MenuItem title="Login / SignUp" href="/login" />
+                { session && <MenuItem title="Profile" href="/profile" />}
+                {!session && <MenuItem title="Login / SignUp" href="/login" />}
                 <MenuItem disabled title="Games" />
                 <MenuItem disabled title="Leaderboard" />
                 <MenuItem disabled title="Settings" />

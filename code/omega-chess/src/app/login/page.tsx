@@ -12,7 +12,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [register, setRegister] = useState(false);
-
+    
     const router = useRouter();
 
     const requestLogin = async (e: any) => {
@@ -57,6 +57,7 @@ const LoginPage = () => {
                     type="text"
                     name="Username"
                     placeholder="Username"
+                    value={username}
                     onChange={(e) => setUsername(e.target.value)}
                 />
                 <input
