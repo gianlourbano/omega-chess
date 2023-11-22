@@ -8,6 +8,9 @@ import * as io from "socket.io-client";
 import GameTranscript from "./GameTranscript";
 import { useSession } from "next-auth/react";
 import Button from "../Button";
+import CustomDialog from "../CustomDialog";
+
+import { useNewGame } from "@/components/Darkboard/PlayDarkboard";
 
 const hidden = {
     bK: () => {
@@ -30,14 +33,31 @@ const hidden = {
     },
 };
 
+const GameOverDialog = ({ open, setOpen, transcript }) => {
+    const { isLoading: newGameLoading, startGame } = useNewGame();
+
+    return (
+        <CustomDialog
+            open={open}
+            handleContinue={() => setOpen(false)}
+            actions={
+                <Button color="primary" onClick={() => startGame("darkboard")}>
+                    New Game
+                </Button>
+            }
+        >
+            <GameTranscript transcript={transcript} />
+        </CustomDialog>
+    );
+};
+
 const DarkboardGame = ({ room }) => {
     const [socket, setSocket] = useState(null);
     const [gameOver, setGameOver] = useState(false);
     const [transcript, setTranscript] = useState();
+    const [gameOverDialog, setGameOverDialog] = useState(false);
 
     const { data: session, status } = useSession();
-
-   
 
     useEffect(() => {
         const s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
@@ -45,7 +65,7 @@ const DarkboardGame = ({ room }) => {
             query: {
                 username: session ? session.user.username : "guest",
                 room: room,
-            }
+            },
         });
         setSocket(s);
 
@@ -60,6 +80,14 @@ const DarkboardGame = ({ room }) => {
         s.on("read_message", (data) => addMessage(data));
 
         return () => {
+            fetch("/api/games/lobby", {
+                method: "DELETE",
+                header: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ room: room }),
+            });
+            s.emit("game_finished");
             s.disconnect();
         };
     }, []);
@@ -76,20 +104,26 @@ const DarkboardGame = ({ room }) => {
 
         // escape all quotes in the pgn
         //const escaped = data.replace(/"/g, '\"')
-        if(session && session.user) {
+        if (session && session.user) {
             fetch(`/api/users/${session.user.username}/games`, {
                 method: "PUT",
                 header: {
-                    "Content-Type": "text/plain"
+                    "Content-Type": "text/plain",
                 },
-                body: data
-            }).then(res => res.json()).then((res) => {
-                res === "OK" ? alert("Game saved!") : alert("Game not saved!")
+                body: data,
             })
-        } else {
-            alert("User not logged in!")
+
+            fetch("/api/games/lobby", {
+                method: "DELETE",
+                header: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ room: room }),
+            });
         }
-    }
+
+        setGameOverDialog(true);
+    };
 
     const addMessage = (message) => {
         setMessages((messages) => [...messages, message]);
@@ -125,49 +159,61 @@ const DarkboardGame = ({ room }) => {
         return <div>Unauthenticated!</div>;
     }
 
-
-
     if (status === "error") {
         return <div>Error!</div>;
     }
 
     return (
         <>
-        {status === "authenticated" && <div className="text-center text-2xl">Playing as {session.user.username}</div>}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
-            <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
-                <Chessboard
-                    id="PlayVsStockfish"
-                    position={gamePosition}
-                    onPieceDrop={onDrop}
-                    customPieces={customPieces}
-                    customBoardStyle={{
-                        borderRadius: "5px",
-                    }}
-                />
-                {gameOver && <GameTranscript transcript={transcript} />}
-            </div>
-            <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
-                <h1 className="text-3xl text-center">Umpire</h1>
+            {status === "authenticated" && (
+                <div className="text-center text-2xl">
+                    Playing as {session.user.username}
+                </div>
+            )}
+            <GameOverDialog
+                open={gameOverDialog}
+                setOpen={setGameOverDialog}
+                transcript={transcript}
+            />
 
-                <Button color="secondary" onClick={() => socket.emit("resign_game")}>Resign</Button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
+                <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
+                    <Chessboard
+                        id="PlayVsStockfish"
+                        position={gamePosition}
+                        onPieceDrop={onDrop}
+                        customPieces={customPieces}
+                        customBoardStyle={{
+                            borderRadius: "5px",
+                        }}
+                    />
+                </div>
+                <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
+                    <h1 className="text-3xl text-center">Umpire</h1>
 
-                <AutoScrollBox items={messages} className="hidden sm:block">
-                    {messages.map((message, index) => (
-                        <p key={index} className="rounded p-1">
-                            {message}
-                        </p>
-                    ))}
-                </AutoScrollBox>
-                <div className="sm:hidden flex flex-col-reverse gap-1 overflow-y-auto">
-                    {messages.map((message, index) => (
-                        <p key={index} className="rounded p-2">
-                            {message}
-                        </p>
-                    ))}
+                    <Button
+                        color="secondary"
+                        onClick={() => socket.emit("resign_game")}
+                    >
+                        Resign
+                    </Button>
+
+                    <AutoScrollBox items={messages} className="hidden sm:block">
+                        {messages.map((message, index) => (
+                            <p key={index} className="rounded p-1">
+                                {message}
+                            </p>
+                        ))}
+                    </AutoScrollBox>
+                    <div className="sm:hidden flex flex-col-reverse gap-1 overflow-y-auto">
+                        {messages.map((message, index) => (
+                            <p key={index} className="rounded p-2">
+                                {message}
+                            </p>
+                        ))}
+                    </div>
                 </div>
             </div>
-        </div>
         </>
     );
 };
