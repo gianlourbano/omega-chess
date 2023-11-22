@@ -18,7 +18,7 @@ const FriendList = (props: FriendListProps) => {
                 </Button>
             </div>
             <ul>
-                {props.friends.map((friend) => (
+                {props.friends?.map((friend) => (
                 <li className="flex text-xl justify-between pb-2"
                     key={friend}>
                     <CustomLink
