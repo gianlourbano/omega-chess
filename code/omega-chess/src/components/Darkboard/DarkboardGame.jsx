@@ -9,6 +9,8 @@ import GameTranscript from "./GameTranscript";
 import { useSession } from "next-auth/react";
 import Button from "../Button";
 import CustomDialog from "../CustomDialog";
+import DarkboardTimer from "./DarkboardTimer";
+import useStopwatch from "@/hooks/useStopwatch";
 
 import { useNewGame } from "@/components/Darkboard/PlayDarkboard";
 
@@ -70,7 +72,17 @@ const DarkboardGame = ({ room }) => {
         setSocket(s);
 
         s.on("chessboard_changed", (data) => {
-            setGamePosition(data);
+                setGamePosition(data);
+                //get turn from FEN string
+                const turn = data.split(" ")[1];
+                console.log(turn);
+                if (turn === "b") {
+                    whitePlayerTimer.stop();
+                    blackPlayerTimer.start();
+                } else {
+                    whitePlayerTimer.start();
+                    blackPlayerTimer.stop();
+                }
         });
 
         s.on("game_over", (data) => {
@@ -94,13 +106,18 @@ const DarkboardGame = ({ room }) => {
 
     useEffect(() => {
         if (socket) {
-            socket.emit("start_game");
+            socket.emit("start_game", () => {
+                whitePlayerTimer.start();
+                blackPlayerTimer.stop();
+            });
         }
     }, [socket]);
 
     const handleGameOver = (data) => {
         setGameOver(true);
         setTranscript(data);
+        blackPlayerTimer.stop();
+        whitePlayerTimer.stop();
 
         // escape all quotes in the pgn
         //const escaped = data.replace(/"/g, '\"')
@@ -111,7 +128,7 @@ const DarkboardGame = ({ room }) => {
                     "Content-Type": "text/plain",
                 },
                 body: data,
-            })
+            });
 
             fetch("/api/games/lobby", {
                 method: "DELETE",
@@ -151,6 +168,10 @@ const DarkboardGame = ({ room }) => {
     const [customPieces, setCustomPieces] = useState(hidden);
     const [messages, setMessages] = useState([]);
 
+    const whitePlayerTimer = useStopwatch(1000 * 60);
+
+    const blackPlayerTimer = useStopwatch(1000 * 60);
+
     if (status === "loading") {
         return <div>Loading...</div>;
     }
@@ -178,6 +199,10 @@ const DarkboardGame = ({ room }) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
                 <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
+                    <Button color="primary" onClick={() => switchPlayer()}>
+                        Switch
+                    </Button>
+                    <DarkboardTimer timer={blackPlayerTimer} />
                     <Chessboard
                         id="PlayVsStockfish"
                         position={gamePosition}
@@ -187,6 +212,7 @@ const DarkboardGame = ({ room }) => {
                             borderRadius: "5px",
                         }}
                     />
+                    <DarkboardTimer timer={whitePlayerTimer} />
                 </div>
                 <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
                     <h1 className="text-3xl text-center">Umpire</h1>

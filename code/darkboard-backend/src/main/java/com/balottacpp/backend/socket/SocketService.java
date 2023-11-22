@@ -26,8 +26,8 @@ public class SocketService {
         return gameService.makeMove(room, move);
     }
 
-    public void createNewGame(SocketIOClient senderClient, String room) {
-        gameService.startGame(room, senderClient);
+    public void createNewGame(SocketIOClient senderClient, String whitePlayer, String blackPlayer, String room) {
+        gameService.startGame(room, whitePlayer, blackPlayer, senderClient);
     }
 
     public void endGame(SocketIOClient senderClient, String room) {

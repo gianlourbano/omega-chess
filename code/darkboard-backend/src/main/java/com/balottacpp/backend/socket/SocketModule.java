@@ -80,7 +80,9 @@ public class SocketModule {
             String username = params.get("username").stream().collect(Collectors.joining());
             log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
                     senderClient.getSessionId().toString(), room, username, data);
-            socketService.createNewGame(senderClient, room);
+                    ackSender.sendAckData();
+            socketService.createNewGame(senderClient, username, "Darkboard", room);
+
         };
     }
 

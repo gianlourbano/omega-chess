@@ -14,9 +14,9 @@ import lombok.RequiredArgsConstructor;
 public class GameService {
     private final HashMap<String, DarkboardGame> games = new HashMap<>();
 
-    public void startGame(String room, SocketIOClient client) {
+    public void startGame(String room, String whitePlayer, String blackPlayer, SocketIOClient client) {
 
-        DarkboardGame game = new DarkboardGame(room, client);
+        DarkboardGame game = new DarkboardGame(room, whitePlayer, blackPlayer, client);
         games.put(room, game);
         game.startGame();
     }
