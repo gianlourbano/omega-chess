@@ -44,25 +44,12 @@ public class DarkboardGame {
         }
 
         public void chessboardStateChanged() {
-            System.out.println("Chessboard state changed - " + client.getSessionId().toString());
             client.sendEvent("chessboard_changed", umpire.toFen());
         }
     }
 
     public class UmpireText implements PlayerListener {
         SocketIOClient client;
-        String text = "";
-
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-            System.out.println("Sending text: " + text);
-            client.sendEvent("read_message", text);
-        }
 
         boolean finished=false;
         

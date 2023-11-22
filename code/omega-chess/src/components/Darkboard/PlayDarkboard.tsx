@@ -4,32 +4,21 @@ import { useState, useEffect } from "react";
 import Button from "../Button";
 import Spinner from "../Spinner";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-const PlayDarkboardButton = () => {
+export const useNewGame = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [status, setStatus] = useState("");
-
     const router = useRouter();
 
-    useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_DB_BACKEND_BASE_URL}/healthcheck`)
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.status !== "OK") {
-                    setStatus("Server offline");
-                }
-            }).catch(err => setStatus("Servers are offline!"));
+    const {data: session} = useSession();
 
-        
-    }, []);
-
-    const handleClick = () => {
+    const startGame = (gameType: string) => {
         setIsLoading(true);
         fetch("/api/games/lobby", {
             method: "POST",
             body: JSON.stringify({
-                gameType: "darkboard",
-                player: "gianlo",
+                gameType,
+                player: session && session.user && session.user.username,
             }),
             headers: {
                 "Content-Type": "application/json",
@@ -44,11 +33,31 @@ const PlayDarkboardButton = () => {
             .finally(() => setIsLoading(false));
     };
 
+    return { isLoading, startGame };
+}
+
+const PlayDarkboardButton = () => {
+    const [status, setStatus] = useState("");
+    
+    useEffect(() => {
+        fetch(`${process.env.NEXT_PUBLIC_DB_BACKEND_BASE_URL}/healthcheck`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status !== "OK") {
+                    setStatus("Server offline");
+                }
+            }).catch(err => setStatus("Servers are offline!"));
+
+        
+    }, []);
+
+    const { isLoading, startGame } = useNewGame();
+
     return (
         <>
             <Button
                 color="secondary"
-                onClick={handleClick}
+                onClick={() => startGame("darkboard")}
                 disabled={status !== ""}
             >
                 {isLoading ? <Spinner /> : " Play with Darkboard"}

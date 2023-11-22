@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   scores: {
     wins: { type: Number, default: 0 },
-    loses: { type: Number, default: 0 },
+    losses: { type: Number, default: 0 },
     draws: { type: Number, default: 0 },
   },
   registeredAt: { type: Date, default: Date.now },

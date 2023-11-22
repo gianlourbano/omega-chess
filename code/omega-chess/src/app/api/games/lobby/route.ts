@@ -13,17 +13,24 @@ export async function POST(req: Request) {
     const old = await GameLobby.findOne({$or: [{"whitePlayer": player}, {"blackPlayer": player}]})
 
     if(old) {
-        return Response.json({id: old._id})
+        return Response.json({id: old._id, whitePlayer: old.whitePlayer, blackPlayer: old.blackPlayer})
     }
 
     const newGame = new GameLobby({
         lobbyType: gameType,
         whitePlayer: player,
-        blackPlayer: null,
+        blackPlayer: gameType==="darkboard" ? "darkboard" : null,
         lookingForPlayer: gameType!=="darkboard",
     })
 
     const {_id} = await newGame.save()
 
-    return Response.json({id: _id})
+    return Response.json({id: _id, whitePlayer: newGame.whitePlayer, blackPlayer: newGame.blackPlayer})
+}
+
+export async function DELETE(req: Request) {
+    await mongoDriver()
+    const {room}: {room: string} = await req.json()
+    await GameLobby.findByIdAndDelete(room)
+    return Response.json("OK")
 }
