@@ -4,9 +4,11 @@ import Spinner from "@/components/Spinner";
 import useSWR from "swr";
 import styles from "@/styles/FriendProfile.module.css";
 import Image from "next/image";
-import { calculateWinRate } from "@/app/profile/page";
 
-
+function calculateWinRate(wins: number, losses: number, draws: number) {
+    if (wins + losses + draws === 0) return 0
+    else return Math.round(((wins + (0.5 * draws)) / (wins + losses + draws)) * 100);
+}
 export default function Page({params}: {params: {username: string}}) {
 
     const fetcher = (url: string) => fetch(url).then((r) => r.json());

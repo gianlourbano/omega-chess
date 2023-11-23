@@ -11,7 +11,7 @@ import styles from "@/styles/Profile.module.css";
 import useSWR from "swr";
 import Spinner from "@/components/Spinner";
 
-export function calculateWinRate(wins: number, losses: number, draws: number) {
+function calculateWinRate(wins: number, losses: number, draws: number) {
     if (wins + losses + draws === 0) return 0
     else return Math.round(((wins + (0.5 * draws)) / (wins + losses + draws)) * 100);
 }
