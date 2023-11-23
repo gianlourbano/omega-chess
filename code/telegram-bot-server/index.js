@@ -3,10 +3,12 @@ const { Telegraf } = require('telegraf');
 const dotenv = require('dotenv');
 const { Markup } = require('telegraf');
 const { Context } = require('telegraf');
+const cors = require('cors');
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 
 const bot = new Telegraf(process.env.TELEGRAM_API_TOKEN);
 
@@ -76,7 +78,7 @@ bot.action('newgame', (ctx) => {
 })
 
 app.get("/health", (req, res) => {
-    res.send("OK");
+    res.send({status: "OK"});
 });
 
 app.listen(process.env.PORT || 4000, () => {

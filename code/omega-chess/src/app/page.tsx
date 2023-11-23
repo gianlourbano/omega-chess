@@ -4,6 +4,7 @@ import Image from "next/image";
 import Button from "@/components/Button";
 import Releases from "@/components/Releases";
 import MobileMenu from "@/components/sidemenu/mobileMenu";
+import PlayDarkboardButton from "@/components/Darkboard/PlayDarkboard";
 
 
 export default function Home() {
@@ -27,9 +28,7 @@ export default function Home() {
                             <Button color="primary" disabled>
                                 Play Online
                             </Button>
-                            <Button color="secondary" link="/kriegspiel">
-                                Play Computer
-                            </Button>
+                            <PlayDarkboardButton />
                         </div>
                     </div>
                 </div>

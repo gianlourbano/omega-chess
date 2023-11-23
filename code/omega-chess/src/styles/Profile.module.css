@@ -1,0 +1,68 @@
+.profile {
+    grid-area: profile;
+}
+
+.friends {
+    grid-area: friends;
+}
+
+.stats {
+    grid-area: stats;
+}
+
+.edit {
+    grid-area: edit;
+}
+
+@media screen and (min-width: 1100px) {
+    .container {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        grid-template-areas:
+            "profile profile profile friends"
+            "stats stats stats friends"
+            "stats stats stats friends"
+            "stats stats stats friends"
+    }
+
+    .container_edit {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        grid-template-areas:
+            "profile profile profile friends"
+            "edit edit edit friends"
+            "stats stats stats friends"
+            "stats stats stats friends"
+    }
+}
+
+@media screen and (max-width: 1099px) {
+    .container {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(1, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        grid-template-areas:
+            "profile"
+            "stats"
+            "stats"
+            "friends"
+    }
+
+    .container_edit {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(1, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        grid-template-areas:
+            "profile"
+            "edit"
+            "stats"
+            "stats"
+            "friends"
+    }
+}
