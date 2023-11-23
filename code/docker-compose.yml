@@ -5,7 +5,7 @@ services:
       context: ./omega-chess/
     image: chess:1.0
     networks:
-      - default
+      - app-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f https://localhost/api/health || exit 1"]
@@ -18,7 +18,7 @@ services:
     image: mongo:latest
     container_name: mongo
     networks:
-      - default
+      - app-network
     restart: unless-stopped
     ports:
       - "27017:27017"
@@ -31,8 +31,9 @@ services:
       context: ./telegram-bot-server/
     image: tbot:1.0
     networks:
-      - default
+      - app-network
     restart: unless-stopped
+    
     healthcheck:
       test: ["CMD-SHELL", "curl -f https://localhost/health || exit 1"]
       interval: 1m30s
@@ -40,14 +41,20 @@ services:
       retries: 3
       start_period: 40s
   
-  db-backend:
-    container_name: darkboard-backend
+  dbback:
+    container_name: dbback
     build:
       context: ./darkboard-backend/
     image: darkboard-backend:1.0
     networks:
-      - default
+      - app-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f https://localhost/health || exit 1"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   nginx:
     user: root
@@ -61,7 +68,7 @@ services:
       - "443:443"
     restart: always
     networks:
-      - default
+      - app-network
     healthcheck:
       test: ["CMD", "service", "nginx", "status"]
       interval: 1m30s
@@ -73,3 +80,7 @@ services:
 volumes:
   data01:
     driver: local
+
+networks:
+  app-network:
+    driver: bridge

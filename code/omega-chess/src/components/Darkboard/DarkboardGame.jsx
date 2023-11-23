@@ -68,21 +68,22 @@ const DarkboardGame = ({ room }) => {
                 username: session ? session.user.username : "guest",
                 room: room,
             },
+            path: process.env.NEXT_PUBLIC_SOCKETIO_PATH,
         });
         setSocket(s);
 
         s.on("chessboard_changed", (data) => {
-                setGamePosition(data);
-                //get turn from FEN string
-                const turn = data.split(" ")[1];
-                console.log(turn);
-                if (turn === "b") {
-                    whitePlayerTimer.stop();
-                    blackPlayerTimer.start();
-                } else {
-                    whitePlayerTimer.start();
-                    blackPlayerTimer.stop();
-                }
+            setGamePosition(data);
+            //get turn from FEN string
+            const turn = data.split(" ")[1];
+            console.log(turn);
+            if (turn === "b") {
+                whitePlayerTimer.stop();
+                blackPlayerTimer.start();
+            } else {
+                whitePlayerTimer.start();
+                blackPlayerTimer.stop();
+            }
         });
 
         s.on("game_over", (data) => {
@@ -197,11 +198,11 @@ const DarkboardGame = ({ room }) => {
                 transcript={transcript}
             />
 
-
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
                 <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
-                    <Button color="primary" onClick={() => setCustomPieces({})}>Show opponent</Button>
+                    <Button color="primary" onClick={() => setCustomPieces({})}>
+                        Show opponent
+                    </Button>
                     <DarkboardTimer timer={blackPlayerTimer} />
                     <Chessboard
                         id="PlayVsStockfish"

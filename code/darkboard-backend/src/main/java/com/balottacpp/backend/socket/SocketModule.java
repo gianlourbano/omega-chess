@@ -107,6 +107,7 @@ public class SocketModule {
             log.info("Socket ID[{}] - room[{}] - username [{}]  discnnected to chat module through",
                     client.getSessionId().toString(), room, username);
             client.leaveRoom(room);
+            socketService.endGame(client, room);
             socketService.printGameInfo();
         };
     }
