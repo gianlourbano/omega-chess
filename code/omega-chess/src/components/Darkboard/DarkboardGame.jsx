@@ -198,6 +198,8 @@ const DarkboardGame = ({ room }) => {
                 transcript={transcript}
             />
 
+
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
                 <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
                     <Button color="primary" onClick={() => setCustomPieces({})}>
