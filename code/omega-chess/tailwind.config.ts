@@ -14,7 +14,15 @@ const config: Config = {
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
     },
+    gridTemplateAreas: {
+      'dev-content': [
+        'opts board',
+        'stats board'
+      ]
+    }
   },
-  plugins: []
+  plugins: [
+    require('@savvywombat/tailwindcss-grid-areas')
+  ]
 }
 export default config
