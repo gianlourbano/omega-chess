@@ -5,6 +5,7 @@ import Button from "@/components/Button";
 import Releases from "@/components/Releases";
 import MobileMenu from "@/components/sidemenu/mobileMenu";
 import PlayDarkboardButton from "@/components/Darkboard/PlayDarkboard";
+import PlayOnlineButton from "@/components/OnlineGame/PlayOnline";
 
 
 export default function Home() {
@@ -25,9 +26,7 @@ export default function Home() {
                             The more you fuck around the more you find out!
                         </p>
                         <div className="flex flex-col gap-2 w-[50%]">
-                            <Button color="primary" disabled>
-                                Play Online
-                            </Button>
+                            <PlayOnlineButton />
                             <PlayDarkboardButton />
                         </div>
                     </div>
