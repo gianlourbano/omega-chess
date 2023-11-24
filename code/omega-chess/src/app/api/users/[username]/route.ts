@@ -24,7 +24,13 @@ export async function PUT(
 ) {
     await mongoDriver();
 
-    const { newUsername, newEmail, oldPassword, newPassword, newFriend, removeFriend } = await req.json();
+    const { newUsername, newEmail, oldPassword, newPassword, newFriend, removeFriend, developer } = await req.json();
+
+    if(developer) {
+        const user = await User.findOne({username: params.username})
+        user.role = "developer";
+        await user.save();
+    }
 
     if(newUsername) {
         const old = await User.findOne({username: newUsername})
