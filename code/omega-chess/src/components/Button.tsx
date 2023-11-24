@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { FormEvent } from "react";
 
 interface ButtonProps {
     color: string;
-    onClick?: () => void;
+    onClick?: (e?: FormEvent<Element>) => void;
     children?: React.ReactNode;
     disabled?: boolean;
     link?: string;
