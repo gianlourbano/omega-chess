@@ -1,0 +1,31 @@
+---
+title: "Socket.io Client"
+description: "A simple example of how to connect to our Darkboard Server."
+---
+const io = require("socket.io-client");
+
+const socket = io("https://omega-chess.ddns.net", {
+    reconnection: false,
+    query: {
+        username: "your-fancy-username",
+        token: "your-api-token",
+    },
+    path: "/api/db/games/socket/",
+});
+
+socket.on("connect", () => {
+    console.log("Connected!");
+    socket.emit("start_game");
+});
+
+socket.on("chessboard_changed", (fen) => {
+    console.log("Chessboard changed to: " + fen);
+});
+
+socket.on("read_message", (message) => {
+    console.log("New message: " + message);
+});
+
+socket.on("connect_error", (err) => {
+    console.log(err);
+});
