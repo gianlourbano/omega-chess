@@ -26,6 +26,7 @@ export default function Home() {
                             The more you fuck around the more you find out!
                         </p>
                         <div className="flex flex-col gap-2 w-[50%]">
+                            <Button color= "primary">Play with Frends</Button>
                             <PlayOnlineButton />
                             <PlayDarkboardButton />
                         </div>

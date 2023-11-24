@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import GameLobby from "@/db/models/GameLobby"
-import mongoDriver from "@/db/mongoDriver";
 
 /*
 returns the id of the lobby found
@@ -20,44 +19,31 @@ export const findGame =  () =>  {
     const { data: session, status } = useSession();
     
     const findLobby =  async () => {
-        await mongoDriver();
-        let lobbyId = "";
-        /*
+        
         //first, look if there are open lobbies
-        const openLobby = await GameLobby.findOne({lookingForPlayer : true}) //TODO: aggiungere il rating
+        let lobbyId = await fetch("api/games/lobby",{
+            method: "POST",
+            body: JSON.stringify({
+                gameType : "online",
+                player: session && session.user && session.user.username,
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                return data.id
+        })
             /* TODO:
             consider ELO rating
-            *
-    
-        //then,
-            //if there is an open lobby, use that one
-            if(openLobby) {
-                lobbyId = openLobby._id;
-                return lobbyId;
-            }
-    
-            //else, create a new lobby
-            else {
-                setIsLoading(true);
-                lobbyId = await fetch("api/games/lobby",{
-                    method: "POST",
-                    body: JSON.stringify({
-                        gameType : "online",
-                        player: session && session.user && session.user.username,
-                    }),
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                })
-                    .then((res) => res.json())
-                    .then((data) => {
-                        return data.id
-                })
-            };
-        */
+            */
+        
+        console.log("[2] lobbyId: ", lobbyId)   //DEBUG
+
+            
         return lobbyId;
     }
-
     const startGame = async () =>{
         const lobbyId = await findLobby();
         router.push(`/kriegspiel/${lobbyId}`)
@@ -77,7 +63,7 @@ const PlayOnlineButton = () =>{
                 if(data.status !== "OK"){
                     setStatus("Server offline");
                 }
-            }).catch(err => setStatus("Servers are offline!!"));
+            })//.catch((err)=>{ setStatus("Server offline")});
     },[]);
 
     const { isLoading, startGame } = findGame();
@@ -86,8 +72,8 @@ const PlayOnlineButton = () =>{
         <div>
             <Button
                 color="primary"
+                onClick={() => startGame()}
                 disabled={status !== ""}
-                onclick={findGame()}
             >
                 {isLoading ? <Spinner/> : "Play Online"}
             </Button>
