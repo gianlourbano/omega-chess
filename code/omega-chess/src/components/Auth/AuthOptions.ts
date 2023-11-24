@@ -4,7 +4,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import mongoDriver from "@/db/mongoDriver";
 
-
 const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
@@ -15,10 +14,26 @@ const authOptions: NextAuthOptions = {
     },
 
     callbacks: {
-        async jwt({ token, user, session }) {
+        async jwt({ token, trigger, user, session }) {
             // the processing of JWT occurs before handling sessions.
+            if (trigger === "update") {
+                await mongoDriver();
+                const u = await User.findById(
+                    session.user.id,
+                    "username email role _id"
+                );
+                console.log(u);
+
+                token.role = u.role;
+                token.id = u._id;
+                token.username = u.username;
+                token.email = u.email;
+
+                return token;
+            }
 
             if (user) {
+                token.role = user.role;
                 token.accessToken = user.accessToken;
                 token.refreshToken = user.refreshToken;
                 token.accessTokenExpires = user.accessTokenExpires;
@@ -41,7 +56,7 @@ const authOptions: NextAuthOptions = {
                     id: token.id,
                     username: token.username,
                     email: token.email,
-                    
+                    role: token.role,
                 },
                 error: token.error,
             };
@@ -66,11 +81,14 @@ const authOptions: NextAuthOptions = {
                     return null;
                 }
 
-				await mongoDriver();
+                await mongoDriver();
 
-                const user = await User.findOne({
-                    username: credentials.username,
-                }, "username email password");
+                const user = await User.findOne(
+                    {
+                        username: credentials.username,
+                    },
+                    "username email password role"
+                );
 
                 if (!user) {
                     //user not found in database
@@ -88,12 +106,13 @@ const authOptions: NextAuthOptions = {
                     username: user.username,
                     id: user._id,
                     email: user.email,
-					accessToken: "",
-					refreshToken: "",
-					accessTokenExpires: 0,
+                    role: user.role,
+                    accessToken: "",
+                    refreshToken: "",
+                    accessTokenExpires: 0,
                 };
 
-				console.log("User: " ,  actualUser);
+                console.log("User: ", actualUser);
 
                 return actualUser;
             },
@@ -101,4 +120,4 @@ const authOptions: NextAuthOptions = {
     ],
 };
 
-export default authOptions
+export default authOptions;
