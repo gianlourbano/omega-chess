@@ -11,12 +11,14 @@ interface MenuItemProps {
     title: string;
     href?: string;
     disabled?: boolean;
+    icon?: string;
 }
 
 const MenuItem = (props: MenuItemProps) => {
     return (
         <motion.h1 whileHover={{ scale: 1.05 }} className="text-xl">
             <CustomLink
+                icon={props.icon}
                 disabled={props.disabled}
                 href={`${props.href ? props.href : "/" + props.title}`}
             >
@@ -62,6 +64,7 @@ const Menu = (props: MenuProps) => {
                 <MenuItem title="Releases" href="/releases" />
                 { session && <MenuItem title="Profile" href="/profile" />}
                 {!session && <MenuItem title="Login / SignUp" href="/login" />}
+                <MenuItem title="Developer"  href="/developer" icon="/experiment.png"/>
                 <MenuItem disabled title="Games" />
                 <MenuItem disabled title="Leaderboard" />
                 <MenuItem disabled title="Settings" />
