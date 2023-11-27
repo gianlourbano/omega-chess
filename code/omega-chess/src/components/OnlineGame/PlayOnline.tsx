@@ -2,7 +2,7 @@
 
 import Button from "../Button";
 import Spinner from "../Spinner";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import GameLobby from "@/db/models/GameLobby"
@@ -35,18 +35,21 @@ export const findGame =  () =>  {
             .then((data) => {
                 return data.id
         })
+        .catch((err) => console.log(err))
+        //TODO: handle error (non so se serve effettivamente gestirlo)
+        .finally(() => setIsLoading(false));
             /* TODO:
             consider ELO rating
             */
         
-        console.log("[2] lobbyId: ", lobbyId)   //DEBUG
-
             
         return lobbyId;
     }
+
     const startGame = async () =>{
         const lobbyId = await findLobby();
-        router.push(`/kriegspiel/${lobbyId}`)
+        
+        router.push(`/kriegspiel/online/${lobbyId}`)
     }
 
     return { isLoading, startGame };
@@ -56,21 +59,25 @@ const PlayOnlineButton = () =>{
     
     const[status, setStatus] = useState("");
 
+    /*
     useEffect(()=>{
+        
         fetch(`${process.env.NEXT_PUBLIC_DB_BACKEND_BASE_URL}/healthcheck}`)
             .then((res)=> res.json())
             .then((data)=>{
                 if(data.status !== "OK"){
                     setStatus("Server offline");
                 }
-            })//.catch((err)=>{ setStatus("Server offline")});
+            }).catch((err)=>{ setStatus("Server offline")});
     },[]);
+    */
 
     const { isLoading, startGame } = findGame();
 
     return(
         <div>
             <Button
+                className="w-full"
                 color="primary"
                 onClick={() => startGame()}
                 disabled={status !== ""}

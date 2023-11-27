@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     await mongoDriver()
     const {gameType, player}: GameLobbyRequestData = await req.json()
     
-    //reconnection
+    //handles reconnection:
     //if player is already in a lobby
     const old = await GameLobby.findOne({$or: [{"whitePlayer": player}, {"blackPlayer": player}]})
 
@@ -26,6 +26,7 @@ export async function POST(req: Request) {
             const firstLobby = openLobbies[0]
             if (firstLobby.whitePlayer) firstLobby.blackPlayer = player
             else firstLobby.whitePlayer = player
+            firstLobby.lookingForPlayer = false
             await firstLobby.save()
             return Response.json({id: firstLobby._id, whitePlayer: firstLobby.whitePlayer, blackPlayer: firstLobby.blackPlayer})
         }
