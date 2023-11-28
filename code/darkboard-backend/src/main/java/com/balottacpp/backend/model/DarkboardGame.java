@@ -95,7 +95,8 @@ public class DarkboardGame {
 		}
 
 		public void communicateIllegalMove(Player p, Move m) {
-			// TODO Auto-generated method stub
+			String s = m.toString();
+			preAppend("Illegal move: " + s);
 		}
 
 		public void communicateLegalMove(Player p, int capture, int oppTries, int oppCheck, int oppCheck2) {

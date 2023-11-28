@@ -52,7 +52,7 @@ export async function POST(
         creatingUser.developer.customs.push(newdevbot._id);
         await creatingUser.save();
     } catch (e) {
-        return Response.json(e, { status: 500 });
+        return Response.json(e, { status: 400 });
     }
 
     return Response.json("OK", { status: 200 });

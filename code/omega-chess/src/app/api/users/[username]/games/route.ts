@@ -1,3 +1,4 @@
+import Game from "@/db/models/Game";
 import User from "@/db/models/User";
 import mongoDriver from "@/db/mongoDriver";
 import { NextRequest } from "next/server";
@@ -38,7 +39,16 @@ export async function PUT(req: NextRequest, { params }: { params: { username: st
             break;
     }
 
-    user.games.push(game);
+    const gameData = await Game.create({
+        gamemode: "kriegspiel",
+        whitePlayer,
+        blackPlayer,
+        pgn,
+        result,
+    })
+
+    await gameData.save();
+    user.games.push(gameData._id);
 
     await user.save();
 

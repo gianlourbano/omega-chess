@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
         draws: { type: Number, default: 0 },
     },
     registeredAt: { type: Date, default: Date.now },
-    games: { type: Array, default: [] },
+    games: [{ type: mongoose.Schema.Types.ObjectId, ref: "Game" }],
     developer: {
         token: { type: mongoose.Schema.Types.ObjectId, ref: "Token" },
         customs: [{ type: mongoose.Schema.Types.ObjectId, ref: "DeveloperCustom", default: [] }],
