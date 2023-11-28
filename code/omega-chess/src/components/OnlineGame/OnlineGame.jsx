@@ -107,9 +107,9 @@ const OnlineGame = ({ room }) => {
                     
                 }
             }).catch((error) => {console.error("Errore nel recupero del colore della lobby:", error);});
-    }, []);  // Aggiungi le dipendenze necessarie
+    }, []);  
 
-    
+
 
 
 
