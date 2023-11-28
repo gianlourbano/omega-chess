@@ -3,7 +3,7 @@
 
 import { Chess } from "chess.js";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import AutoScrollBox from "../AutoScrollBox";
 import * as io from "socket.io-client";
@@ -63,15 +63,18 @@ const whiteHidden = {
 
 
 const OnlineGame = ({ room }) => {
+    //socket hook
+    const [socket, setSocket] = useState(null);
+
     const [game, setGame] = useState(new Chess());
     const [gamePosition, setGamePosition] = useState("start");
     const {data: session, status} = useSession();
     const [isLoading, setIsLoading] = useState(true);
     
     const [messages, setMessages] = useState([]);
-    const [playerColor, setPlayerColor] = useState("");
+    const [playerColor, setPlayerColor] = useState("white");
 
-    //game over const
+    //game over hooks
     const [gameOver, setGameOver] = useState(false);
     const [gameOverDialog, setGameOverDialog] = useState(false);
     const [transcript, setTranscript] = useState();
@@ -80,10 +83,10 @@ const OnlineGame = ({ room }) => {
     const whitePlayerTimer = useStopwatch(1000 * 60); //(initial value in cs??)
     const blackPlayerTimer = useStopwatch(1000 * 60);
 
-    //custom pieces
-    const [customPieces, setCustomPieces] = useState(whiteHidden);
+    //custom pieces hooks
+    const [customPieces, setCustomPieces] = useState(blackHidden);
 
-    //opponentName
+    //opponentName hook
     const [opponentName, setOpponentName] = useState("");
    
     useEffect(() => {
@@ -108,11 +111,63 @@ const OnlineGame = ({ room }) => {
                     
                 }
             }).catch((error) => {console.error("Errore nel recupero del colore della lobby:", error);});
-    }, []);  // Aggiungi le dipendenze necessarie
-
+    }, []);
     
+    useEffect(() => {
 
+    }, [opponentName]);
 
+    useEffect(() => {
+        const s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
+            reconnection: false,
+            query: {
+                username: session ? session.user.username : "guest",
+                room: room,
+            },
+        });
+        setSocket(s);
+
+        s.on("chessboard_changed", (data) => {
+                setGamePosition(data);
+                //get turn from FEN string
+                const turn = data.split(" ")[1];
+                console.log(turn);
+                if (turn === "b") {
+                    whitePlayerTimer.stop();
+                    blackPlayerTimer.start();
+                } else {
+                    whitePlayerTimer.start();
+                    blackPlayerTimer.stop();
+                }
+        });
+
+        s.on("game_over", (data) => {
+            handleGameOver(data);
+        });
+
+        s.on("read_message", (data) => addMessage(data));
+
+        return () => {
+            fetch("/api/games/lobby", {
+                method: "DELETE",
+                header: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ room: room }),
+            });
+            s.emit("game_finished");
+            s.disconnect();
+        };
+    }, []);
+
+    useEffect(() => {
+        if (socket) {
+            socket.emit("start_game", () => {
+                whitePlayerTimer.start();
+                blackPlayerTimer.stop();
+            });
+        }
+    }, [socket]);
 
     function onDrop(sourceSquare, targetSquare, piece) {
         let move = null;
@@ -184,22 +239,25 @@ const OnlineGame = ({ room }) => {
     }
 
     if (status === "unauthenticated") {
-        //return <div>Unauthenticated!</div>;
         const router = useRouter();
         router.push(`/login`);
-        //redirect("/login")
     }
 
     if (status === "error") {
         return <div>Error!</div>;
     }
-    
+    /*
+    if (!opponentName) {
+        return <div className="h-full w-full flex items-center justify-center"> aspettando Liam </div>;
+    }
+    */
     return (
         <>
             {status === "authenticated" ? (
                 <div className="text-center text-2xl">
-                    Playing as {session.user.username} vs {opponentName}
-                </div>) :
+                Playing as {session.user.username} vs {opponentName || "In attesa dell'avversario..."}
+            </div>
+            ) :
                 (<div className="text-center text-2xl">
                     Guestone
                 </div>
@@ -215,10 +273,10 @@ const OnlineGame = ({ room }) => {
                 <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
                     
                     <DarkboardTimer timer = {blackPlayerTimer} />
-                    <Chessboard
+                    <Chessboard 
                         id="onlineGame"
-                        position={gamePosition}    //la partita inizzia appena si entra nella lobby, il tempo parte dopo la prima mossa
-                        onPieceDrop={onDrop}   //DA MODIFICARE
+                        position={gamePosition}    //la partita inizia appena si entra nella lobby, il tempo parte dopo la prima mossa
+                        onPieceDrop={gameOver ? () => {} : onDrop}
                         customPieces={customPieces}   //??
                         customBoardStyle={{
                             borderRadius: "5px",
