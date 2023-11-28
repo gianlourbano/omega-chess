@@ -2,6 +2,7 @@
 "use client";
 
 import { Chess } from "chess.js";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import AutoScrollBox from "../AutoScrollBox";
@@ -128,6 +129,7 @@ const OnlineGame = ({ room }) => {
         } catch (e) {
             return false;
         }
+        return true;
     }
 
     const GameOverDialog = ({ open, setOpen, transcript}) => {
@@ -183,7 +185,9 @@ const OnlineGame = ({ room }) => {
 
     if (status === "unauthenticated") {
         //return <div>Unauthenticated!</div>;
-        redirect("/login")
+        const router = useRouter();
+        router.push(`/login`);
+        //redirect("/login")
     }
 
     if (status === "error") {
@@ -213,7 +217,7 @@ const OnlineGame = ({ room }) => {
                     <DarkboardTimer timer = {blackPlayerTimer} />
                     <Chessboard
                         id="onlineGame"
-                        position={gamePosition}    //si dovrebbe poter mettere "start"
+                        position={gamePosition}    //la partita inizzia appena si entra nella lobby, il tempo parte dopo la prima mossa
                         onPieceDrop={onDrop}   //DA MODIFICARE
                         customPieces={customPieces}   //??
                         customBoardStyle={{
