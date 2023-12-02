@@ -1,9 +1,8 @@
-
 "use client";
 
 import { Chess } from "chess.js";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Chessboard } from "react-chessboard";
 import AutoScrollBox from "../AutoScrollBox";
 import * as io from "socket.io-client";
@@ -12,9 +11,7 @@ import Button from "../Button";
 import CustomDialog from "../CustomDialog";
 import DarkboardTimer from "../Darkboard/DarkboardTimer";
 import useStopwatch from "@/hooks/useStopwatch";
-import { useNewGame } from "@/components/Darkboard/PlayDarkboard";
 import GameTranscript from "../Darkboard/GameTranscript";
-import { set } from "mongoose";
 
 //object for hiding black pieces
 const blackHidden = {
@@ -55,21 +52,18 @@ const whiteHidden = {
     wB: () => {
         return <></>;
     },
-    wN: () => {
+    wN: () => { 
         return <></>;
     },
 };
 
-
-
 const OnlineGame = ({ room }) => {
     //socket hook
-    const [socket, setSocket] = useState(null);
+    //const [socket, setSocket] = useState();
+    const socket = useRef(null);
 
-    const [game, setGame] = useState(new Chess());
-    const [gamePosition, setGamePosition] = useState("start");
-    const {data: session, status} = useSession();
-    const [isLoading, setIsLoading] = useState(true);
+    const [gamePosition, setGamePosition] = useState();
+    const { data: session, status } = useSession();
     
     const [messages, setMessages] = useState([]);
     const [playerColor, setPlayerColor] = useState("white");
@@ -88,86 +82,107 @@ const OnlineGame = ({ room }) => {
 
     //opponentName hook
     const [opponentName, setOpponentName] = useState("");
-   
+
     useEffect(() => {
         fetch(`/api/games/lobby/${room}`, {
             method: "GET",
         })
             .then((response) => response.json())
             .then((data) => {
-                if(data.whitePlayer === session?.user?.username){
+                if (data.whitePlayer === session?.user?.username) {
                     setPlayerColor("white");
                     setOpponentName(data.blackPlayer);
                     setCustomPieces(blackHidden);
-                    console.log(data.whitePlayer)
-                } else if (data.blackPlayer === session?.user?.username){
+                    console.log(data.whitePlayer);
+                } else if (data.blackPlayer === session?.user?.username) {
                     setPlayerColor("black");
                     setOpponentName(data.whitePlayer);
                     setCustomPieces(whiteHidden);
-                    console.log(data.blackPlayer)
+                    console.log(data.blackPlayer);
                 } else {
                     setPlayerColor("error");
-                    console.log(data.blackPlayer, room, data.gameType, data.whitePlayer, data.lookingForPlayer)
-                    
+                    console.log(
+                        data.blackPlayer,
+                        room,
+                        data.gameType,
+                        data.whitePlayer,
+                        data.lookingForPlayer
+                    );
                 }
-            }).catch((error) => {console.error("Errore nel recupero del colore della lobby:", error);});
-    }, []);
-    
-    useEffect(() => {
+            })
+            .then(() => {
+                const s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
+                    reconnection: false,
+                    query: {
+                        gameType: "online",
+                        username: session && session.user.username,
+                        color: playerColor,
+                        room: room,
+                    },
+                });
+                //setSocket(s);
+                socket.current = s;
 
-    }, [opponentName]);
+                s.on("connect", () => {
+                    console.log("connected")
+                    s.emit("ready", (msg) => {
+                        console.log(msg);
+                    })
+                })
 
-    useEffect(() => {
-        const s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
-            reconnection: false,
-            query: {
-                username: session ? session.user.username : "guest",
-                room: room,
-            },
-        });
-        setSocket(s);
+                s.on("opponent_connected", (name) => {
+                    setOpponentName(name);
+                })
 
-        s.on("chessboard_changed", (data) => {
-                setGamePosition(data);
-                //get turn from FEN string
-                const turn = data.split(" ")[1];
-                console.log(turn);
-                if (turn === "b") {
-                    whitePlayerTimer.stop();
-                    blackPlayerTimer.start();
-                } else {
-                    whitePlayerTimer.start();
-                    blackPlayerTimer.stop();
-                }
-        });
+                s.on("chessboard_changed", (data) => {
+                    setGamePosition(data);
+                    //get turn from FEN string
+                    const turn = data.split(" ")[1];
+                    console.log(turn);
+                    if (turn === "b") {
+                        whitePlayerTimer.stop();
+                        blackPlayerTimer.start();
+                    } else {
+                        whitePlayerTimer.start();
+                        blackPlayerTimer.stop();
+                    }
+                });
 
-        s.on("game_over", (data) => {
-            handleGameOver(data);
-        });
+                s.on("game_over", (data) => {
+                    handleGameOver(data);
+                });
 
-        s.on("read_message", (data) => addMessage(data));
+                s.on("read_message", (data) => addMessage(data));
+            })
+            .catch((error) => {
+                console.error(
+                    "Errore nel recupero del colore della lobby:",
+                    error
+                );
+            });
 
         return () => {
-            fetch("/api/games/lobby", {
-                method: "DELETE",
-                header: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ room: room }),
-            });
-            s.emit("game_finished");
-            s.disconnect();
+            if (socket.current) {
+                fetch("/api/games/lobby", {
+                    method: "DELETE",
+                    header: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ room: room }),
+                });
+                socket.current.emit("game_finished");
+                socket.current.disconnect();
+            }
         };
     }, []);
 
-    useEffect(() => {
-        if (socket) {
-            socket.emit("start_game", () => {
-                whitePlayerTimer.start();
-                blackPlayerTimer.stop();
-            });
-        }
-    }, [socket]);
+    // useEffect(() => {
+    //     if (socket) {
+    //         socket.emit("ready", (msg) => {
+    //             console.log(msg);
+    //         });
+    //     }
+    // }, [socket]);
 
     function onDrop(sourceSquare, targetSquare, piece) {
         let move = null;
@@ -180,14 +195,16 @@ const OnlineGame = ({ room }) => {
 
             const game = new Chess(gamePosition);
             const legalMove = game.move(move).san;
-            socket.emit("make_move", legalMove);
+            console.log(legalMove);
+            socket.current.emit("make_move", legalMove);
         } catch (e) {
+            console.log(e.message);
             return false;
         }
         return true;
     }
 
-    const GameOverDialog = ({ open, setOpen, transcript}) => {
+    const GameOverDialog = ({ open, setOpen, transcript }) => {
         return (
             <CustomDialog
                 open={open}
@@ -198,10 +215,10 @@ const OnlineGame = ({ room }) => {
                     </Button>
                 }
             >
-            <GameTranscript transcript={transcript} />
+                <GameTranscript transcript={transcript} />
             </CustomDialog>
         );
-    }
+    };
 
     const handleGameOver = (data) => {
         setGameOver(true);
@@ -228,14 +245,19 @@ const OnlineGame = ({ room }) => {
         }
 
         setGameOverDialog(true);
-    }
+    };
 
     const addMessage = (message) => {
         setMessages((messages) => [...messages, message]);
     };
 
     if (status === "loading") {
-        return <div className="h-full w-full flex items-center justify-center"> <Spinner /> </div>;
+        return (
+            <div className="h-full w-full flex items-center justify-center">
+                {" "}
+                <Spinner />{" "}
+            </div>
+        );
     }
 
     if (status === "unauthenticated") {
@@ -255,36 +277,32 @@ const OnlineGame = ({ room }) => {
         <>
             {status === "authenticated" ? (
                 <div className="text-center text-2xl">
-                Playing as {session.user.username} vs {opponentName || "In attesa dell'avversario..."}
-            </div>
-            ) :
-                (<div className="text-center text-2xl">
-                    Guestone
+                    Playing as {session.user.username} vs{" "}
+                    {opponentName || "In attesa dell'avversario..."}
                 </div>
+            ) : (
+                <div className="text-center text-2xl">Guestone</div>
             )}
             <GameOverDialog
                 open={gameOverDialog}
                 setOpen={setGameOverDialog}
                 transcript={transcript}
             />
-            
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
                 <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
-                    
-                    <DarkboardTimer timer = {blackPlayerTimer} />
-                    <Chessboard 
+                    <DarkboardTimer timer={blackPlayerTimer} />
+                    <Chessboard
                         id="onlineGame"
-                        position={gamePosition}    //la partita inizia appena si entra nella lobby, il tempo parte dopo la prima mossa
-                        onPieceDrop={gameOver ? () => {} : onDrop}
-                        customPieces={customPieces}   //??
+                        position={gamePosition} //la partita inizia appena si entra nella lobby, il tempo parte dopo la prima mossa
+                        onPieceDrop={onDrop}
+                        customPieces={customPieces} //??
                         customBoardStyle={{
                             borderRadius: "5px",
                         }}
                         boardOrientation={playerColor}
                     />
-                    <DarkboardTimer timer = {whitePlayerTimer} />
-                    
+                    <DarkboardTimer timer={whitePlayerTimer} />
                 </div>
                 <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
                     <h1 className="text-3xl text-center">Umpire</h1>
@@ -317,4 +335,3 @@ const OnlineGame = ({ room }) => {
 };
 
 export default OnlineGame;
-

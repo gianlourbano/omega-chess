@@ -17,7 +17,7 @@ import umpire.local.ChessboardStateListener;
 import umpire.local.LocalUmpire;
 import umpire.local.StepwiseLocalUmpire;
 
-public class DarkboardGame {
+public class DarkboardGame extends Game {
 
 	SocketIOClient client;
 
@@ -244,20 +244,18 @@ public class DarkboardGame {
 
 	}
 
-	public void resignGame() {
+	public void resignGame(String username) {
 		umpire.resign(player);
 	}
 
-	public boolean makeMove(String move) {
+	public void makeMove(String move, String username) {
 		// build move
 		System.out.println("Move: " + move);
 
 		Move m = umpire.parseString(move, true);
 
-		boolean res = umpire.isLegalMove(m, umpire.turn);
+		umpire.isLegalMove(m, umpire.turn);
 
 		player.provideMove(m);
-
-		return res;
 	}
 }

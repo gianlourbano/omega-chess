@@ -25,9 +25,9 @@ public class GameService {
         games.remove(room);
     }
 
-    public boolean makeMove(String room, String move) {
+    public void makeMove(String room, String move) {
         DarkboardGame game = games.get(room);
-        return game.makeMove(move);
+        game.makeMove(move, null);
     }
 
     public int getNumberOfGames() {
@@ -36,7 +36,7 @@ public class GameService {
 
     public void resignGame(String room) {
         DarkboardGame game = games.get(room);
-        game.resignGame();
+        game.resignGame(null);
     }
 
     public void printGameInfo() {
