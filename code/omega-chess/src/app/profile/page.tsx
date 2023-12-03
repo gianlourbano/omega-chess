@@ -10,6 +10,7 @@ import Button from "@/components/Button";
 import styles from "@/styles/Profile.module.css";
 import useSWR from "swr";
 import Spinner from "@/components/Spinner";
+import CustomLink from "@/components/CustomLink";
 
 function calculateWinRate(wins: number, losses: number, draws: number) {
     if (wins + losses + draws === 0) return 0
@@ -46,8 +47,27 @@ function ProfilePage() {
                         Edit Profile
                     </Button>
                 </div>
+                
+
             </div>
             {editing && <Edit/>}
+            <div className="mt-4">
+                    {data.user.games?.map((game: any, index: number) => {
+                        return (
+                            <CustomLink href={`/profile/games/${game._id}`} key={index} className="py-4 flex justify-between items-center">
+                                <div>
+                                    {game.whitePlayer} - {game.blackPlayer}
+                                </div>
+                                <span className="text-gray-600">
+                                    {new Date(game.createdAt).toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' })} 
+                                    -{new Date(game.createdAt).toLocaleTimeString('en-EN', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            </CustomLink>
+                        )
+                    })}
+            </div>
+
+
             <div className={`sm:pt-10 sm:pl-10 pt-5 pr-5 pl-5 sm:text-5xl flex-col ${styles.stats} justify-center`}>
                 <div>
                     <h1 className="text-xl font-bold"> Win Rate: {

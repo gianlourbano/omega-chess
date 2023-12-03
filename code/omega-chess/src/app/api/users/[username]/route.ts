@@ -9,7 +9,7 @@ export async function GET(
 
     await mongoDriver();
 
-    const user = await User.findOne({ username: params.username }, "username friends email scores").populate("friends", "username email");
+    const user = await User.findOne({ username: params.username }, "username friends email scores games").populate("friends", "username email").populate("games", "_id whitePlayer blackPlayer createdAt");
 
     if (!user) {
         return Response.json("User not found.", { status: 404 });
