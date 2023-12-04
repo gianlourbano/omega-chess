@@ -6,9 +6,14 @@ import Releases from "@/components/Releases";
 import MobileMenu from "@/components/sidemenu/mobileMenu";
 import PlayDarkboardButton from "@/components/Darkboard/PlayDarkboard";
 import PlayOnlineButton from "@/components/OnlineGame/PlayOnline";
+import useSWR from "swr";
 
 
 export default function Home() {
+    
+    const fetcher = (url: string) => fetch(url).then((res) => res.json());
+    const { data } = useSWR("http://localhost:8080/api/games/num", fetcher);
+    
     return (
         <main className="h-full grid grid-cols-4 w-full p-2">
             <div className="col-span-4 sm:col-span-3">
@@ -25,6 +30,7 @@ export default function Home() {
                             Where are the opponent pieces? <br />
                             The more you fuck around the more you find out!
                         </p>
+                        {data && `There are ${data.message} players online.`}
                         <div className="flex flex-col gap-2 w-[50%]">
                             <Button color= "primary">Play with Frends</Button>
                             <PlayOnlineButton />

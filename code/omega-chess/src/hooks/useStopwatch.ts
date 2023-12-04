@@ -19,16 +19,16 @@ const useStopwatch = (
         let intervalId: any;
         if (isRunning) {
             // setting time from 0 to 1 every 10 milisecond using javascript setInterval method
-            intervalId = setInterval(() => setTime(time - 1), 10);
+            intervalId = setInterval(() => setTime(time - 1), 1000);
         }
         return () => clearInterval(intervalId);
     }, [isRunning, time]);
 
     // Minutes calculation
-    const minutes = Math.floor((time % 360000) / 6000);
+    const minutes = Math.floor((time) / 60);
 
     // Seconds calculation
-    const seconds = Math.floor((time % 6000) / 100);
+    const seconds = Math.floor((time % 60));
 
     // Milliseconds calculation
     const milliseconds = time % 100;

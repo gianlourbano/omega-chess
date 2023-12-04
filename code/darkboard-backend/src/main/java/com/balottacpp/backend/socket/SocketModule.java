@@ -7,26 +7,29 @@ import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.balottacpp.backend.constants.Constants;
 import com.balottacpp.backend.model.DarkboardGame;
+import com.balottacpp.backend.model.DeveloperGame;
 import com.balottacpp.backend.model.Game;
 import com.balottacpp.backend.model.OnlineGame;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+@RestController
+@RequestMapping("/api/games")
 @Component
 @Slf4j
 public class SocketModule {
 
     private final HashMap<String, Game> games = new HashMap<>();
-    
 
     @Data
     @AllArgsConstructor
@@ -43,47 +46,80 @@ public class SocketModule {
     }
 
     private final SocketIOServer server;
-    private final SocketService socketService;
 
-    public SocketModule(SocketIOServer server, SocketService socketService) {
+    public SocketModule(SocketIOServer server) {
         this.server = server;
-        this.socketService = socketService;
         server.addConnectListener(onConnected());
         server.addDisconnectListener(onDisconnected());
         // server.addEventListener("send_message", Message.class, onChatReceived());
         server.addEventListener("make_move", String.class, onMoveReceived());
-        server.addEventListener("start_game", String.class, onReady());
         server.addEventListener("resign_game", String.class, onResignReceived());
-        server.addEventListener("game_finished", String.class, onGameFinished());
         server.addEventListener("ready", String.class, onPlayerReady());
     }
 
-    // private DataListener<Message> onChatReceived() {
-    // return (senderClient, data, ackSender) -> {
-    // log.info(data.toString());
-    // socketService.saveMessage(senderClient, data);
-    // };
-    // }
+    //TODO: implement offer draw
 
-    private DataListener<String> onGameFinished() {
-        return (senderClient, data, ackSender) -> {
-            var params = senderClient.getHandshakeData().getUrlParams();
-            String room = params.get("room").stream().collect(Collectors.joining());
-            String username = params.get("username").stream().collect(Collectors.joining());
-            log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
-                    senderClient.getSessionId().toString(), room, username, data);
-            socketService.endGame(senderClient, room);
-        };
-    }
-
+    //TODO: implement resign game
     private DataListener<String> onResignReceived() {
-        return (senderClient, data, ackSender) -> {
-            var params = senderClient.getHandshakeData().getUrlParams();
-            String room = params.get("room").stream().collect(Collectors.joining());
-            String username = params.get("username").stream().collect(Collectors.joining());
-            log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
-                    senderClient.getSessionId().toString(), room, username, data);
-            socketService.resignGame(senderClient, room);
+        return (client, data, ackSender) -> {
+            var params = client.getHandshakeData().getUrlParams();
+            String gameType = "";
+            try {
+                gameType = params.get("gameType").stream().collect(Collectors.joining());
+            } catch (Exception e) {
+                client.sendEvent("error", "gameType is required");
+                client.disconnect();
+            }
+            String room, username, token;
+
+            switch (gameType) {
+                case Constants.GAME_TYPE_DARKBOARD:
+
+                        room = params.get("room").stream().collect(Collectors.joining());
+                    username = params.get("username").stream().collect(Collectors.joining());
+
+                    log.info("Player {} is ready in room {}",
+                            username, room);
+
+                    Game dbgame = games.get(room);
+                    dbgame.resignGame(username);
+
+                    break;
+                case Constants.GAME_TYPE_DEVELOPER:
+
+                    try {
+                        token = params.get("token").stream().collect(Collectors.joining());
+                    } catch (Exception e) {
+                        client.sendEvent("error", "token is required");
+                        client.disconnect();
+                        return;
+                    }
+
+                    try {
+                        username = params.get("username").stream().collect(Collectors.joining());
+                    } catch (Exception e) {
+                        client.sendEvent("error", "username is required");
+                        client.disconnect();
+                        return;
+                    }
+
+                    room = token + username;
+                    
+                    Game devgame = games.get(room);
+                    devgame.resignGame(username);
+                    break;
+                case Constants.GAME_TYPE_ONLINE: {
+                    
+                    room = params.get("room").stream().collect(Collectors.joining());
+                    username = params.get("username").stream().collect(Collectors.joining());
+
+                    Game game = games.get(room);
+                    game.resignGame(username);
+                    break;
+                }
+                default:
+                    return;
+            }
         };
     }
 
@@ -101,8 +137,52 @@ public class SocketModule {
 
             switch (gameType) {
                 case Constants.GAME_TYPE_DARKBOARD:
+
+                    room = params.get("room").stream().collect(Collectors.joining());
+                    username = params.get("username").stream().collect(Collectors.joining());
+
+                    log.info("Player {} is ready in room {}",
+                            username, room);
+
+                    Game dbgame = new DarkboardGame(room, username, "Darkboard", client);
+                    games.put(room, dbgame);
+
+                    //start the game in a different thread
+
+                    new Thread(() -> {
+                        dbgame.startGame();
+                    }).start();
+
                     break;
                 case Constants.GAME_TYPE_DEVELOPER:
+
+                    try {
+                        token = params.get("token").stream().collect(Collectors.joining());
+                    } catch (Exception e) {
+                        client.sendEvent("error", "token is required");
+                        client.disconnect();
+                        return;
+                    }
+
+                    try {
+                        username = params.get("username").stream().collect(Collectors.joining());
+                    } catch (Exception e) {
+                        client.sendEvent("error", "username is required");
+                        client.disconnect();
+                        return;
+                    }
+
+                    room = token + username;
+
+                    Game devgame = new DeveloperGame(client);
+                    games.put(room, devgame);
+
+                    //start the game in a different thread
+                    new Thread(() -> {
+                        devgame.startGame();
+                    }).start();
+                    
+
                     break;
                 case Constants.GAME_TYPE_ONLINE: {
 
@@ -114,14 +194,12 @@ public class SocketModule {
 
                     int connectedPlayers = server.getRoomOperations(room).getClients().size();
 
-                    if(connectedPlayers < 2) {
+                    if (connectedPlayers < 2) {
                         Game game = new OnlineGame(gameType);
                         games.put(room, game);
-                        System.out.println("error here if");
                         game.whiteConnected(client, username);
-                        
-                    } else if( connectedPlayers == 2) {
-                        System.out.println("error here else");
+
+                    } else if (connectedPlayers == 2) {
                         Game game = games.get(room);
                         game.blackConnected(client, username);
                     } else {
@@ -208,19 +286,6 @@ public class SocketModule {
 
     }
 
-    private DataListener<String> onReady() {
-        return (senderClient, data, ackSender) -> {
-            var params = senderClient.getHandshakeData().getUrlParams();
-            String room = params.get("room").stream().collect(Collectors.joining());
-            String username = params.get("username").stream().collect(Collectors.joining());
-            log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
-                    senderClient.getSessionId().toString(), room, username, data);
-            ackSender.sendAckData();
-            socketService.createNewGame(senderClient, username, "Darkboard", room);
-
-        };
-    }
-
     private DataListener<String> onMoveReceived() {
         return (client, data, ackSender) -> {
             var params = client.getHandshakeData().getUrlParams();
@@ -233,18 +298,28 @@ public class SocketModule {
             }
             String room, username, token;
 
-
-            switch(gameType) {
+            switch (gameType) {
                 case Constants.GAME_TYPE_DARKBOARD:
+                    room = params.get("room").stream().collect(Collectors.joining());
+                    username = params.get("username").stream().collect(Collectors.joining());
+                    Game dbgame = games.get(room);
+                    dbgame.makeMove(data, username);
+                    System.out.println("Move: " + data);
                     break;
                 case Constants.GAME_TYPE_DEVELOPER:
+                    token = params.get("token").stream().collect(Collectors.joining());
+                    username = params.get("username").stream().collect(Collectors.joining());
+                    room = token + username;
+                    Game gamedev = games.get(room);
+                    gamedev.makeMove(data, username);
+                    System.out.println("Move: " + data);
                     break;
                 case Constants.GAME_TYPE_ONLINE: {
                     room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
                     log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
                             client.getSessionId().toString(), room, username, data);
-                    
+
                     Game game = games.get(room);
                     game.makeMove(data, username);
 
@@ -268,6 +343,25 @@ public class SocketModule {
 
             switch (gameType) {
                 case Constants.GAME_TYPE_DARKBOARD:
+
+                    room = params.get("room").stream().collect(Collectors.joining());
+                    username = params.get("username").stream().collect(Collectors.joining());
+
+                    log.info("Socket ID[{}] - room[{}] - username [{}]  discnnected to chat module through",
+                            client.getSessionId().toString(), room, username);
+
+                    client.leaveRoom(room);
+
+                    Game dbgame = games.get(room);
+
+                    if (dbgame == null) {
+                        return;
+                    }
+
+                    if (dbgame.status == Game.GameStatus.FINISHED) {
+                        games.remove(room);
+                    }
+
                     break;
                 case Constants.GAME_TYPE_DEVELOPER:
                     token = params.get("token").stream().collect(Collectors.joining());
@@ -276,6 +370,16 @@ public class SocketModule {
                     client.leaveRoom(room);
                     log.info("Socket ID[{}] - token[{}] - username [{}]  disconnected [mode: {}]",
                             client.getSessionId().toString(), token, username, gameType);
+
+                    Game gamedev = games.get(room);
+
+                    if (gamedev == null) {
+                        return;
+                    }
+
+                    if (gamedev.status == Game.GameStatus.FINISHED) {
+                        games.remove(room);
+                    }
                     break;
                 case Constants.GAME_TYPE_ONLINE:
                     room = params.get("room").stream().collect(Collectors.joining());
@@ -284,7 +388,16 @@ public class SocketModule {
                     log.info("Socket ID[{}] - room[{}] - username [{}]  discnnected to chat module through",
                             client.getSessionId().toString(), room, username);
                     client.leaveRoom(room);
-                    socketService.endGame(client, room);
+
+                    Game g = games.get(room);
+
+                    if (g == null) {
+                        return;
+                    }
+
+                    if (g.status == Game.GameStatus.FINISHED) {
+                        games.remove(room);
+                    }
 
                     break;
                 default:
@@ -293,4 +406,19 @@ public class SocketModule {
         };
     }
 
+    @Data
+    @AllArgsConstructor
+    public class TestResponse {
+        public String message;
+    }
+
+    private int getNumOfPlayers() {
+        return server.getAllClients().size();
+    }
+
+    @RequestMapping("/num")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public TestResponse test() {
+        return new TestResponse(Integer.toString(getNumOfPlayers()));
+    }
 }

@@ -48,16 +48,25 @@ process.stdin.on("keypress", (ch, key) => {
 });
 process.stdin.setRawMode(true);
 
+const connectionPayloadDeveloper = {
+    username: "TestBot",
+    gameType: "developer",
+    token: "bec635e710d6cdd5f3d3aa2b1c2e7d907e45881eaf5d496b"
+}
+
+const connectionPayload = {
+    username: "gianlo",
+    gameType: "darkboard",
+    room: "test",
+}
+
 // Main function
-(() => {
+const main = () => {
     clearAndPrint("Connecting...");
     // Connection to the server
     socket = io("http://localhost:8085", {
         reconnection: false,
-        query: {
-            username: "gianlo",
-            room: "test",
-        },
+        query: connectionPayloadDeveloper,
     });
 
     // Socket events
@@ -66,14 +75,13 @@ process.stdin.setRawMode(true);
 
         // Chess.js instance to keep track of the game
         chess = new Chess();
-        socket.emit("start_game", () => {
-            console.log("Game started!");
-        });
+        socket.emit("ready");
     });
 
     // When the game is over, print the PGN and exit
     socket.on("game_over", (pgn) => {
         clearAndPrint("Game over!");
+        console.log(chess.ascii());
         console.log(pgn);
         process.exit();
     });
@@ -88,4 +96,16 @@ process.stdin.setRawMode(true);
         chess.load(fen);
         console.log(hideOpponent());
     });
-})();
+
+    socket.on("error", (err) => {
+        console.error("Error: ", err);
+        process.exit(1);
+    })
+
+    socket.on("disconnect", () => {
+        console.log("Disconnected!");
+        process.exit(1);
+    });
+}
+
+main()

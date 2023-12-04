@@ -74,8 +74,8 @@ const OnlineGame = ({ room }) => {
     const [transcript, setTranscript] = useState();
 
     //timer const
-    const whitePlayerTimer = useStopwatch(1000 * 60); //(initial value in cs??)
-    const blackPlayerTimer = useStopwatch(1000 * 60);
+    const whitePlayerTimer = useStopwatch(10 * 60); //(initial value in cs??)
+    const blackPlayerTimer = useStopwatch(10 * 60);
 
     //custom pieces hooks
     const [customPieces, setCustomPieces] = useState(blackHidden);
@@ -309,7 +309,7 @@ const OnlineGame = ({ room }) => {
 
                     <Button
                         color="secondary"
-                        onClick={() => socket.emit("resign_game")}
+                        onClick={() => socket.current.emit("resign_game")}
                     >
                         Resign
                     </Button>

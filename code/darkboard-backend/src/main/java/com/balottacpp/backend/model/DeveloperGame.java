@@ -4,10 +4,11 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
-import com.balottacpp.backend.constants.Constants;
 import com.corundumstudio.socketio.SocketIOClient;
 
+import ai.opponent.OpponentProfile;
 import ai.player.Darkboard;
+import ai.player.DeepDarkboard101;
 import ai.player.HumanPlayer;
 import ai.player.Player;
 import ai.player.PlayerListener;
@@ -18,135 +19,11 @@ import umpire.local.ChessboardStateListener;
 import umpire.local.LocalUmpire;
 import umpire.local.StepwiseLocalUmpire;
 
-public class OnlineGame extends Game {
-    SocketPlayer whitePlayer;
-    SocketPlayer blackPlayer;
-
-    SocketIOClient whiteClient;
-    SocketIOClient blackClient;
-
-    String gameType;
-
+public class DeveloperGame extends Game {
+    
+    SocketIOClient botClient;
+    SocketPlayer bot;
     StepwiseLocalUmpire umpire;
-
-    public OnlineGame(String gameType) {
-        this.gameType = gameType;
-    }
-
-    @Override
-    public void whiteConnected(SocketIOClient whiteClient, String username) {
-        /** TODO: move this out of here */
-        String path = System.getProperty("user.home") + "/darkboard_data/";
-		System.out.println(path);
-		Darkboard.initialize(path);
-
-        System.out.println("White connected: " + username);
-        if(whiteClient == null) System.out.println("whiteClient is null");
-        this.whiteClient = whiteClient;
-        whitePlayer = new SocketPlayer(true, whiteClient);
-        whitePlayer.playerName = username;
-        whitePlayer.addPlayerListener(new UmpireText(whiteClient));
-    }
-
-    @Override
-    public void blackConnected(SocketIOClient blackClient, String username) {
-        this.blackClient = blackClient;
-        blackPlayer = new SocketPlayer(false, blackClient);
-        var params = blackClient.getHandshakeData().getUrlParams();
-        String blackUsername = params.get("username").stream().collect(Collectors.joining());
-        blackPlayer.playerName = blackUsername;
-        blackPlayer.addPlayerListener(new UmpireText(blackClient));
-
-        /* since black player is the last to connect,
-           inform both players that they have an apponent */
-        blackClient.sendEvent("opponent_connected", whitePlayer.playerName);
-        whiteClient.sendEvent("opponent_connected", blackPlayer.playerName);
-
-        /* initialize umpire */
-        umpire = new StepwiseLocalUmpire(whitePlayer, blackPlayer);
-        umpire.addListener(new ChessboardSocket(whiteClient));
-        umpire.addListener(new ChessboardSocket(blackClient));
-
-        umpire.stepwiseInit(null, null);
-
-        System.out.println("Game ready to start: " + whitePlayer.playerName + " vs " + blackPlayer.playerName);
-        this.startGame();
-        this.status = GameStatus.STARTED;
-    }
-
-    /*
-     * game starts after both players are ready
-     */
-    public OnlineGame(String gameType, SocketIOClient whiteClient, SocketIOClient blackClient) {
-        this.gameType = gameType;
-        this.whiteClient = whiteClient;
-        this.blackClient = blackClient;
-
-        /* set players' parameters */
-        whitePlayer = new SocketPlayer(true, whiteClient);
-        blackPlayer = new SocketPlayer(false, blackClient);
-
-        var params = whiteClient.getHandshakeData().getUrlParams();
-        String whiteUsername = params.get("username").stream().collect(Collectors.joining());
-
-        params = blackClient.getHandshakeData().getUrlParams();
-        String blackUsername = params.get("username").stream().collect(Collectors.joining());
-
-        whitePlayer.playerName = whiteUsername;
-        blackPlayer.playerName = blackUsername;
-
-        /* set umpire */
-        umpire = new StepwiseLocalUmpire(whitePlayer, blackPlayer);
-
-        whitePlayer.addPlayerListener(new UmpireText(whiteClient));
-        blackPlayer.addPlayerListener(new UmpireText(blackClient));
-
-        umpire.addListener(new ChessboardSocket(whiteClient));
-        umpire.addListener(new ChessboardSocket(blackClient));
-
-        umpire.stepwiseInit(null, null);
-
-        System.out.println("Game ready to start: " + whitePlayer.playerName + " vs " + blackPlayer.playerName);
-        whiteClient.sendEvent("game_started");
-
-    }
-
-    public void startGame() {
-        System.out.println("Starting game");
-        while (umpire.getGameOutcome() == LocalUmpire.NO_OUTCOME) {
-            Player p = umpire.turn();
-            // f.interrogatePlayer(t==0);
-            Move m = p.getNextMove();
-            umpire.stepwiseArbitrate(m);
-        }
-        System.out.println("Game Over!");
-        this.status = GameStatus.FINISHED;
-    }
-
-    public void makeMove(String move, String username) {
-        // build move
-        System.out.println("Move: " + move);
-
-        boolean isWhite = username.equals(whitePlayer.playerName) ? true : false;
-
-        Move m = umpire.parseString(move, isWhite);
-
-        // boolean res = umpire.isLegalMove(m, umpire.turn);
-
-        if (username.equals(whitePlayer.playerName)) {
-            whitePlayer.provideMove(m);
-        } else if (username.equals(blackPlayer.playerName)) {
-            blackPlayer.provideMove(m);
-        }
-    }
-
-    public void resignGame(String username) {
-        if (username.equals(whitePlayer.playerName)) {
-            umpire.resign(whitePlayer);
-        } else if (username.equals(blackPlayer.playerName)) {
-            umpire.resign(blackPlayer);
-        }
-    }
 
     class SocketPlayer extends HumanPlayer {
         SocketIOClient client;
@@ -160,6 +37,57 @@ public class OnlineGame extends Game {
             client.sendEvent("game_over", game.toString());
         }
     }
+
+    public DeveloperGame(SocketIOClient bot) {
+        String path = System.getProperty("user.home") + "/darkboard_data/";
+		System.out.println(path);
+		Darkboard.initialize(path);
+        this.botClient = bot;
+        this.bot = new SocketPlayer(true, bot);
+
+        var params = bot.getHandshakeData().getUrlParams();
+        String botname = params.get("username").stream().collect(Collectors.joining());
+        this.bot.playerName = botname;
+        this.bot.addPlayerListener(new UmpireText(bot));
+
+        
+
+        OpponentProfile op = OpponentProfile.getProfile("rjay");
+        Player p2 = new DeepDarkboard101(false, op.openingBookWhite, op.openingBookBlack, "rjay");
+		p2.playerName = "Darkboard";
+		this.umpire = new StepwiseLocalUmpire(this.bot, p2);
+        this.umpire.addListener(new ChessboardSocket(bot));
+        this.umpire.stepwiseInit(null, null);
+    }
+
+    public void makeMove(String move, String username) {
+        System.out.println("Move: " + move);
+
+		Move m = umpire.parseString(move, true);
+
+		umpire.isLegalMove(m, umpire.turn);
+
+		this.bot.provideMove(m);
+    }
+
+    public void resignGame(String username) {
+        umpire.resign(bot);
+    }
+
+    public void startGame() {
+        System.out.println("Starting game");
+        this.status = GameStatus.STARTED;
+        while (umpire.getGameOutcome() == LocalUmpire.NO_OUTCOME) {
+            Player p = umpire.turn();
+            // f.interrogatePlayer(t==0);
+            Move m = p.getNextMove();
+            umpire.stepwiseArbitrate(m);
+        }
+        System.out.println("Game Over!");
+        // client.sendEvent("game_over", umpire.transcript.toString());
+        this.status = GameStatus.FINISHED;
+    }
+
 
     public class ChessboardSocket implements ChessboardStateListener {
         SocketIOClient client;
@@ -334,5 +262,4 @@ public class OnlineGame extends Game {
             return false;
         }
     }
-
 }
