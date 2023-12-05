@@ -11,6 +11,7 @@ import Button from "../Button";
 import CustomDialog from "../CustomDialog";
 import DarkboardTimer from "./DarkboardTimer";
 import useStopwatch from "@/hooks/useStopwatch";
+import QuickRules from "../QuickRules";
 
 import { useNewGame } from "@/components/Darkboard/PlayDarkboard";
 
@@ -60,6 +61,8 @@ const DarkboardGame = ({ room }) => {
     const [gameOverDialog, setGameOverDialog] = useState(false);
 
     const { data: session, status } = useSession();
+
+    const [quickRules, setQuickRules] = useState(false);
 
     useEffect(() => {
         const s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
@@ -187,11 +190,6 @@ const DarkboardGame = ({ room }) => {
 
     return (
         <>
-            {status === "authenticated" && (
-                <div className="text-center text-2xl">
-                    Playing as {session.user.username}
-                </div>
-            )}
             <GameOverDialog
                 open={gameOverDialog}
                 setOpen={setGameOverDialog}
@@ -200,6 +198,11 @@ const DarkboardGame = ({ room }) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
                 <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
+                    {status === "authenticated" && (
+                        <div className="text-center text-2xl">
+                            Playing as {session.user.username}
+                        </div>
+                    )}
                     <Button color="primary" onClick={() => setCustomPieces({})}>
                         Show opponent
                     </Button>
@@ -216,8 +219,22 @@ const DarkboardGame = ({ room }) => {
                     <DarkboardTimer timer={whitePlayerTimer} />
                 </div>
                 <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
-                    <h1 className="text-3xl text-center">Umpire</h1>
-
+                    <div className="flex flex-row justify-center gap-3">
+                        <Button
+                            className="text-2xl text-center"
+                            color="primary"
+                            onClick={() => setQuickRules(false)}>
+                                Umpire
+                        </Button>
+                        <Button
+                            className="text-2xl text-center"
+                            color="primary"
+                            onClick={() => setQuickRules(true)} >
+                                Quick Rules
+                        </Button>
+                    </div>
+                    {!quickRules &&
+                    <>
                     <Button
                         color="secondary"
                         onClick={() => socket.emit("resign_game")}
@@ -239,6 +256,8 @@ const DarkboardGame = ({ room }) => {
                             </p>
                         ))}
                     </div>
+                    </>}
+                    {quickRules && <QuickRules />}
                 </div>
             </div>
         </>
