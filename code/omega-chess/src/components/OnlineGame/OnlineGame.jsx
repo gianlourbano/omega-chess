@@ -13,6 +13,7 @@ import DarkboardTimer from "../Darkboard/DarkboardTimer";
 import useStopwatch from "@/hooks/useStopwatch";
 import GameTranscript from "../Darkboard/GameTranscript";
 import QuickRules from "../QuickRules";
+import Spinner from "../Spinner";
 
 //object for hiding black pieces
 const blackHidden = {
@@ -80,6 +81,7 @@ const OnlineGame = ({ room }) => {
 
     //custom pieces hooks
     const [customPieces, setCustomPieces] = useState(blackHidden);
+    const router = useRouter();
 
     //opponentName hook
     const [opponentName, setOpponentName] = useState("");
@@ -264,7 +266,7 @@ const OnlineGame = ({ room }) => {
     }
 
     if (status === "unauthenticated") {
-        const router = useRouter();
+        
         router.push(`/login`);
     }
 

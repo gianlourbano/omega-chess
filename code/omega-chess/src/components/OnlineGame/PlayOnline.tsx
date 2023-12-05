@@ -13,7 +13,7 @@ if there are lobbies waiting for other players to join, return one of them
 otherwise, create a new empty lobby and return it
 */
 
-export const findGame =  () =>  {
+export const useGame =  () =>  {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const { data: session, status } = useSession();
@@ -72,7 +72,7 @@ const PlayOnlineButton = () =>{
     },[]);
     */
 
-    const { isLoading, startGame } = findGame();
+    const { isLoading, startGame } = useGame();
 
     return(
         <div>

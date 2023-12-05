@@ -58,8 +58,12 @@ public class SocketModule {
     }
 
     //TODO: implement offer draw
+    private DataListener<String> onOfferDrawReceived() {
+        return (client, data, ackSender) -> {
+            
+        };
+    }
 
-    //TODO: implement resign game
     private DataListener<String> onResignReceived() {
         return (client, data, ackSender) -> {
             var params = client.getHandshakeData().getUrlParams();
