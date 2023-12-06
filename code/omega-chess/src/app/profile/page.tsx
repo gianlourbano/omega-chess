@@ -59,55 +59,79 @@ function ProfilePage() {
                         </div>
                     </div>
                     <Edit />
-                    
                 </div>
-                <div className="mt-4">
-                    {data.user.games?.map((game: any, index: number) => {
-                        return (
-                            <CustomLink href={`/profile/games/${game._id}`} key={index} className="py-4 flex justify-between items-center">
-                                <div>
-                                    {game.whitePlayer} - {game.blackPlayer}
-                                </div>
-                                <span className="text-gray-600">
-                                    {new Date(game.createdAt).toLocaleDateString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' })} 
-                                    -{new Date(game.createdAt).toLocaleTimeString('en-EN', { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                            </CustomLink>
-                        )
-                    })}
-            </div>
-                <div
-                    className={`sm:m-3 m-1 sm:text-5xl flex-col ${styles.stats} justify-center`}
-                >
-                    <div>
-                        <h1 className="text-xl font-bold">
-                            {" "}
-                            Win Rate:{" "}
-                            {calculateWinRate(
-                                data.user?.scores?.wins,
-                                data.user?.scores?.losses,
-                                data.user?.scores?.draws
-                            )}
-                            %{" "}
-                        </h1>
+                <div className={`${styles.stats} sm:m-3 m-1`}>
+                    <h1 className="sm:text-3xl font-bold"> Statistics </h1>
+                    <div className={`flex-col justify-center pt-4`}>
+                        <div>
+                        <h1 className="text-xl">
+                                {" "}
+                                Games: {data.user?.scores?.losses + data.user?.scores?.wins + data.user?.scores?.draws}{" "}
+                            </h1>
+                        </div>
+                        <div>
+                            <h1 className="text-xl">
+                                {" "}
+                                Wins: {data.user?.scores?.wins}{" "}
+                            </h1>
+                        </div>
+                        <div>
+                            <h1 className="text-xl">
+                                {" "}
+                                Loss: {data.user?.scores?.losses}{" "}
+                            </h1>
+                        </div>
+                        <div>
+                            <h1 className="text-xl">
+                                {" "}
+                                Draws: {data.user?.scores?.draws}{" "}
+                            </h1>
+                        </div>
+                        <div>
+                            <h1 className="text-xl">
+                                {" "}
+                                Win Rate:{" "}
+                                {calculateWinRate(
+                                    data.user?.scores?.wins,
+                                    data.user?.scores?.losses,
+                                    data.user?.scores?.draws
+                                )}
+                                %{" "}
+                            </h1>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-xl font-bold">
-                            {" "}
-                            Wins: {data.user?.scores?.wins}{" "}
-                        </h1>
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold">
-                            {" "}
-                            Loss: {data.user?.scores?.losses}{" "}
-                        </h1>
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold">
-                            {" "}
-                            Draws: {data.user?.scores?.draws}{" "}
-                        </h1>
+
+                    <h1 className="sm:text-3xl font-bold pt-5"> Match replays </h1>
+                    <div className="overflow-y-auto pt-4">
+                        {data.user.games?.reverse().map((game: any, index: number) => {
+                            return (
+                                <CustomLink
+                                    href={`/profile/games/${game._id}`}
+                                    key={index}
+                                    className="flex justify-between items-center pb-3"
+                                >
+                                    <div className="text-md font-bold">
+                                        {game.whitePlayer} - {game.blackPlayer}
+                                    </div>
+                                    <span className="text-gray-600">
+                                        {new Date(
+                                            game.createdAt
+                                        ).toLocaleDateString("en-EN", {
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                        })}
+                                        -
+                                        {new Date(
+                                            game.createdAt
+                                        ).toLocaleTimeString("en-EN", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </span>
+                                </CustomLink>
+                            );
+                        })}
                     </div>
                 </div>
                 <Friends />

@@ -117,7 +117,7 @@ const OnlineGame = ({ room }) => {
             })
             .then(() => {
                 const s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
-                    reconnection: true,
+                    reconnection: false,
                     query: {
                         gameType: "online",
                         username: session && session.user.username,
@@ -250,24 +250,6 @@ const OnlineGame = ({ room }) => {
         setTranscript(data);
         whitePlayerTimer.stop();
         blackPlayerTimer.stop();
-
-        if (session && session.user) {
-            fetch(`/api/users/${session.user.username}/games`, {
-                method: "PUT",
-                header: {
-                    "Content-Type": "text/plain",
-                },
-                body: data,
-            });
-
-            fetch("/api/games/lobby", {
-                method: "DELETE",
-                header: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ room: room }),
-            });
-        }
 
         setGameOverDialog(true);
     };

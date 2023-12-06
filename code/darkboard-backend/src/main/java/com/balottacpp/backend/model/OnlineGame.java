@@ -26,6 +26,9 @@ import java.util.ArrayList;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /*
 dentro il loop di gioco mandare un evento "your turn"
@@ -52,8 +55,6 @@ public class OnlineGame extends Game {
     ChessboardSocket whiteChessBoardListener, blackChessBoardListener;
     UmpireText whiteUmpireText, blackUmpireText;
 
-    
-
     public OnlineGame(String gameType, String room) {
         this.gameType = gameType;
         this.room = room;
@@ -70,9 +71,11 @@ public class OnlineGame extends Game {
 
     @Override
     public void whiteConnected(SocketIOClient whiteClient, String username) {
-        if(Constants.DEBUG) System.out.println("White connected: " + username);
+        if (Constants.DEBUG)
+            System.out.println("White connected: " + username);
         if (whiteClient == null)
-            if(Constants.DEBUG) System.out.println("whiteClient is null");
+            if (Constants.DEBUG)
+                System.out.println("whiteClient is null");
         this.whiteClient = whiteClient;
         whitePlayer = new SocketPlayer(true, whiteClient);
         whitePlayer.playerName = username;
@@ -107,7 +110,8 @@ public class OnlineGame extends Game {
 
         umpire.stepwiseInit(null, null);
 
-        if(Constants.DEBUG) System.out.println("Game ready to start: " + whitePlayer.playerName + " vs " + blackPlayer.playerName);
+        if (Constants.DEBUG)
+            System.out.println("Game ready to start: " + whitePlayer.playerName + " vs " + blackPlayer.playerName);
         this.status = GameStatus.STARTED;
         this.startGame();
     }
@@ -122,21 +126,21 @@ public class OnlineGame extends Game {
     public void handleReconnect(SocketIOClient client, String username) {
         if (whitePlayer.playerName.equals(username)) {
             ArrayList<String> messages = whiteUmpireText.messages;
-            whitePlayer.provideMove(null);
             whiteClient = client;
+            whitePlayer.client = client;
             whiteUmpireText.client = client;
             whiteChessBoardListener.client = client;
 
             whiteClient.sendEvent("opponent_connected", blackPlayer.playerName);
             whiteClient.sendEvent("reconnection",
-                    new ReconnectionData(umpire.toFen(),messages));
+                    new ReconnectionData(umpire.toFen(), messages));
             whiteClient.sendEvent("remaining_time", new TimeInfo(whiteTimer.getTime(), blackTimer.getTime()));
         } else if (blackPlayer.playerName.equals(username)) {
             ArrayList<String> messages = blackUmpireText.messages;
-            blackPlayer.provideMove(null);
-            
+
             blackClient = client;
             blackUmpireText.client = client;
+            blackPlayer.client = client;
             blackChessBoardListener.client = client;
 
             blackClient.sendEvent("opponent_connected", whitePlayer.playerName);
@@ -165,8 +169,11 @@ public class OnlineGame extends Game {
     }
 
     public void stopTimers() {
-        whiteTimer.stop();
-        blackTimer.stop();
+        if (whiteTimer != null)
+            whiteTimer.stop();
+        if (blackTimer != null)
+            blackTimer.stop();
+
     }
 
     @Data
@@ -177,14 +184,17 @@ public class OnlineGame extends Game {
     }
 
     public void startGame() {
-        if(Constants.DEBUG) System.out.println("Starting game");
+        if (Constants.DEBUG)
+            System.out.println("Starting game");
 
         whiteTimer = new CountdownTimer(600, () -> {
-            if(Constants.DEBUG) System.out.println("White timer finished");
+            if (Constants.DEBUG)
+                System.out.println("White timer finished");
             umpire.resign(whitePlayer);
         });
         blackTimer = new CountdownTimer(600, () -> {
-            if(Constants.DEBUG) System.out.println("Black timer finished");
+            if (Constants.DEBUG)
+                System.out.println("Black timer finished");
             umpire.resign(blackPlayer);
         });
 
@@ -204,18 +214,84 @@ public class OnlineGame extends Game {
             Move m = p.getNextMove();
             umpire.stepwiseArbitrate(m);
             t.stop();
-            if(Constants.DEBUG) System.out.println("Remaining time for " + p.playerName + ": " + t.getTime() / 60 + ":" + t.getTime() % 60);
+            if (Constants.DEBUG)
+                System.out.println(
+                        "Remaining time for " + p.playerName + ": " + t.getTime() / 60 + ":" + t.getTime() % 60);
             whiteClient.sendEvent("remaining_time", new TimeInfo(whiteTimer.getTime(), blackTimer.getTime()));
             blackClient.sendEvent("remaining_time", new TimeInfo(whiteTimer.getTime(), blackTimer.getTime()));
         }
         updater.cancel();
-        if(Constants.DEBUG) System.out.println("Game Over!");
+        //if (Constants.DEBUG)
+            System.out.println("Game Over!");
         this.status = GameStatus.FINISHED;
+
+        /* save game */
+        System.out.println("Saving game to databsase...");
+        try {
+            URL url = new URL("http://localhost:3000/api/games/lobby");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("PUT");
+            con.setDoOutput(true);
+            con.setRequestProperty("Content-Type", "text/plain");
+
+            try (OutputStream os = con.getOutputStream()) {
+                String jsonInputString = umpire.transcript.toString();
+                byte[] body = jsonInputString.getBytes("utf-8");
+                os.write(body, 0, body.length);
+            }
+
+            int code = con.getResponseCode();
+            //if (Constants.DEBUG) {
+                if (code == 200) {
+                    System.out.println("Game saved");
+                } else {
+                    System.out.println("Error saving game");
+                }
+            //}
+
+        } catch (Exception e) {
+            if (Constants.DEBUG)
+                System.out.println("Error deleting lobby");
+        }
+
+        deleteLobby(room);
+    }
+
+    static public void deleteLobby(String room) {
+        if (Constants.DEBUG)
+            System.out.println("Deleting lobby " + room + "...");
+        try {
+            URL url = new URL("http://localhost:3000/api/games/lobby");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("DELETE");
+            con.setDoOutput(true);
+            con.setRequestProperty("Content-Type", "application/json");
+
+            try (OutputStream os = con.getOutputStream()) {
+                String jsonInputString = "{\"room\": \"" + room + "\"}";
+                byte[] body = jsonInputString.getBytes("utf-8");
+                os.write(body, 0, body.length);
+            }
+
+            int code = con.getResponseCode();
+            if (Constants.DEBUG) {
+                if (code == 200) {
+                    System.out.println("Lobby deleted");
+                } else {
+                    System.out.println("Error deleting lobby");
+                }
+            }
+
+        } catch (Exception e) {
+            if (Constants.DEBUG)
+                System.out.println("Error deleting lobby");
+        }
     }
 
     public void makeMove(String move, String username) {
         // build move
-        if(Constants.DEBUG) System.out.println("Move: " + move);
+        if (Constants.DEBUG)
+            System.out.println("Move: " + move);
 
         boolean isWhite = username.equals(whitePlayer.playerName) ? true : false;
 
@@ -236,6 +312,9 @@ public class OnlineGame extends Game {
         } else if (username.equals(blackPlayer.playerName)) {
             umpire.resign(blackPlayer);
         }
+
+        whitePlayer.provideMove(new Move());
+        blackPlayer.provideMove(new Move());
     }
 
     public interface TimerCallback {
@@ -270,7 +349,8 @@ public class OnlineGame extends Game {
                     if (seconds > 0) {
                         seconds--;
                     } else {
-                        if(Constants.DEBUG) System.out.println("Timer finished!");
+                        if (Constants.DEBUG)
+                            System.out.println("Timer finished!");
                         callback.onTimerFinished();
                         stop();
                     }
@@ -292,7 +372,7 @@ public class OnlineGame extends Game {
     }
 
     class SocketPlayer extends HumanPlayer {
-        SocketIOClient client;
+        public SocketIOClient client;
 
         public SocketPlayer(boolean isWhite, SocketIOClient client) {
             super(isWhite);
@@ -330,7 +410,7 @@ public class OnlineGame extends Game {
 
         public UmpireText(SocketIOClient client, ArrayList<String> messages) {
             this.client = client;
-            if(messages != null) {
+            if (messages != null) {
                 this.messages = messages;
             }
         }
@@ -398,7 +478,8 @@ public class OnlineGame extends Game {
         }
 
         public void communicateOutcome(Player p, int outcome) {
-            if(Constants.DEBUG) System.out.println("Outcome: " + outcome);
+            if (Constants.DEBUG)
+                System.out.println("Outcome: " + outcome);
             if (!p.isHuman() || finished)
                 return;
             String s = (p.isWhite ? "White" : "Black");

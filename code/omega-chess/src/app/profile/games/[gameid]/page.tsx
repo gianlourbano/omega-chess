@@ -9,6 +9,7 @@ import Button from "@/components/Button"
 import pgnParser from "pgn-parser";
 import { motion } from "framer-motion";
 import Image from "next/image"
+import Spinner from "@/components/Spinner";
 
 const PgnLoader = ({props}: {props: {pgnstring: string}}) => {
 
@@ -205,7 +206,13 @@ export default function ReplayPage({params}: {params: {gameid: string}}) {
 
     const {data, isLoading, error} = useSWR(`/api/games/${params.gameid}`, fetcher)
 
-    if(isLoading) return (<main><h1>Loading...</h1></main>)
+    if (isLoading)
+        return (
+            <div className="h-full w-full flex items-center justify-center">
+                {" "}
+                <Spinner />{" "}
+            </div>
+        );
     if(error) return (<main><h1>Error: {error.message}</h1></main>)
 
     

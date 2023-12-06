@@ -339,7 +339,8 @@ public class SocketModule {
                             client.getSessionId().toString(), room, username, data);
 
                     Game game = games.get(room);
-                    game.makeMove(data, username);
+                    if(game.status == Game.GameStatus.STARTED)
+                        game.makeMove(data, username);
 
                     break;
                 }
@@ -409,15 +410,19 @@ public class SocketModule {
 
                     Game g = games.get(room);
 
+                    if (g == null) {
+                        return;
+                    }
+                    
+                    if (g.status == Game.GameStatus.WAITING_FOR_BLACK) {
+                        OnlineGame.deleteLobby(room);
+                    }
+
                     int pl = server.getRoomOperations(room).getClients().size();
 
                     if (pl == 0) {
                         g.stopTimers();
                         games.remove(room);
-                    }
-
-                    if (g == null) {
-                        return;
                     }
 
                     if (g.status == Game.GameStatus.FINISHED) {
