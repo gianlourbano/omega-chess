@@ -36,8 +36,8 @@ export default async function RootLayout({
                             smoothButtonsTransition: true,
                         }}
                     >
-                        <main className="sm:grid grid-cols-5 gap-1 h-screen">
-                            <aside className=" sm:sticky sm:top-0 hidden sm:block">
+                        <main className="sm:grid grid-cols-5 gap-1">
+                            <aside className=" hidden md:block md:h-screen md:z-[1001] md:sticky md:top-0 md:col-span-1">
                                 <Menu />
                             </aside>
                             <MobileMenu />
