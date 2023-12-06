@@ -54,7 +54,7 @@ const whiteHidden = {
     wB: () => {
         return <></>;
     },
-    wN: () => { 
+    wN: () => {
         return <></>;
     },
 };
@@ -66,7 +66,7 @@ const OnlineGame = ({ room }) => {
 
     const [gamePosition, setGamePosition] = useState();
     const { data: session, status } = useSession();
-    
+
     const [messages, setMessages] = useState([]);
     const [playerColor, setPlayerColor] = useState("white");
 
@@ -117,7 +117,7 @@ const OnlineGame = ({ room }) => {
             })
             .then(() => {
                 const s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
-                    reconnection: false,
+                    reconnection: true,
                     query: {
                         gameType: "online",
                         username: session && session.user.username,
@@ -129,15 +129,38 @@ const OnlineGame = ({ room }) => {
                 socket.current = s;
 
                 s.on("connect", () => {
-                    console.log("connected")
+                    console.log("connected");
                     s.emit("ready", (msg) => {
                         console.log(msg);
-                    })
-                })
+                    });
+                });
 
                 s.on("opponent_connected", (name) => {
                     setOpponentName(name);
+                });
+
+                s.on("reconnection", (data) => {
+                    console.log(data);
+                    setGamePosition(data.fen);
+
+                    setMessages(() => [...data.messages])
+
+                    const turn = data.fen.split(" ")[1];
+                    console.log(turn);
+                    if (turn === "b") {
+                        whitePlayerTimer.stop();
+                        blackPlayerTimer.start();
+                    } else {
+                        whitePlayerTimer.start();
+                        blackPlayerTimer.stop();
+                    }
                 })
+
+                s.on("remaining_time", (data) => {
+                    console.log(data);
+                    whitePlayerTimer.setTimer(data.whiteTime);
+                    blackPlayerTimer.setTimer(data.blackTime);
+                });
 
                 s.on("chessboard_changed", (data) => {
                     setGamePosition(data);
@@ -167,15 +190,12 @@ const OnlineGame = ({ room }) => {
             });
 
         return () => {
+            /*TODO
+            modificare questo in modo che quando uno si disconnette non fa nulla
+            dal server dobbiamo eliminare la lobby quando scade il timer di uno dei due o quando uno si aggiorna
+            */
             if (socket.current) {
-                fetch("/api/games/lobby", {
-                    method: "DELETE",
-                    header: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ room: room }),
-                });
-                socket.current.emit("game_finished");
+                
                 socket.current.disconnect();
             }
         };
@@ -266,7 +286,6 @@ const OnlineGame = ({ room }) => {
     }
 
     if (status === "unauthenticated") {
-        
         router.push(`/login`);
     }
 
@@ -290,13 +309,19 @@ const OnlineGame = ({ room }) => {
                 <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
                     {status === "authenticated" ? (
                         <div className="text-center text-2xl">
-                        Playing as {session.user.username} vs{" "}
-                        {opponentName || "In attesa dell'avversario..."}
+                            Playing as {session.user.username} vs{" "}
+                            {opponentName || "In attesa dell'avversario..."}
                         </div>
                     ) : (
-                    <div className="text-center text-2xl">Guestone</div>
+                        <div className="text-center text-2xl">Guestone</div>
                     )}
-                    <DarkboardTimer timer={blackPlayerTimer} />
+                    <DarkboardTimer
+                        timer={
+                            playerColor === "white"
+                                ? blackPlayerTimer
+                                : whitePlayerTimer
+                        }
+                    />
                     <Chessboard
                         id="onlineGame"
                         position={gamePosition} //la partita inizia appena si entra nella lobby, il tempo parte dopo la prima mossa
@@ -307,47 +332,61 @@ const OnlineGame = ({ room }) => {
                         }}
                         boardOrientation={playerColor}
                     />
-                    <DarkboardTimer timer={whitePlayerTimer} />
+                    <DarkboardTimer
+                        timer={
+                            playerColor === "white"
+                                ? whitePlayerTimer
+                                : blackPlayerTimer
+                        }
+                    />
                 </div>
                 <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
                     <div className="flex flex-row justify-center gap-3">
                         <Button
                             className="text-2xl text-center"
                             color="primary"
-                            onClick={() => setQuickRules(false)}>
-                                Umpire
+                            onClick={() => setQuickRules(false)}
+                        >
+                            Umpire
                         </Button>
                         <Button
                             className="text-2xl text-center"
                             color="primary"
-                            onClick={() => setQuickRules(true)} >
-                                Quick Rules
+                            onClick={() => setQuickRules(true)}
+                        >
+                            Quick Rules
                         </Button>
                     </div>
-                    {!quickRules &&
-                    <>
-                        <Button
-                            color="secondary"
-                            onClick={() => socket.current.emit("resign_game")}
-                        >
-                            Resign
-                        </Button>
+                    {!quickRules && (
+                        <>
+                            <Button
+                                color="secondary"
+                                onClick={() =>
+                                    socket.current.emit("resign_game")
+                                }
+                            >
+                                Resign
+                            </Button>
 
-                        <AutoScrollBox items={messages} className="hidden sm:block">
-                            {messages.map((message, index) => (
-                                <p key={index} className="rounded p-1">
-                                    {message}
-                                </p>
-                            ))}
-                        </AutoScrollBox>
-                        <div className="sm:hidden flex flex-col-reverse gap-1 overflow-y-auto">
-                            {messages.map((message, index) => (
-                                <p key={index} className="rounded p-2">
-                                    {message}
-                                </p>
-                            ))}
-                        </div>
-                    </>}
+                            <AutoScrollBox
+                                items={messages}
+                                className="hidden sm:block"
+                            >
+                                {messages.map((message, index) => (
+                                    <p key={index} className="rounded p-1">
+                                        {message}
+                                    </p>
+                                ))}
+                            </AutoScrollBox>
+                            <div className="sm:hidden flex flex-col-reverse gap-1 overflow-y-auto">
+                                {messages.map((message, index) => (
+                                    <p key={index} className="rounded p-2">
+                                        {message}
+                                    </p>
+                                ))}
+                            </div>
+                        </>
+                    )}
                     {quickRules && <QuickRules />}
                 </div>
             </div>

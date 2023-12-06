@@ -39,9 +39,6 @@ public class DeveloperGame extends Game {
     }
 
     public DeveloperGame(SocketIOClient bot) {
-        String path = System.getProperty("user.home") + "/darkboard_data/";
-		System.out.println(path);
-		Darkboard.initialize(path);
         this.botClient = bot;
         this.bot = new SocketPlayer(true, bot);
 

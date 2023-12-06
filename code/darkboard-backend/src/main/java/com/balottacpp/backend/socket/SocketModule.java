@@ -57,10 +57,10 @@ public class SocketModule {
         server.addEventListener("ready", String.class, onPlayerReady());
     }
 
-    //TODO: implement offer draw
+    // TODO: implement offer draw
     private DataListener<String> onOfferDrawReceived() {
         return (client, data, ackSender) -> {
-            
+
         };
     }
 
@@ -79,10 +79,10 @@ public class SocketModule {
             switch (gameType) {
                 case Constants.GAME_TYPE_DARKBOARD:
 
-                        room = params.get("room").stream().collect(Collectors.joining());
+                    room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
 
-                    log.info("Player {} is ready in room {}",
+                    if(Constants.DEBUG) log.info("Player {} is ready in room {}",
                             username, room);
 
                     Game dbgame = games.get(room);
@@ -108,12 +108,12 @@ public class SocketModule {
                     }
 
                     room = token + username;
-                    
+
                     Game devgame = games.get(room);
                     devgame.resignGame(username);
                     break;
                 case Constants.GAME_TYPE_ONLINE: {
-                    
+
                     room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
 
@@ -145,13 +145,13 @@ public class SocketModule {
                     room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
 
-                    log.info("Player {} is ready in room {}",
+                    if(Constants.DEBUG) log.info("Player {} is ready in room {}",
                             username, room);
 
                     Game dbgame = new DarkboardGame(room, username, "Darkboard", client);
                     games.put(room, dbgame);
 
-                    //start the game in a different thread
+                    // start the game in a different thread
 
                     new Thread(() -> {
                         dbgame.startGame();
@@ -181,11 +181,10 @@ public class SocketModule {
                     Game devgame = new DeveloperGame(client);
                     games.put(room, devgame);
 
-                    //start the game in a different thread
+                    // start the game in a different thread
                     new Thread(() -> {
                         devgame.startGame();
                     }).start();
-                    
 
                     break;
                 case Constants.GAME_TYPE_ONLINE: {
@@ -193,15 +192,30 @@ public class SocketModule {
                     room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
 
-                    log.info("Player {} is ready in room {}",
+                    if(Constants.DEBUG) log.info("Player {} is ready in room {}",
                             username, room);
 
                     int connectedPlayers = server.getRoomOperations(room).getClients().size();
 
-                    if (connectedPlayers < 2) {
-                        Game game = new OnlineGame(gameType);
+                    Game g = games.get(room);
+                    if (g != null && g.status == Game.GameStatus.STARTED) {
+                        if ((!g.getUsername("white").equals(username) && !g.getUsername("black").equals(username))) {
+                            client.sendEvent("error", "You are not a player in this game");
+                            client.disconnect();
+                            return;
+                        } else {
+                            System.out.println("Reconnecting player: " + username);
+                            g.handleReconnect(client, username);
+                            return;
+                        }
+
+                    }
+
+                    if (connectedPlayers == 1) {
+                        Game game = new OnlineGame(gameType, room);
                         games.put(room, game);
                         game.whiteConnected(client, username);
+                        game.status = Game.GameStatus.WAITING_FOR_BLACK;
 
                     } else if (connectedPlayers == 2) {
                         Game game = games.get(room);
@@ -240,7 +254,7 @@ public class SocketModule {
                     room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
                     client.joinRoom(room);
-                    log.info("Socket ID[{}] - room[{}] - username [{}]  Connected to server [mode: {}]",
+                    if(Constants.DEBUG) log.info("Socket ID[{}] - room[{}] - username [{}]  Connected to server [mode: {}]",
                             client.getSessionId().toString(), room, username, gameType);
                     break;
                 case Constants.GAME_TYPE_DEVELOPER:
@@ -265,14 +279,14 @@ public class SocketModule {
 
                     client.joinRoom(room);
 
-                    log.info("Socket ID[{}] - token[{}] - username [{}]  Connected to server [mode: {}]",
+                    if(Constants.DEBUG) log.info("Socket ID[{}] - token[{}] - username [{}]  Connected to server [mode: {}]",
                             client.getSessionId().toString(), token, username, gameType);
 
                     break;
                 case Constants.GAME_TYPE_ONLINE: {
                     room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
-                    log.info("Socket ID[{}] - room[{}] - username [{}]  Connected to server [mode: {}]",
+                    if(Constants.DEBUG) log.info("Socket ID[{}] - room[{}] - username [{}]  Connected to server [mode: {}]",
                             client.getSessionId().toString(), room, username, gameType);
                     client.joinRoom(room);
                     int size = server.getRoomOperations(room).getClients().size();
@@ -321,7 +335,7 @@ public class SocketModule {
                 case Constants.GAME_TYPE_ONLINE: {
                     room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
-                    log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
+                    if(Constants.DEBUG) log.info("Socket ID[{}] - room[{}] - username [{}]  {}",
                             client.getSessionId().toString(), room, username, data);
 
                     Game game = games.get(room);
@@ -351,7 +365,7 @@ public class SocketModule {
                     room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
 
-                    log.info("Socket ID[{}] - room[{}] - username [{}]  discnnected to chat module through",
+                    if(Constants.DEBUG) log.info("Socket ID[{}] - room[{}] - username [{}]  discnnected to chat module through",
                             client.getSessionId().toString(), room, username);
 
                     client.leaveRoom(room);
@@ -372,7 +386,7 @@ public class SocketModule {
                     username = params.get("username").stream().collect(Collectors.joining());
                     room = token + username;
                     client.leaveRoom(room);
-                    log.info("Socket ID[{}] - token[{}] - username [{}]  disconnected [mode: {}]",
+                    if(Constants.DEBUG) log.info("Socket ID[{}] - token[{}] - username [{}]  disconnected [mode: {}]",
                             client.getSessionId().toString(), token, username, gameType);
 
                     Game gamedev = games.get(room);
@@ -389,17 +403,25 @@ public class SocketModule {
                     room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
 
-                    log.info("Socket ID[{}] - room[{}] - username [{}]  discnnected to chat module through",
+                    if(Constants.DEBUG) log.info("Socket ID[{}] - room[{}] - username [{}]  discnnected to chat module through",
                             client.getSessionId().toString(), room, username);
                     client.leaveRoom(room);
 
                     Game g = games.get(room);
+
+                    int pl = server.getRoomOperations(room).getClients().size();
+
+                    if (pl == 0) {
+                        g.stopTimers();
+                        games.remove(room);
+                    }
 
                     if (g == null) {
                         return;
                     }
 
                     if (g.status == Game.GameStatus.FINISHED) {
+                        g.stopTimers();
                         games.remove(room);
                     }
 

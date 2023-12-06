@@ -13,10 +13,27 @@ import ai.player.Player;
 import ai.player.PlayerListener;
 import core.Chessboard;
 import core.Move;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import pgn.ExtendedPGNGame;
 import umpire.local.ChessboardStateListener;
 import umpire.local.LocalUmpire;
 import umpire.local.StepwiseLocalUmpire;
+
+import java.util.Arrays;
+import java.util.ArrayList;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+/*
+dentro il loop di gioco mandare un evento "your turn"
+    dentro tale evento ci mettiamo il timer così il client può aggiornarlo
+
+dobbiamo quindi creare un timer che vada lato server, 
+    lo possiamo mettere dentro la classe del socket player o del game
+*/
 
 public class OnlineGame extends Game {
     SocketPlayer whitePlayer;
@@ -26,26 +43,41 @@ public class OnlineGame extends Game {
     SocketIOClient blackClient;
 
     String gameType;
+    String room;
 
     StepwiseLocalUmpire umpire;
 
-    public OnlineGame(String gameType) {
+    CountdownTimer whiteTimer, blackTimer;
+
+    ChessboardSocket whiteChessBoardListener, blackChessBoardListener;
+    UmpireText whiteUmpireText, blackUmpireText;
+
+    
+
+    public OnlineGame(String gameType, String room) {
         this.gameType = gameType;
+        this.room = room;
+    }
+
+    public String getUsername(String pl) {
+        if (pl.equals("white"))
+            return whitePlayer.playerName;
+        else if (pl.equals("black"))
+            return blackPlayer.playerName;
+        else
+            return null;
     }
 
     @Override
     public void whiteConnected(SocketIOClient whiteClient, String username) {
-        /** TODO: move this out of here */
-        String path = System.getProperty("user.home") + "/darkboard_data/";
-		System.out.println(path);
-		Darkboard.initialize(path);
-
-        System.out.println("White connected: " + username);
-        if(whiteClient == null) System.out.println("whiteClient is null");
+        if(Constants.DEBUG) System.out.println("White connected: " + username);
+        if (whiteClient == null)
+            if(Constants.DEBUG) System.out.println("whiteClient is null");
         this.whiteClient = whiteClient;
         whitePlayer = new SocketPlayer(true, whiteClient);
         whitePlayer.playerName = username;
-        whitePlayer.addPlayerListener(new UmpireText(whiteClient));
+        whiteUmpireText = new UmpireText(whiteClient, null);
+        whitePlayer.addPlayerListener(whiteUmpireText);
     }
 
     @Override
@@ -55,77 +87,135 @@ public class OnlineGame extends Game {
         var params = blackClient.getHandshakeData().getUrlParams();
         String blackUsername = params.get("username").stream().collect(Collectors.joining());
         blackPlayer.playerName = blackUsername;
-        blackPlayer.addPlayerListener(new UmpireText(blackClient));
+        blackUmpireText = new UmpireText(blackClient, null);
+        blackPlayer.addPlayerListener(blackUmpireText);
 
-        /* since black player is the last to connect,
-           inform both players that they have an apponent */
+        /*
+         * since black player is the last to connect,
+         * inform both players that they have an apponent
+         */
         blackClient.sendEvent("opponent_connected", whitePlayer.playerName);
         whiteClient.sendEvent("opponent_connected", blackPlayer.playerName);
 
         /* initialize umpire */
         umpire = new StepwiseLocalUmpire(whitePlayer, blackPlayer);
-        umpire.addListener(new ChessboardSocket(whiteClient));
-        umpire.addListener(new ChessboardSocket(blackClient));
+
+        whiteChessBoardListener = new ChessboardSocket(whiteClient);
+        blackChessBoardListener = new ChessboardSocket(blackClient);
+        umpire.addListener(whiteChessBoardListener);
+        umpire.addListener(blackChessBoardListener);
 
         umpire.stepwiseInit(null, null);
 
-        System.out.println("Game ready to start: " + whitePlayer.playerName + " vs " + blackPlayer.playerName);
-        this.startGame();
+        if(Constants.DEBUG) System.out.println("Game ready to start: " + whitePlayer.playerName + " vs " + blackPlayer.playerName);
         this.status = GameStatus.STARTED;
+        this.startGame();
     }
 
-    /*
-     * game starts after both players are ready
-     */
-    public OnlineGame(String gameType, SocketIOClient whiteClient, SocketIOClient blackClient) {
-        this.gameType = gameType;
-        this.whiteClient = whiteClient;
-        this.blackClient = blackClient;
+    @Data
+    @AllArgsConstructor
+    public class ReconnectionData {
+        String fen;
+        ArrayList<String> messages;
+    }
 
-        /* set players' parameters */
-        whitePlayer = new SocketPlayer(true, whiteClient);
-        blackPlayer = new SocketPlayer(false, blackClient);
+    public void handleReconnect(SocketIOClient client, String username) {
+        if (whitePlayer.playerName.equals(username)) {
+            ArrayList<String> messages = whiteUmpireText.messages;
+            whitePlayer.provideMove(null);
+            whiteClient = client;
+            whiteUmpireText.client = client;
+            whiteChessBoardListener.client = client;
 
-        var params = whiteClient.getHandshakeData().getUrlParams();
-        String whiteUsername = params.get("username").stream().collect(Collectors.joining());
+            whiteClient.sendEvent("opponent_connected", blackPlayer.playerName);
+            whiteClient.sendEvent("reconnection",
+                    new ReconnectionData(umpire.toFen(),messages));
+            whiteClient.sendEvent("remaining_time", new TimeInfo(whiteTimer.getTime(), blackTimer.getTime()));
+        } else if (blackPlayer.playerName.equals(username)) {
+            ArrayList<String> messages = blackUmpireText.messages;
+            blackPlayer.provideMove(null);
+            
+            blackClient = client;
+            blackUmpireText.client = client;
+            blackChessBoardListener.client = client;
 
-        params = blackClient.getHandshakeData().getUrlParams();
-        String blackUsername = params.get("username").stream().collect(Collectors.joining());
+            blackClient.sendEvent("opponent_connected", whitePlayer.playerName);
+            blackClient.sendEvent("reconnection",
+                    new ReconnectionData(umpire.toFen(), messages));
+            blackClient.sendEvent("remaining_time", new TimeInfo(whiteTimer.getTime(), blackTimer.getTime()));
+        }
+    }
 
-        whitePlayer.playerName = whiteUsername;
-        blackPlayer.playerName = blackUsername;
+    SocketPlayer getPlayer(String username) {
+        if (whitePlayer.playerName.equals(username))
+            return whitePlayer;
+        else if (blackPlayer.playerName.equals(username))
+            return blackPlayer;
+        else
+            return null;
+    }
 
-        /* set umpire */
-        umpire = new StepwiseLocalUmpire(whitePlayer, blackPlayer);
+    CountdownTimer getTimer(String username) {
+        if (whitePlayer.playerName.equals(username))
+            return whiteTimer;
+        else if (blackPlayer.playerName.equals(username))
+            return blackTimer;
+        else
+            return null;
+    }
 
-        whitePlayer.addPlayerListener(new UmpireText(whiteClient));
-        blackPlayer.addPlayerListener(new UmpireText(blackClient));
+    public void stopTimers() {
+        whiteTimer.stop();
+        blackTimer.stop();
+    }
 
-        umpire.addListener(new ChessboardSocket(whiteClient));
-        umpire.addListener(new ChessboardSocket(blackClient));
-
-        umpire.stepwiseInit(null, null);
-
-        System.out.println("Game ready to start: " + whitePlayer.playerName + " vs " + blackPlayer.playerName);
-        whiteClient.sendEvent("game_started");
-
+    @Data
+    @AllArgsConstructor
+    public class TimeInfo extends Object {
+        int whiteTime;
+        int blackTime;
     }
 
     public void startGame() {
-        System.out.println("Starting game");
+        if(Constants.DEBUG) System.out.println("Starting game");
+
+        whiteTimer = new CountdownTimer(600, () -> {
+            if(Constants.DEBUG) System.out.println("White timer finished");
+            umpire.resign(whitePlayer);
+        });
+        blackTimer = new CountdownTimer(600, () -> {
+            if(Constants.DEBUG) System.out.println("Black timer finished");
+            umpire.resign(blackPlayer);
+        });
+
+        Timer updater = new Timer();
+
+        updater.scheduleAtFixedRate(new TimerTask() {
+            public void run() {
+                whiteClient.sendEvent("remaining_time", new TimeInfo(whiteTimer.getTime(), blackTimer.getTime()));
+                blackClient.sendEvent("remaining_time", new TimeInfo(whiteTimer.getTime(), blackTimer.getTime()));
+            }
+        }, 0, 15 * 1000);
+
         while (umpire.getGameOutcome() == LocalUmpire.NO_OUTCOME) {
             Player p = umpire.turn();
-            // f.interrogatePlayer(t==0);
+            CountdownTimer t = getTimer(p.playerName);
+            t.resume();
             Move m = p.getNextMove();
             umpire.stepwiseArbitrate(m);
+            t.stop();
+            if(Constants.DEBUG) System.out.println("Remaining time for " + p.playerName + ": " + t.getTime() / 60 + ":" + t.getTime() % 60);
+            whiteClient.sendEvent("remaining_time", new TimeInfo(whiteTimer.getTime(), blackTimer.getTime()));
+            blackClient.sendEvent("remaining_time", new TimeInfo(whiteTimer.getTime(), blackTimer.getTime()));
         }
-        System.out.println("Game Over!");
+        updater.cancel();
+        if(Constants.DEBUG) System.out.println("Game Over!");
         this.status = GameStatus.FINISHED;
     }
 
     public void makeMove(String move, String username) {
         // build move
-        System.out.println("Move: " + move);
+        if(Constants.DEBUG) System.out.println("Move: " + move);
 
         boolean isWhite = username.equals(whitePlayer.playerName) ? true : false;
 
@@ -145,6 +235,59 @@ public class OnlineGame extends Game {
             umpire.resign(whitePlayer);
         } else if (username.equals(blackPlayer.playerName)) {
             umpire.resign(blackPlayer);
+        }
+    }
+
+    public interface TimerCallback {
+        public void onTimerFinished();
+    }
+
+    public class CountdownTimer {
+
+        private Timer timer;
+        private int seconds;
+        private boolean isRunning;
+        private TimerCallback callback;
+
+        public CountdownTimer(int seconds, TimerCallback callback) {
+            this.seconds = seconds;
+            this.timer = new Timer();
+            this.callback = callback;
+        }
+
+        public int getTime() {
+            return seconds;
+        }
+
+        public void start() {
+            if (isRunning) {
+                return;
+            }
+
+            isRunning = true;
+            timer.scheduleAtFixedRate(new TimerTask() {
+                public void run() {
+                    if (seconds > 0) {
+                        seconds--;
+                    } else {
+                        if(Constants.DEBUG) System.out.println("Timer finished!");
+                        callback.onTimerFinished();
+                        stop();
+                    }
+                }
+            }, 0, 1000);
+        }
+
+        public void stop() {
+            timer.cancel();
+            timer = new Timer();
+            isRunning = false;
+        }
+
+        public void resume() {
+            if (!isRunning) {
+                start();
+            }
         }
     }
 
@@ -170,16 +313,26 @@ public class OnlineGame extends Game {
 
         public void chessboardStateChanged() {
             client.sendEvent("chessboard_changed", umpire.toFen());
+
+        }
+
+        public void updateClient(SocketIOClient client) {
+            this.client = client;
         }
     }
 
     public class UmpireText implements PlayerListener {
+
+        ArrayList<String> messages = new ArrayList<String>();
         SocketIOClient client;
 
         boolean finished = false;
 
-        public UmpireText(SocketIOClient client) {
+        public UmpireText(SocketIOClient client, ArrayList<String> messages) {
             this.client = client;
+            if(messages != null) {
+                this.messages = messages;
+            }
         }
 
         public int currentMove() {
@@ -216,6 +369,7 @@ public class OnlineGame extends Game {
 
         public void preAppend(String s) {
             // setText(s+"\n"+getText());
+            messages.add(s);
             client.sendEvent("read_message", s);
         }
 
@@ -244,7 +398,7 @@ public class OnlineGame extends Game {
         }
 
         public void communicateOutcome(Player p, int outcome) {
-            System.out.println("Outcome: " + outcome);
+            if(Constants.DEBUG) System.out.println("Outcome: " + outcome);
             if (!p.isHuman() || finished)
                 return;
             String s = (p.isWhite ? "White" : "Black");

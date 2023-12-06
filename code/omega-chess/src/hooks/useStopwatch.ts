@@ -14,7 +14,7 @@ const useStopwatch = (
 
     // state to check stopwatch running or not
     const [isRunning, setIsRunning] = useState(false);
-
+    
     useEffect(() => {
         let intervalId: any;
         if (isRunning) {
@@ -50,7 +50,12 @@ const useStopwatch = (
     const reset = () => {
         setTime(START_TIME);
     };
-    return { minutes, seconds, milliseconds, start, stop, reset, isRunning };
+    
+    const setTimer = (time: number) => {
+        setTime(time);
+    };
+
+    return { minutes, seconds, milliseconds, start, stop, reset, isRunning, setTimer };
 };
 
 export default useStopwatch;

@@ -211,9 +211,6 @@ public class DarkboardGame extends Game {
 	}
 
 	public DarkboardGame(String room, String whitePlayer, String blackPlayer, SocketIOClient client) {
-		String path = System.getProperty("user.home") + "/darkboard_data/";
-		System.out.println(path);
-		Darkboard.initialize(path);
 		OpponentProfile op = OpponentProfile.getProfile("rjay");
 
 		UmpireText ut = new UmpireText(client);
