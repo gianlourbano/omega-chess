@@ -4,14 +4,11 @@
 
 .friends {
     grid-area: friends;
+    overflow: visible;
 }
 
 .stats {
     grid-area: stats;
-}
-
-.edit {
-    grid-area: edit;
 }
 
 @media screen and (min-width: 1100px) {
@@ -24,19 +21,19 @@
             "profile profile profile friends"
             "stats stats stats friends"
             "stats stats stats friends"
-            "stats stats stats friends"
+            "stats stats stats friends";
     }
 
-    .container_edit {
+    .container_extended {
         display: grid;
         gap: 1rem;
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: repeat(4, 1fr);
         grid-template-areas:
             "profile profile profile friends"
-            "edit edit edit friends"
             "stats stats stats friends"
             "stats stats stats friends"
+            "stats stats stats friends";
     }
 }
 
@@ -45,24 +42,10 @@
         display: grid;
         gap: 1rem;
         grid-template-columns: repeat(1, 1fr);
-        grid-template-rows: repeat(4, 1fr);
+        grid-template-rows: repeat(3, 0.3fr);
         grid-template-areas:
             "profile"
             "stats"
-            "stats"
-            "friends"
-    }
-
-    .container_edit {
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: repeat(1, 1fr);
-        grid-template-rows: repeat(5, 1fr);
-        grid-template-areas:
-            "profile"
-            "edit"
-            "stats"
-            "stats"
-            "friends"
+            "friends";
     }
 }
