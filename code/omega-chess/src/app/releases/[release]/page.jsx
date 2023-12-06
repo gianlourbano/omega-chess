@@ -12,7 +12,7 @@ import rehypeExternalLinks from 'rehype-external-links'
 
 import Content from "./content";
 
-import styles from "./md-classes.json";
+import styles from "@/utils/md-classes.json";
 
 // Your markdown folder for posts.
 const postsDirectory = path.join(process.cwd(), "releases");

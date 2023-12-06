@@ -33,6 +33,6 @@
         "src/app/test-ws/page.jsx",
         "src/components/Darkboard/DarkboardGame.jsx",
         "../../test/omega-chess/src/app/api/healthcheck/route.test.js"
-, "src/components/OnlineGame/OnlineGame.jsx"    ],
+, "src/components/OnlineGame/OnlineGame.jsx", "src/hooks/useMarkdown.js", "src/app/developer/api/darkboard/page.jsx"    ],
     "exclude": ["node_modules"]
 }
