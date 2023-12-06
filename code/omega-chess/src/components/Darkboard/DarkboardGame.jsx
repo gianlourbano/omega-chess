@@ -70,10 +70,19 @@ const DarkboardGame = ({ room }) => {
             query: {
                 username: session ? session.user.username : "guest",
                 room: room,
+                gameType: "darkboard",
             },
             path: process.env.NEXT_PUBLIC_SOCKETIO_PATH,
         });
         setSocket(s);
+
+        s.on("connect", () => {
+            console.log("connected");
+            s.emit("ready", () => {
+                whitePlayerTimer.start();
+                blackPlayerTimer.stop();
+            });
+        });
 
         s.on("chessboard_changed", (data) => {
             setGamePosition(data);
@@ -107,15 +116,6 @@ const DarkboardGame = ({ room }) => {
             s.disconnect();
         };
     }, []);
-
-    useEffect(() => {
-        if (socket) {
-            socket.emit("start_game", () => {
-                whitePlayerTimer.start();
-                blackPlayerTimer.stop();
-            });
-        }
-    }, [socket]);
 
     const handleGameOver = (data) => {
         setGameOver(true);
@@ -172,9 +172,8 @@ const DarkboardGame = ({ room }) => {
     const [customPieces, setCustomPieces] = useState(hidden);
     const [messages, setMessages] = useState([]);
 
-    const whitePlayerTimer = useStopwatch(1000 * 60);
-
-    const blackPlayerTimer = useStopwatch(1000 * 60);
+    const whitePlayerTimer = useStopwatch(10 * 60);
+    const blackPlayerTimer = useStopwatch(10 * 60);
 
     if (status === "loading") {
         return <div>Loading...</div>;
@@ -223,40 +222,46 @@ const DarkboardGame = ({ room }) => {
                         <Button
                             className="text-2xl text-center"
                             color="primary"
-                            onClick={() => setQuickRules(false)}>
-                                Umpire
+                            onClick={() => setQuickRules(false)}
+                        >
+                            Umpire
                         </Button>
                         <Button
                             className="text-2xl text-center"
                             color="primary"
-                            onClick={() => setQuickRules(true)} >
-                                Quick Rules
+                            onClick={() => setQuickRules(true)}
+                        >
+                            Quick Rules
                         </Button>
                     </div>
-                    {!quickRules &&
-                    <>
-                    <Button
-                        color="secondary"
-                        onClick={() => socket.emit("resign_game")}
-                    >
-                        Resign
-                    </Button>
+                    {!quickRules && (
+                        <>
+                            <Button
+                                color="secondary"
+                                onClick={() => socket.emit("resign_game")}
+                            >
+                                Resign
+                            </Button>
 
-                    <AutoScrollBox items={messages} className="hidden sm:block">
-                        {messages.map((message, index) => (
-                            <p key={index} className="rounded p-1">
-                                {message}
-                            </p>
-                        ))}
-                    </AutoScrollBox>
-                    <div className="sm:hidden flex flex-col-reverse gap-1 overflow-y-auto">
-                        {messages.map((message, index) => (
-                            <p key={index} className="rounded p-2">
-                                {message}
-                            </p>
-                        ))}
-                    </div>
-                    </>}
+                            <AutoScrollBox
+                                items={messages}
+                                className="hidden sm:block"
+                            >
+                                {messages.map((message, index) => (
+                                    <p key={index} className="rounded p-1">
+                                        {message}
+                                    </p>
+                                ))}
+                            </AutoScrollBox>
+                            <div className="sm:hidden flex flex-col-reverse gap-1 overflow-y-auto">
+                                {messages.map((message, index) => (
+                                    <p key={index} className="rounded p-2">
+                                        {message}
+                                    </p>
+                                ))}
+                            </div>
+                        </>
+                    )}
                     {quickRules && <QuickRules />}
                 </div>
             </div>
