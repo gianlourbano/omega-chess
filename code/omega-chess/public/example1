@@ -1,0 +1,111 @@
+---
+title: "Socket.io Client"
+description: "A simple example of how to connect to our Darkboard Server."
+---
+const io = require("socket.io-client");
+let readline = require("readline");
+const { Chess } = require("chess.js");
+
+var chess, socket;
+
+const clearAndPrint = (str) => {
+    console.clear();
+    console.log(str);
+}
+
+// Utility functions
+const makeRandomMove = () => {
+    const moves = chess.moves();
+    const move = moves[Math.floor(Math.random() * moves.length)];
+    return move;
+};
+
+const move = () => {
+    socket.emit("make_move", makeRandomMove());
+};
+
+// Right now, darkboard sends the whole board, so we need to hide the opponent's pieces
+const hideOpponent = () => {
+    const ascii = chess.ascii();
+    const asciiArray = ascii.split("\n");
+    const asciiArray2 = asciiArray.map((row, index) => {
+        if (index == asciiArray.length - 1) return row;
+        return row.replace(/[a-z]/g, ".");
+    });
+   return asciiArray2.join("\n");
+};
+
+// Read input from command line: press m to make a random move, ctrl+c to exit
+readline.emitKeypressEvents(process.stdin);
+process.stdin.on("keypress", (ch, key) => {
+    if (key && key.name == "m") {
+        if(chess.turn() == "b") return;
+        move();
+    }
+    if (key && key.ctrl && key.name == "c") {
+        process.exit();
+    }
+});
+process.stdin.setRawMode(true);
+
+const connectionPayloadDeveloper = {
+    username: "TestBot",
+    gameType: "developer",
+    token: "bec635e710d6cdd5f3d3aa2b1c2e7d907e45881eaf5d496b"
+}
+
+const connectionPayload = {
+    username: "gianlo",
+    gameType: "darkboard",
+    room: "test",
+}
+
+// Main function
+const main = () => {
+    clearAndPrint("Connecting...");
+    // Connection to the server
+    socket = io("http://localhost:8085", {
+        reconnection: false,
+        query: connectionPayloadDeveloper,
+    });
+
+    // Socket events
+    socket.on("connect", () => {
+        clearAndPrint("Connected!");
+
+        // Chess.js instance to keep track of the game
+        chess = new Chess();
+        socket.emit("ready");
+    });
+
+    // When the game is over, print the PGN and exit
+    socket.on("game_over", (pgn) => {
+        clearAndPrint("Game over!");
+        console.log(chess.ascii());
+        console.log(pgn);
+        process.exit();
+    });
+
+    // Receive umpire messages
+    socket.on("read_message", (message) => {
+        console.log(message);
+    });
+
+    // Receive the updated chessboard fen
+    socket.on("chessboard_changed", (fen) => {
+        chess.load(fen);
+        console.log(hideOpponent());
+    });
+
+    socket.on("error", (err) => {
+        console.error("Error: ", err);
+        process.exit(1);
+    })
+
+    socket.on("disconnect", () => {
+        console.log("Disconnected!");
+        process.exit(1);
+    });
+}
+
+main()

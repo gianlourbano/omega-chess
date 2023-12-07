@@ -27,7 +27,7 @@ export const useNewGame = () => {
             .then((res) => res.json())
             .then((data) => {
                 const id = data.id;
-                router.push(`/kriegspiel/${id}`);
+                router.push(`/kriegspiel/darkboard/${id}`);
             })
             .catch((err) => console.log(err))
             .finally(() => setIsLoading(false));

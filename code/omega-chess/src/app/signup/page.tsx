@@ -2,11 +2,11 @@
 
 import CustomLink from "@/components/CustomLink";
 import { signIn, useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container } from "@mui/material";
 import User from "../../db/models/User";
+import { useRouter } from "next/navigation";
 //devo capire come unire il tutto
 
 const SignUpPage = () => {
@@ -15,6 +15,7 @@ const SignUpPage = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const router = useRouter();
 
     const requestLogin = async (e: any) => {
         e.preventDefault();
@@ -26,7 +27,7 @@ const SignUpPage = () => {
         }).then((data) => {
             data?.error
                 ? setError("Credentials do not match!")
-                : redirect("/");
+                : router.push(`/`);
         });
     };
 
@@ -52,7 +53,7 @@ const SignUpPage = () => {
     const { data: session } = useSession();
     useEffect(() => {
         if (session) {
-            redirect("/");
+            router.push("/");
         }
     }, [session]);
 

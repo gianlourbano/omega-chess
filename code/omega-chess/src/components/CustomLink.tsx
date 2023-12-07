@@ -7,6 +7,7 @@ interface CustomLinkProps {
     className?: string;
     disabled?: boolean;
     target?: string;
+    icon?: string,
 }
 
 const CustomLink = (props: CustomLinkProps) => {
@@ -19,6 +20,7 @@ const CustomLink = (props: CustomLinkProps) => {
             }}
         >
             {props.disabled && <Image src="/lock.png" width={32} height={32} alt="lock" />}
+            {props.icon && <Image src={props.icon} width={32} height={32} alt="icon" />}
             {props.children}</Link>
     )
 }

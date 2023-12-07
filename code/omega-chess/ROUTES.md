@@ -75,3 +75,19 @@ RESPONSE
     releases: Array<Release>
 }
 ```
+
+GET `/api/games/lobby/gameType` (get game type from lobby id)
+```json
+RESPONSE
+{
+    gameType: "darkboard" | "online" | "NOTFOUND"
+}
+```
+
+GET `   /api/games/lobby`  (get player color from lobby id and username)
+``` json
+RESPONSE
+{
+    playerColor: "white" | "black" | "NOTFOUND"
+}
+```

@@ -1,6 +1,7 @@
 import User from "@/db/models/User";
 import mongoDriver from "@/db/mongoDriver";
 import bcrypt from "bcrypt";
+import Game from "@/db/models/Game";
 
 export async function GET(
     req: Request,
@@ -9,7 +10,7 @@ export async function GET(
 
     await mongoDriver();
 
-    const user = await User.findOne({ username: params.username }, "username friends email scores").populate("friends", "username email");
+    const user = await User.findOne({ username: params.username }, "username friends email scores games").populate({ path: "games", model: Game }).populate("friends", "username email")
 
     if (!user) {
         return Response.json("User not found.", { status: 404 });
@@ -24,7 +25,13 @@ export async function PUT(
 ) {
     await mongoDriver();
 
-    const { newUsername, newEmail, oldPassword, newPassword, newFriend, removeFriend } = await req.json();
+    const { newUsername, newEmail, oldPassword, newPassword, newFriend, removeFriend, developer } = await req.json();
+
+    if(developer) {
+        const user = await User.findOne({username: params.username})
+        user.role = "developer";
+        await user.save();
+    }
 
     if(newUsername) {
         const old = await User.findOne({username: newUsername})
