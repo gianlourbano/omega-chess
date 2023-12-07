@@ -2,7 +2,7 @@
 
 import OnlineGame from "@/components/OnlineGame/OnlineGame";
 import { useState, useEffect } from 'react';
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Spinner from "@/components/Spinner";
 
 const Page = ({params}: {params: {lobbyid: string}}) => {
@@ -15,10 +15,14 @@ const Page = ({params}: {params: {lobbyid: string}}) => {
         giocatore effettivamente dentro)
     passi il colore ai props di OnlineGame, che poi farà boardorientation
     */
+
+    const searchParams = useSearchParams()
+ 
+    const join = searchParams.has('join')
    
     return (
         <>
-            <OnlineGame room={params.lobbyid}/>
+            <OnlineGame room={params.lobbyid} joining_from_link={join}/>
         </>
     )};
 

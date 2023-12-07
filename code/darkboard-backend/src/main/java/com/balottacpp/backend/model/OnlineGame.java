@@ -110,6 +110,9 @@ public class OnlineGame extends Game {
 
             umpire.stepwiseInit(null, null);
 
+            whiteClient.sendEvent("opponent_connected", blackPlayer.playerName);
+            blackClient.sendEvent("opponent_connected", whitePlayer.playerName);
+
             if (Constants.DEBUG)
                 System.out.println("Game ready to start: " + whitePlayer.playerName + " vs " + blackPlayer.playerName);
             this.status = setStatusBitOn(PLAYING);

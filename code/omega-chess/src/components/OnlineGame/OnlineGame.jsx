@@ -59,7 +59,7 @@ const whiteHidden = {
     },
 };
 
-const OnlineGame = ({ room }) => {
+const OnlineGame = ({ room, joining_from_link }) => {
     //socket hook
     //const [socket, setSocket] = useState();
     const socket = useRef(null);
@@ -91,15 +91,20 @@ const OnlineGame = ({ room }) => {
 
     useEffect(() => {
         if (status === "authenticated") {
-            fetch(`/api/games/lobby/${room}`, {
+            const link = joining_from_link ? `/api/games/lobby/${room}?join` : `/api/games/lobby/${room}`; 
+            fetch(link, {
                 method: "GET",
             })
                 .then((response) => response.json())
                 .then((data) => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
                     console.log("SEssion", session?.user?.username);
                     if (data.whitePlayer === session?.user?.username) {
                         console.log("HERE");
-                        playerColor.current= "white";
+                        playerColor.current = "white";
                         console.log("HERE : ", playerColor);
                         setOpponentName(data.blackPlayer);
                         setCustomPieces(blackHidden);
@@ -110,7 +115,8 @@ const OnlineGame = ({ room }) => {
                         setCustomPieces(whiteHidden);
                         console.log(data.blackPlayer, playerColor.current);
                     }
-                    if (playerColor.current === "error") console.log(data, room);
+                    if (playerColor.current === "error")
+                        console.log(data, room);
                 })
                 .then(() => {
                     let s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
@@ -135,7 +141,7 @@ const OnlineGame = ({ room }) => {
 
                     s.on("opponent_connected", (name) => {
                         setOpponentName(name);
-                        addMessage("Opponent connected!");
+                        addMessage("Opponent connected! \n" + name + " is here!");
                     });
 
                     s.on("reconnection", (data) => {
@@ -202,13 +208,11 @@ const OnlineGame = ({ room }) => {
                     });
                 })
                 .catch((error) => {
-                    console.error(
-                        "Errore nel recupero del colore della lobby:",
-                        error
-                    );
+                    addMessage("Error!\n\t " + error.message);
                 });
+        } else if (status === "unauthenticated") {
+            router.push("/login");
         }
-
     }, [status]);
 
     useEffect(() => {
@@ -216,13 +220,12 @@ const OnlineGame = ({ room }) => {
             if (socket.current) {
                 socket.current.disconnect();
             }
-        }
-    }, [])
+        };
+    }, []);
 
     // useEffect(() => {
     //     if (socket) {
     //         socket.emit("ready", (msg) => {
-    //             console.log(msg);
     //         });
     //     }
     // }, [socket]);
@@ -277,7 +280,7 @@ const OnlineGame = ({ room }) => {
         setMessages((messages) => [...messages, message]);
     };
 
-    if (status === "loading") {
+    if (status === "loading" || status === "unauthenticated") {
         return (
             <div className="h-full w-full flex items-center justify-center">
                 {" "}

@@ -32,7 +32,7 @@ export default function Home() {
                         </p>
                         {data && `There are ${data.message} players online.`}
                         <div className="flex flex-col gap-2 w-[50%] pt-2">
-                            <Button color= "primary">Play with Frends</Button>
+                            <Button color= "primary">Play with Friends</Button>
                             <PlayOnlineButton />
                             <PlayDarkboardButton />
                         </div>

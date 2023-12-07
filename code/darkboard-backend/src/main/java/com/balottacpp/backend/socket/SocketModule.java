@@ -462,7 +462,6 @@ public class SocketModule {
                     if (g.getStatusBit(Game.FINISHED) != 0) {
                         g.stopTimers();
                         games.remove(room);
-                        OnlineGame.deleteLobby(room);
                     }
 
                     break;

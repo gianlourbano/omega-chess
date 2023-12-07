@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const GameLobbySchema = new mongoose.Schema({
     lobbyType: {
@@ -14,8 +14,9 @@ const GameLobbySchema = new mongoose.Schema({
         type: String,
         required: false,
     },
-    createdAt: {type: Date, default: Date.now},
-    lookingForPlayer: {type: Boolean, default: false},
-})
+    createdAt: { type: Date, default: Date.now },
+    lookingForPlayer: { type: Boolean, default: false },
+});
 
-export default mongoose.models.GameLobby || mongoose.model("GameLobby", GameLobbySchema)
+export default mongoose.models.GameLobby ||
+    mongoose.model("GameLobby", GameLobbySchema);
