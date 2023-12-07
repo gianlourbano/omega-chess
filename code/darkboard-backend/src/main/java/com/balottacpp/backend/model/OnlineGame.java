@@ -71,6 +71,7 @@ public class OnlineGame extends Game {
 
     @Override
     public void whiteConnected(SocketIOClient whiteClient, String username) {
+        addConnectedPlayer();
         if (Constants.DEBUG)
             System.out.println("White connected: " + username);
         if (whiteClient == null)
@@ -81,10 +82,12 @@ public class OnlineGame extends Game {
         whitePlayer.playerName = username;
         whiteUmpireText = new UmpireText(whiteClient, null);
         whitePlayer.addPlayerListener(whiteUmpireText);
+
     }
 
     @Override
     public void blackConnected(SocketIOClient blackClient, String username) {
+        addConnectedPlayer();
         this.blackClient = blackClient;
         blackPlayer = new SocketPlayer(false, blackClient);
         var params = blackClient.getHandshakeData().getUrlParams();
@@ -92,28 +95,50 @@ public class OnlineGame extends Game {
         blackPlayer.playerName = blackUsername;
         blackUmpireText = new UmpireText(blackClient, null);
         blackPlayer.addPlayerListener(blackUmpireText);
+    }
 
-        /*
-         * since black player is the last to connect,
-         * inform both players that they have an apponent
-         */
-        blackClient.sendEvent("opponent_connected", whitePlayer.playerName);
-        whiteClient.sendEvent("opponent_connected", blackPlayer.playerName);
+    public void initGame() {
 
-        /* initialize umpire */
-        umpire = new StepwiseLocalUmpire(whitePlayer, blackPlayer);
+        if (getConnectedPlayers() == 2) {
 
-        whiteChessBoardListener = new ChessboardSocket(whiteClient);
-        blackChessBoardListener = new ChessboardSocket(blackClient);
-        umpire.addListener(whiteChessBoardListener);
-        umpire.addListener(blackChessBoardListener);
+            umpire = new StepwiseLocalUmpire(whitePlayer, blackPlayer);
 
-        umpire.stepwiseInit(null, null);
+            whiteChessBoardListener = new ChessboardSocket(whiteClient);
+            blackChessBoardListener = new ChessboardSocket(blackClient);
+            umpire.addListener(whiteChessBoardListener);
+            umpire.addListener(blackChessBoardListener);
 
-        if (Constants.DEBUG)
-            System.out.println("Game ready to start: " + whitePlayer.playerName + " vs " + blackPlayer.playerName);
-        this.status = GameStatus.STARTED;
-        this.startGame();
+            umpire.stepwiseInit(null, null);
+
+            if (Constants.DEBUG)
+                System.out.println("Game ready to start: " + whitePlayer.playerName + " vs " + blackPlayer.playerName);
+            this.status = setStatusBitOn(PLAYING);
+            this.startGame();
+        } else {
+            String error = "Not enough players to start the game";
+            if ((getStatusBit(WAITING_FOR_BLACK & WAITING_FOR_WHITE) | WAITING_FOR_BLACK | WAITING_FOR_WHITE) > 0) {
+                error += "\nOne of the players disconnected";
+                if (Constants.DEBUG)
+                    System.out.println(error);
+                if (whiteClient != null)
+                    whiteClient.sendEvent("error", error);
+                if (blackClient != null)
+                    blackClient.sendEvent("error", error);
+            } else {
+                setStatusBitOn(ABORTED);
+                error += "\nGame aborted";
+                if (Constants.DEBUG)
+                    System.out.println(error);
+
+                if (whiteClient != null)
+                    whiteClient.sendEvent("error", error);
+                if (blackClient != null)
+                    blackClient.sendEvent("error", error);
+            }
+        }
+
+
+
     }
 
     @Data
@@ -221,9 +246,9 @@ public class OnlineGame extends Game {
             blackClient.sendEvent("remaining_time", new TimeInfo(whiteTimer.getTime(), blackTimer.getTime()));
         }
         updater.cancel();
-        //if (Constants.DEBUG)
-            System.out.println("Game Over!");
-        this.status = GameStatus.FINISHED;
+        // if (Constants.DEBUG)
+        System.out.println("Game Over!");
+        this.status = setStatusBitOn(FINISHED);
 
         /* save game */
         System.out.println("Saving game to databsase...");
@@ -241,13 +266,13 @@ public class OnlineGame extends Game {
             }
 
             int code = con.getResponseCode();
-            //if (Constants.DEBUG) {
-                if (code == 200) {
-                    System.out.println("Game saved");
-                } else {
-                    System.out.println("Error saving game");
-                }
-            //}
+            // if (Constants.DEBUG) {
+            if (code == 200) {
+                System.out.println("Game saved");
+            } else {
+                System.out.println("Error saving game");
+            }
+            // }
 
         } catch (Exception e) {
             if (Constants.DEBUG)

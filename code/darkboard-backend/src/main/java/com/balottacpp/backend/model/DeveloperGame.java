@@ -20,7 +20,7 @@ import umpire.local.LocalUmpire;
 import umpire.local.StepwiseLocalUmpire;
 
 public class DeveloperGame extends Game {
-    
+
     SocketIOClient botClient;
     SocketPlayer bot;
     StepwiseLocalUmpire umpire;
@@ -47,12 +47,10 @@ public class DeveloperGame extends Game {
         this.bot.playerName = botname;
         this.bot.addPlayerListener(new UmpireText(bot));
 
-        
-
         OpponentProfile op = OpponentProfile.getProfile("rjay");
         Player p2 = new DeepDarkboard101(false, op.openingBookWhite, op.openingBookBlack, "rjay");
-		p2.playerName = "Darkboard";
-		this.umpire = new StepwiseLocalUmpire(this.bot, p2);
+        p2.playerName = "Darkboard";
+        this.umpire = new StepwiseLocalUmpire(this.bot, p2);
         this.umpire.addListener(new ChessboardSocket(bot));
         this.umpire.stepwiseInit(null, null);
     }
@@ -60,11 +58,11 @@ public class DeveloperGame extends Game {
     public void makeMove(String move, String username) {
         System.out.println("Move: " + move);
 
-		Move m = umpire.parseString(move, true);
+        Move m = umpire.parseString(move, true);
 
-		umpire.isLegalMove(m, umpire.turn);
+        umpire.isLegalMove(m, umpire.turn);
 
-		this.bot.provideMove(m);
+        this.bot.provideMove(m);
     }
 
     public void resignGame(String username) {
@@ -73,7 +71,7 @@ public class DeveloperGame extends Game {
 
     public void startGame() {
         System.out.println("Starting game");
-        this.status = GameStatus.STARTED;
+        //this.status = STARTED;
         while (umpire.getGameOutcome() == LocalUmpire.NO_OUTCOME) {
             Player p = umpire.turn();
             // f.interrogatePlayer(t==0);
@@ -82,9 +80,8 @@ public class DeveloperGame extends Game {
         }
         System.out.println("Game Over!");
         // client.sendEvent("game_over", umpire.transcript.toString());
-        this.status = GameStatus.FINISHED;
+        this.status = FINISHED;
     }
-
 
     public class ChessboardSocket implements ChessboardStateListener {
         SocketIOClient client;

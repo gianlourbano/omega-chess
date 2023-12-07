@@ -68,7 +68,6 @@ const OnlineGame = ({ room }) => {
     const { data: session, status } = useSession();
 
     const [messages, setMessages] = useState([]);
-    const [playerColor, setPlayerColor] = useState("white");
 
     //game over hooks
     const [gameOver, setGameOver] = useState(false);
@@ -88,118 +87,137 @@ const OnlineGame = ({ room }) => {
 
     const [quickRules, setQuickRules] = useState(false);
 
+    const playerColor = useRef("error");
+
     useEffect(() => {
-        fetch(`/api/games/lobby/${room}`, {
-            method: "GET",
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.whitePlayer === session?.user?.username) {
-                    setPlayerColor("white");
-                    setOpponentName(data.blackPlayer);
-                    setCustomPieces(blackHidden);
-                    console.log(data.whitePlayer);
-                } else if (data.blackPlayer === session?.user?.username) {
-                    setPlayerColor("black");
-                    setOpponentName(data.whitePlayer);
-                    setCustomPieces(whiteHidden);
-                    console.log(data.blackPlayer);
-                } else {
-                    setPlayerColor("error");
-                    console.log(
-                        data.blackPlayer,
-                        room,
-                        data.gameType,
-                        data.whitePlayer,
-                        data.lookingForPlayer
-                    );
-                }
+        if (status === "authenticated") {
+            fetch(`/api/games/lobby/${room}`, {
+                method: "GET",
             })
-            .then(() => {
-                const s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
-                    reconnection: false,
-                    query: {
-                        gameType: "online",
-                        username: session && session.user.username,
-                        color: playerColor,
-                        room: room,
-                    },
-                });
-                //setSocket(s);
-                socket.current = s;
-
-                s.on("connect", () => {
-                    console.log("connected");
-                    s.emit("ready", (msg) => {
-                        console.log(msg);
-                    });
-                });
-
-                s.on("opponent_connected", (name) => {
-                    setOpponentName(name);
-                });
-
-                s.on("reconnection", (data) => {
-                    console.log(data);
-                    setGamePosition(data.fen);
-
-                    setMessages(() => [...data.messages])
-
-                    const turn = data.fen.split(" ")[1];
-                    console.log(turn);
-                    if (turn === "b") {
-                        whitePlayerTimer.stop();
-                        blackPlayerTimer.start();
-                    } else {
-                        whitePlayerTimer.start();
-                        blackPlayerTimer.stop();
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log("SEssion", session?.user?.username);
+                    if (data.whitePlayer === session?.user?.username) {
+                        console.log("HERE");
+                        playerColor.current= "white";
+                        console.log("HERE : ", playerColor);
+                        setOpponentName(data.blackPlayer);
+                        setCustomPieces(blackHidden);
+                        console.log(data.whitePlayer, playerColor.current);
+                    } else if (data.blackPlayer === session?.user?.username) {
+                        playerColor.current = "black";
+                        setOpponentName(data.whitePlayer);
+                        setCustomPieces(whiteHidden);
+                        console.log(data.blackPlayer, playerColor.current);
                     }
+                    if (playerColor.current === "error") console.log(data, room);
                 })
+                .then(() => {
+                    let s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
+                        reconnection: false,
+                        query: {
+                            gameType: "online",
+                            username: session && session.user.username,
+                            color: playerColor.current,
+                            room: room,
+                        },
+                        path: process.env.NEXT_PUBLIC_SOCKETIO_PATH,
+                    });
+                    //setSocket(s);
+                    socket.current = s;
 
-                s.on("remaining_time", (data) => {
-                    console.log(data);
-                    whitePlayerTimer.setTimer(data.whiteTime);
-                    blackPlayerTimer.setTimer(data.blackTime);
+                    s.on("connect", () => {
+                        addMessage("Connected!");
+                        s.emit("ready", (msg) => {
+                            console.log(msg);
+                        });
+                    });
+
+                    s.on("opponent_connected", (name) => {
+                        setOpponentName(name);
+                        addMessage("Opponent connected!");
+                    });
+
+                    s.on("reconnection", (data) => {
+                        console.log(data);
+                        setGamePosition(data.fen);
+                        addMessage("Reconnected succesfully!");
+
+                        setMessages(() => [...data.messages]);
+
+                        const turn = data.fen.split(" ")[1];
+                        console.log(turn);
+                        if (turn === "b") {
+                            whitePlayerTimer.stop();
+                            blackPlayerTimer.start();
+                        } else {
+                            whitePlayerTimer.start();
+                            blackPlayerTimer.stop();
+                        }
+                    });
+
+                    s.on("remaining_time", (data) => {
+                        console.log(data);
+                        whitePlayerTimer.setTimer(data.whiteTime);
+                        blackPlayerTimer.setTimer(data.blackTime);
+                    });
+
+                    s.on("chessboard_changed", (data) => {
+                        setGamePosition(data);
+                        //get turn from FEN string
+                        const turn = data.split(" ")[1];
+                        console.log(turn);
+                        if (turn === "b") {
+                            whitePlayerTimer.stop();
+                            blackPlayerTimer.start();
+                        } else {
+                            whitePlayerTimer.start();
+                            blackPlayerTimer.stop();
+                        }
+                    });
+
+                    s.on("game_over", (data) => {
+                        handleGameOver(data);
+                    });
+
+                    s.on("read_message", (data) => addMessage(data));
+
+                    s.on("error", (data) => {
+                        addMessage("Error! " + data);
+                    });
+
+                    s.on("disconnect", (reason) => {
+                        addMessage("Disconnected! " + reason);
+
+                        // s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
+                        //     reconnection: false,
+                        //     query: {
+                        //         gameType: "online",
+                        //         username: session && session.user.username,
+                        //         color: playerColor.current,
+                        //         room: room,
+                        //     },
+                        //     path: process.env.NEXT_PUBLIC_SOCKETIO_PATH,
+                        // });
+                    });
+                })
+                .catch((error) => {
+                    console.error(
+                        "Errore nel recupero del colore della lobby:",
+                        error
+                    );
                 });
+        }
 
-                s.on("chessboard_changed", (data) => {
-                    setGamePosition(data);
-                    //get turn from FEN string
-                    const turn = data.split(" ")[1];
-                    console.log(turn);
-                    if (turn === "b") {
-                        whitePlayerTimer.stop();
-                        blackPlayerTimer.start();
-                    } else {
-                        whitePlayerTimer.start();
-                        blackPlayerTimer.stop();
-                    }
-                });
+    }, [status]);
 
-                s.on("game_over", (data) => {
-                    handleGameOver(data);
-                });
-
-                s.on("read_message", (data) => addMessage(data));
-            })
-            .catch((error) => {
-                console.error(
-                    "Errore nel recupero del colore della lobby:",
-                    error
-                );
-            });
-
+    useEffect(() => {
         return () => {
-            /*TODO
-            modificare questo in modo che quando uno si disconnette non fa nulla
-            dal server dobbiamo eliminare la lobby quando scade il timer di uno dei due o quando uno si aggiorna
-            */
             if (socket.current) {
-                
                 socket.current.disconnect();
             }
-        };
-    }, []);
+        }
+    }, [])
 
     // useEffect(() => {
     //     if (socket) {
@@ -252,6 +270,7 @@ const OnlineGame = ({ room }) => {
         blackPlayerTimer.stop();
 
         setGameOverDialog(true);
+        socket.current.disconnect();
     };
 
     const addMessage = (message) => {
@@ -265,10 +284,6 @@ const OnlineGame = ({ room }) => {
                 <Spinner />{" "}
             </div>
         );
-    }
-
-    if (status === "unauthenticated") {
-        router.push(`/login`);
     }
 
     if (status === "error") {
@@ -299,7 +314,7 @@ const OnlineGame = ({ room }) => {
                     )}
                     <DarkboardTimer
                         timer={
-                            playerColor === "white"
+                            playerColor.current === "white"
                                 ? blackPlayerTimer
                                 : whitePlayerTimer
                         }
@@ -312,11 +327,11 @@ const OnlineGame = ({ room }) => {
                         customBoardStyle={{
                             borderRadius: "5px",
                         }}
-                        boardOrientation={playerColor}
+                        boardOrientation={playerColor.current}
                     />
                     <DarkboardTimer
                         timer={
-                            playerColor === "white"
+                            playerColor.current === "white"
                                 ? whitePlayerTimer
                                 : blackPlayerTimer
                         }

@@ -20,6 +20,8 @@ export const useGame =  () =>  {
     
     const findLobby =  async () => {
         
+        
+
         //first, look if there are open lobbies
         let lobbyId = await fetch("api/games/lobby",{
             method: "POST",
@@ -47,6 +49,11 @@ export const useGame =  () =>  {
     }
 
     const startGame = async () =>{
+        if (status === "unauthenticated") {
+            router.push(`/login`);
+            return;
+        }
+
         const lobbyId = await findLobby();
         
         router.push(`/kriegspiel/online/${lobbyId}`)
