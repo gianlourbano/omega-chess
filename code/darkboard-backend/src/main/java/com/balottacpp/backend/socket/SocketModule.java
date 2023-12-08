@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/games")
+@RequestMapping("/")
 @Component
 @Slf4j
 public class SocketModule {
