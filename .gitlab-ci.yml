@@ -1,6 +1,4 @@
 test_job:
   script:
     - echo "Hello, World!"
-  only:
-    - main
 
