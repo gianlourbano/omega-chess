@@ -1,4 +1,5 @@
 # Omega Chess
+
 ## Componenti
 ### Product Owner
 - Fabio Chiarini – fabio.chiarini2@studio.unibo.it - 0001028936 
