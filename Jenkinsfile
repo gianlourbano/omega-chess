@@ -11,7 +11,7 @@ node {
     def scannerHome = tool 'SonarScannerMaven';
     withSonarQubeEnv() {
       dir('code/darkboard-backend') {
-        sh "${scannerHome}/bin/sonar-scanner -Dsonar.java.binaries=target/classes"
+        sh "${scannerHome}/bin/sonar-scanner Dsonar.projectKey=balottacpp_T5-omega-chess_AYxUXnSkqW6VennScxft -Dsonar.java.binaries=target/classes"
       }
     }
   }
