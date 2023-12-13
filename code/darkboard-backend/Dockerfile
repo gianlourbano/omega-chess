@@ -51,4 +51,4 @@ EXPOSE 8080
 EXPOSE 8085
 
 # Run the application
-CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-jar","-Dchess-url=chess", "app.jar"]

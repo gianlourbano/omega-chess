@@ -3,11 +3,9 @@ package com.balottacpp.backend.model;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
-
 import com.balottacpp.backend.constants.Constants;
 import com.corundumstudio.socketio.SocketIOClient;
 
-import ai.player.Darkboard;
 import ai.player.HumanPlayer;
 import ai.player.Player;
 import ai.player.PlayerListener;
@@ -15,13 +13,11 @@ import core.Chessboard;
 import core.Move;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import pgn.ExtendedPGNGame;
 import umpire.local.ChessboardStateListener;
 import umpire.local.LocalUmpire;
 import umpire.local.StepwiseLocalUmpire;
 
-import java.util.Arrays;
 import java.util.ArrayList;
 
 import java.util.Timer;
@@ -39,6 +35,7 @@ dobbiamo quindi creare un timer che vada lato server,
 */
 
 public class OnlineGame extends Game {
+
     SocketPlayer whitePlayer;
     SocketPlayer blackPlayer;
 
@@ -255,8 +252,10 @@ public class OnlineGame extends Game {
 
         /* save game */
         System.out.println("Saving game to databsase...");
+        String url_str = "http://" + System.getProperty("chess-url") + ":3000/api/games/lobby";
+        if(Constants.DEBUG) System.out.println(url_str);
         try {
-            URL url = new URL("http://localhost:3000/api/games/lobby");
+            URL url = new URL(url_str);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("PUT");
             con.setDoOutput(true);
@@ -279,17 +278,17 @@ public class OnlineGame extends Game {
 
         } catch (Exception e) {
             if (Constants.DEBUG)
-                System.out.println("Error deleting lobby");
+                System.out.println("Error saving game");
         }
 
         deleteLobby(room);
     }
 
-    static public void deleteLobby(String room) {
+    public static void deleteLobby(String room) {
         if (Constants.DEBUG)
             System.out.println("Deleting lobby " + room + "...");
         try {
-            URL url = new URL("http://localhost:3000/api/games/lobby");
+            URL url = new URL("http://" + System.getProperty("chess-url") + ":3000/api/games/lobby");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("DELETE");
             con.setDoOutput(true);
@@ -306,13 +305,14 @@ public class OnlineGame extends Game {
                 if (code == 200) {
                     System.out.println("Lobby deleted");
                 } else {
-                    System.out.println("Error deleting lobby");
+                    System.out.println("Error deleting lobby: " + code + " " + con.getResponseMessage());
                 }
             }
 
         } catch (Exception e) {
             if (Constants.DEBUG)
                 System.out.println("Error deleting lobby");
+                System.out.println(e.getMessage());
         }
     }
 
