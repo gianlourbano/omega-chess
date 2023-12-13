@@ -26,13 +26,13 @@ WORKDIR /server
 # Copy the pom.xml file to the working directory
 COPY pom.xml .
 
-COPY application-prod.properties ./src/main/resources/application.properties
-
 # Download the dependencies specified in the pom.xml file
 RUN mvn dependency:go-offline -B
 
 # Copy the source code to the working directory
 COPY src ./src
+
+COPY application-prod.properties ./src/main/resources/application.properties
 
 # Build the application
 RUN mvn install
