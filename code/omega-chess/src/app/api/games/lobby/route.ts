@@ -75,23 +75,25 @@ export async function PUT(req: Request) {
 
     const result = getHeaderValue(game.headers, "Result");
     const whitePlayer = getHeaderValue(game.headers, "White");
-    const blackPlayer = getHeaderValue(game.headers, "Black");
+    const blackPlayer = getHeaderValue(game.headers, "Black"); 
 
+    //null controls for darkboard game
+    //if one of players is "Darkboard", he doesn't exist, so mongodb returns null
     const whiteUser = await User.findOne({ username: whitePlayer });
     const blackUser = await User.findOne({ username: blackPlayer });
 
     switch (result) {
         case "1-0":
-            whiteUser.scores.wins += 1;
-            blackUser.scores.losses += 1;
+            if(whiteUser) whiteUser.scores.wins += 1;
+            if(blackUser) blackUser.scores.losses += 1;
             break;
         case "0-1":
-            whiteUser.scores.losses += 1;
-            blackUser.scores.wins += 1;
+            if(whiteUser) whiteUser.scores.losses += 1;
+            if(blackUser) blackUser.scores.wins += 1;
             break;
         case "1/2-1/2":
-            whiteUser.scores.draws += 1;
-            blackUser.scores.draws += 1;
+            if(whiteUser) whiteUser.scores.draws += 1;
+            if(blackUser) blackUser.scores.draws += 1;
             break;
         default:
             break;
@@ -106,11 +108,11 @@ export async function PUT(req: Request) {
     });
 
     await gameData.save();
-    whiteUser.games.push(gameData._id);
-    blackUser.games.push(gameData._id);
+    if(whiteUser) whiteUser.games.push(gameData._id);
+    if(blackUser) blackUser.games.push(gameData._id);
 
-    await whiteUser.save();
-    await blackUser.save();
+    if(whiteUser) await whiteUser.save();
+    if(blackUser) await blackUser.save();
 
     return Response.json("OK", { status: 200 });
 }

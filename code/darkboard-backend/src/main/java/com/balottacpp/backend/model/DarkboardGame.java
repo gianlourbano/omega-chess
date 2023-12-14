@@ -2,6 +2,7 @@ package com.balottacpp.backend.model;
 
 import javax.swing.JOptionPane;
 
+import com.balottacpp.backend.constants.Constants;
 import com.corundumstudio.socketio.SocketIOClient;
 
 import ai.opponent.OpponentProfile;
@@ -16,6 +17,10 @@ import pgn.ExtendedPGNGame;
 import umpire.local.ChessboardStateListener;
 import umpire.local.LocalUmpire;
 import umpire.local.StepwiseLocalUmpire;
+
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class DarkboardGame extends Game {
 
@@ -230,6 +235,7 @@ public class DarkboardGame extends Game {
 
 	public void startGame() {
 		System.out.println("Starting game");
+		// adjudication e` per test
 		while (umpire.getGameOutcome() == LocalUmpire.NO_OUTCOME) {
 			Player p = umpire.turn();
 			// f.interrogatePlayer(t==0);
@@ -238,6 +244,38 @@ public class DarkboardGame extends Game {
 		}
 		System.out.println("Game Over!");
 		// client.sendEvent("game_over", umpire.transcript.toString());
+		
+		/* save game */
+		System.out.println("Saving game to database...");
+        String url_str = "http://chess:3000/api/games/lobby";
+        if(Constants.DEBUG) System.out.println(url_str);
+        try {
+            URL url = new URL(url_str);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("PUT");
+            con.setDoOutput(true);
+            con.setRequestProperty("Content-Type", "text/plain");
+			System.out.println("Game: " + umpire.transcript.toString());
+
+            try (OutputStream os = con.getOutputStream()) {
+                String jsonInputString = umpire.transcript.toString();
+                byte[] body = jsonInputString.getBytes("utf-8");
+                os.write(body, 0, body.length);
+            }
+
+            int code = con.getResponseCode();
+            // if (Constants.DEBUG) {
+            if (code == 200) {
+                System.out.println("Game saved");
+            } else {
+                System.out.println("Error saving game");
+            }
+            // }
+
+        } catch (Exception e) {
+            if (Constants.DEBUG)
+                System.out.println("Error saving game");
+        }
 
 	}
 
