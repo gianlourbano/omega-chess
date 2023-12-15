@@ -77,10 +77,9 @@ const DarkboardGame = ({ room }) => {
         setSocket(s);
 
         s.on("connect", () => {
-            console.log("connected");
-            s.emit("ready", () => {
-                whitePlayerTimer.start();
-                blackPlayerTimer.stop();
+            addMessage("connected");
+            s.emit("ready", (msg) => {
+                console.log(msg);
             });
         });
 
@@ -89,13 +88,6 @@ const DarkboardGame = ({ room }) => {
             //get turn from FEN string
             const turn = data.split(" ")[1];
             console.log(turn);
-            if (turn === "b") {
-                whitePlayerTimer.stop();
-                blackPlayerTimer.start();
-            } else {
-                whitePlayerTimer.start();
-                blackPlayerTimer.stop();
-            }
         });
 
         s.on("game_over", (data) => {
@@ -156,7 +148,7 @@ const DarkboardGame = ({ room }) => {
             move = {
                 from: sourceSquare,
                 to: targetSquare,
-                promotion: piece[1].toLowerCase() ?? "q",
+                promotion: "q",
             };
 
             const game = new Chess(gamePosition);
@@ -205,7 +197,6 @@ const DarkboardGame = ({ room }) => {
                     <Button color="primary" onClick={() => setCustomPieces({})}>
                         Show opponent
                     </Button>
-                    <DarkboardTimer timer={blackPlayerTimer} />
                     <Chessboard
                         id="PlayVsStockfish"
                         position={gamePosition}
@@ -215,7 +206,6 @@ const DarkboardGame = ({ room }) => {
                             borderRadius: "5px",
                         }}
                     />
-                    <DarkboardTimer timer={whitePlayerTimer} />
                 </div>
                 <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
                     <div className="flex flex-row justify-center gap-3">

@@ -229,13 +229,13 @@ export default function ReplayPage({params}: {params: {gameid: string}}) {
         <span className={`inline-block mr-2 ${data.result === "1/2-1/2" ? "bg-yellow-500" : data.result === "1-0" ? "bg-green-500" : "bg-red-500"}`}>
             {data.result === "1-0" ? "WINNER" : data.result === "0-1" ? "LOSER" : "DRAW"} 
         </span> 
-        {data.whitePlayer}
+        {data.whitePlayer} as white player
     </div>
     <div className="mr-2">
         <span className={`inline-block mr-2 ${data.result === "1/2-1/2" ? "bg-yellow-500" : data.result === "0-1" ? "bg-green-500" : "bg-red-500"}`}>
             {data.result === "0-1" ? "WINNER" : data.result === "1-0" ? "LOSER" : "DRAW"}
         </span> 
-        Black: {data.blackPlayer}
+        {data.blackPlayer} as black player
     </div>
     </div>
 

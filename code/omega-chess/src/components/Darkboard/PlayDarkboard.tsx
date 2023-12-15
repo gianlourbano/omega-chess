@@ -9,11 +9,15 @@ import { useSession } from "next-auth/react";
 export const useNewGame = () => {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-
-    const {data: session} = useSession();
+    const { data: session, status } = useSession();
 
     const startGame = (gameType: string) => {
         setIsLoading(true);
+        if (status === "unauthenticated") {
+            router.push("/login");
+            return;
+        }
+        
         fetch("/api/games/lobby", {
             method: "POST",
             body: JSON.stringify({
@@ -32,6 +36,9 @@ export const useNewGame = () => {
             .catch((err) => console.log(err))
             .finally(() => setIsLoading(false));
     };
+
+        
+    
 
     return { isLoading, startGame };
 }

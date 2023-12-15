@@ -355,8 +355,13 @@ public class SocketModule {
                     room = params.get("room").stream().collect(Collectors.joining());
                     username = params.get("username").stream().collect(Collectors.joining());
                     Game dbgame = games.get(room);
-                    dbgame.makeMove(data, username);
-                    System.out.println("Move: " + data);
+                    if (dbgame != null) {
+                        dbgame.makeMove(data, username);
+                        System.out.println("Move: " + data);
+                    }
+                    else {
+                        System.out.println("Move received but refused (game not yet initialized)");
+                    }
                     break;
                 case Constants.GAME_TYPE_DEVELOPER:
                     token = params.get("token").stream().collect(Collectors.joining());

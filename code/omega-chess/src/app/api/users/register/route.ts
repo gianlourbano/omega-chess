@@ -43,6 +43,9 @@ export async function POST(req: Request) {
     if (u) {
         return Response.json("Username already in use.", {status: 400});
     }
+    if (username === "Darkboard" || username === "darkboard") {
+      return Response.json("Username not valid.", {status: 400});
+    }
 
     const e = await User.findOne({ email });
     if (e) {
