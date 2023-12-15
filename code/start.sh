@@ -2,7 +2,7 @@
 
 docker compose down
 
-docker system prune
+docker system prune -f
 
 docker compose build --no-cache 
  
