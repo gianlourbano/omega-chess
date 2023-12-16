@@ -254,7 +254,9 @@ public class OnlineGame extends Game {
         this.status = setStatusBitOn(FINISHED);
 
         /* save game */
-        System.out.println("Saving game to database...");
+        System.out.println("Saving game to databsase...");
+        String url_str = "http://localhost:3000/api/games/lobby";
+        if(Constants.DEBUG) System.out.println(url_str);
         try {
             URL url = new URL("http://chess:3000/api/games/lobby");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -290,7 +292,7 @@ public class OnlineGame extends Game {
         if (Constants.DEBUG)
             System.out.println("Deleting lobby " + room + "...");
         try {
-            URL url = new URL("http://chess:3000/api/games/lobby");
+            URL url = new URL("http://localhost:3000/api/games/lobby");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("DELETE");
             con.setDoOutput(true);
@@ -421,6 +423,7 @@ public class OnlineGame extends Game {
         }
 
         public void chessboardStateChanged() {
+            System.out.println(umpire.toFen());
             client.sendEvent("chessboard_changed", umpire.toFen());
 
         }
