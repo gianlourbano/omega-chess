@@ -148,7 +148,6 @@ const DarkboardGame = ({ room }) => {
             move = {
                 from: sourceSquare,
                 to: targetSquare,
-                promotion: "q",
             };
 
             const game = new Chess(gamePosition);
