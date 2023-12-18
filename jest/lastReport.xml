@@ -1,6 +1,6 @@
 <testExecutions version="1">
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts">
-<testCase name="POST should create a new game lobby and return the lobby details" duration="5004">
+<testCase name="POST should create a new game lobby and return the lobby details" duration="5006">
 <failure message="Error"><![CDATA[Error: thrown: &quot;Exceeded timeout of 5000 ms for a test.
 Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout.&quot;
     at it (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts:8:3)
@@ -30,7 +30,7 @@ Add a timeout value to this test to increase the timeout, if this is a long-runn
 </testCase>
 </file>
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/register/route.test.ts">
-<testCase name="User Registration returns error if username is in use" duration="31">
+<testCase name="User Registration returns error if username is in use" duration="36">
 <failure message="Error"><![CDATA[TypeError: Method Map.prototype.entries called on incompatible receiver #&lt;Map&gt;
     at Object.toEqual (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/register/route.test.ts:38:22)]]></failure>
 </testCase>
@@ -40,17 +40,17 @@ Add a timeout value to this test to increase the timeout, if this is a long-runn
 </testCase>
 </file>
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/readfile/[filename]/route.test.ts">
-<testCase name="GET function returns file content and metadata when file exists" duration="15">
+<testCase name="GET function returns file content and metadata when file exists" duration="13">
 <failure message="Error"><![CDATA[TypeError: Method Map.prototype.entries called on incompatible receiver #&lt;Map&gt;
     at Object.toEqual (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/readfile/[filename]/route.test.ts:41:20)]]></failure>
 </testCase>
-<testCase name="GET function returns error if file does not exist" duration="7">
+<testCase name="GET function returns error if file does not exist" duration="6">
 <failure message="Error"><![CDATA[TypeError: Method Map.prototype.entries called on incompatible receiver #&lt;Map&gt;
     at Object.toEqual (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/readfile/[filename]/route.test.ts:59:20)]]></failure>
 </testCase>
 </file>
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.test.ts">
-<testCase name="Release Functions gets releases correctly" duration="6">
+<testCase name="Release Functions gets releases correctly" duration="4">
 <failure message="Error"><![CDATA[TypeError: Cannot read properties of undefined (reading &apos;match&apos;)
     at match (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.ts:27:32)
     at Array.sort (&lt;anonymous&gt;)
@@ -94,19 +94,16 @@ Add a timeout value to this test to increase the timeout, if this is a long-runn
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/[lobbyId]/route.test.ts">
 <testCase name="GET Game Lobby returns lobby details if lobby is found and user is logged in" duration="7" />
 </file>
-<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/releases/test_page.test.tsx">
-<testCase name="Page renders without crashing" duration="48" />
-</file>
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/utils/ELO/EloRating.test.ts">
 <testCase name="getUpdatedRatings should update ratings correctly when white wins" duration="4" />
-<testCase name="getUpdatedRatings should update ratings correctly when black wins" duration="1" />
+<testCase name="getUpdatedRatings should update ratings correctly when black wins" duration="2" />
 <testCase name="getUpdatedRatings should update ratings correctly when it is a draw" duration="1" />
-<testCase name="getUpdatedRatings should update ratings correctly when the first player is a medium" duration="2" />
-<testCase name="getUpdatedRatings should update ratings correctly when the first player is a pro" duration="9" />
+<testCase name="getUpdatedRatings should update ratings correctly when the first player is a medium" duration="1" />
+<testCase name="getUpdatedRatings should update ratings correctly when the first player is a pro" duration="2" />
 <testCase name="getUpdatedRatings should update ratings correctly when the players have the same rating" duration="2" />
 </file>
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/healthcheck/route.test.ts">
-<testCase name="GET should return a JSON response with status 200" duration="9" />
+<testCase name="GET should return a JSON response with status 200" duration="4" />
 </file>
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/[gameid]/route.test.ts">
 </file>
