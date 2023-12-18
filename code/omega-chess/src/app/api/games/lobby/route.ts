@@ -3,6 +3,8 @@ import GameLobby from "@/db/models/GameLobby";
 import User from "@/db/models/User";
 import mongoDriver from "@/db/mongoDriver";
 import { parse } from "pgn-parser";
+import { getUpdatedRatings } from "@/utils/ELO/EloRating";
+
 interface GameLobbyRequestData {
     gameType: "darkboard" | "online";
     player: string;
@@ -98,6 +100,14 @@ export async function PUT(req: Request) {
         default:
             break;
     }
+
+    if(whiteUser && blackUser) {
+        const [newWhiteRating, newBlackRating] = getUpdatedRatings(whiteUser.eloScore, blackUser.eloScore, result);
+        whiteUser.eloScore = newWhiteRating;
+        blackUser.eloScore = newBlackRating;
+    }
+
+    
 
     const gameData = await Game.create({
         gamemode: "kriegspiel",

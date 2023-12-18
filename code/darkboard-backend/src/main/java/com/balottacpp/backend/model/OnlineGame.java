@@ -255,10 +255,8 @@ public class OnlineGame extends Game {
 
         /* save game */
         System.out.println("Saving game to databsase...");
-        String url_str = "http://localhost:3000/api/games/lobby";
-        if(Constants.DEBUG) System.out.println(url_str);
         try {
-            URL url = new URL("http://chess:3000/api/games/lobby");
+            URL url = new URL("http://localhost:3000/api/games/lobby");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("PUT");
             con.setDoOutput(true);

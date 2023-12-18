@@ -89,9 +89,14 @@ const OnlineGame = ({ room, joining_from_link }) => {
 
     const playerColor = useRef("error");
 
+    const [opponentElo, setOpponentElo] = useState(0);
+    const [ownElo, setOwnElo] = useState(0);
+
     useEffect(() => {
         if (status === "authenticated") {
-            const link = joining_from_link ? `/api/games/lobby/${room}?join` : `/api/games/lobby/${room}`; 
+            const link = joining_from_link
+                ? `/api/games/lobby/${room}?join`
+                : `/api/games/lobby/${room}`;
             fetch(link, {
                 method: "GET",
             })
@@ -141,7 +146,14 @@ const OnlineGame = ({ room, joining_from_link }) => {
 
                     s.on("opponent_connected", (name) => {
                         setOpponentName(name);
-                        addMessage("Opponent connected! \n" + name + " is here!");
+                        addMessage(
+                            "Opponent connected! \n" + name + " is here!"
+                        );
+                        fetch(`/api/users/${name}`)
+                            .then((res) => res.json())
+                            .then((data) => {
+                                setOpponentElo(data.user.eloScore);
+                            });
                     });
 
                     s.on("reconnection", (data) => {
@@ -216,19 +228,18 @@ const OnlineGame = ({ room, joining_from_link }) => {
     }, [status]);
 
     useEffect(() => {
+        fetch("/api/users/" + session?.user?.username)
+            .then((res) => res.json())
+            .then((data) => {
+                setOwnElo(data.user.eloScore);
+            });
+
         return () => {
             if (socket.current) {
                 socket.current.disconnect();
             }
         };
     }, []);
-
-    // useEffect(() => {
-    //     if (socket) {
-    //         socket.emit("ready", (msg) => {
-    //         });
-    //     }
-    // }, [socket]);
 
     function onDrop(sourceSquare, targetSquare, piece) {
         let move = null;
@@ -315,13 +326,19 @@ const OnlineGame = ({ room, joining_from_link }) => {
                     ) : (
                         <div className="text-center text-2xl">Guestone</div>
                     )}
-                    <DarkboardTimer
-                        timer={
-                            playerColor.current === "white"
-                                ? blackPlayerTimer
-                                : whitePlayerTimer
-                        }
-                    />
+                    <div className="flex flex-row">
+                        <h1 className="mr-2">
+                            {opponentName} ({opponentElo})
+                        </h1>
+                        <DarkboardTimer
+                            timer={
+                                playerColor.current === "white"
+                                    ? blackPlayerTimer
+                                    : whitePlayerTimer
+                            }
+                        />
+                    </div>
+
                     <Chessboard
                         id="onlineGame"
                         position={gamePosition} //la partita inizia appena si entra nella lobby, il tempo parte dopo la prima mossa
@@ -332,13 +349,18 @@ const OnlineGame = ({ room, joining_from_link }) => {
                         }}
                         boardOrientation={playerColor.current}
                     />
-                    <DarkboardTimer
-                        timer={
-                            playerColor.current === "white"
-                                ? whitePlayerTimer
-                                : blackPlayerTimer
-                        }
-                    />
+                    <div className="flex flex-row">
+                        <h1 className="mr-2">
+                            {session.user.username} ({ownElo})
+                        </h1>
+                        <DarkboardTimer
+                            timer={
+                                playerColor.current === "white"
+                                    ? blackPlayerTimer
+                                    : whitePlayerTimer
+                            }
+                        />
+                    </div>
                 </div>
                 <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
                     <div className="flex flex-row justify-center gap-3">

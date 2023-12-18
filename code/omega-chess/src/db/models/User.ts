@@ -1,3 +1,5 @@
+import { DEFAULT_RATING } from "@/utils/ELO/Constants";
+
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
@@ -18,6 +20,7 @@ const UserSchema = new mongoose.Schema({
         customs: [{ type: mongoose.Schema.Types.ObjectId, ref: "DeveloperCustom", default: [] }],
     },
     role: { type: String, enum: ["user", "developer"], default: "user" },
+    eloScore: { type: Number, default: DEFAULT_RATING}
 });
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);

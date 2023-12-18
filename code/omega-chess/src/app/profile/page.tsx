@@ -63,6 +63,7 @@ function ProfilePage() {
                 <div className={`${styles.stats} sm:m-3 m-1`}>
                     <h1 className="sm:text-3xl font-bold"> Statistics </h1>
                     <div className={`flex-col justify-center pt-4`}>
+                        <h1 className="text-xl">Elo: {data.user?.eloScore}</h1>
                         <div>
                         <h1 className="text-xl">
                                 {" "}

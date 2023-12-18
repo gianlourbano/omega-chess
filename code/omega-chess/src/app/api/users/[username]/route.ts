@@ -10,7 +10,7 @@ export async function GET(
 
     await mongoDriver();
 
-    const user = await User.findOne({ username: params.username }, "username friends email scores games").populate({ path: "games", model: Game }).populate("friends", "username email")
+    const user = await User.findOne({ username: params.username }, "username friends email scores games eloScore").populate({ path: "games", model: Game }).populate("friends", "username email")
 
     if (!user) {
         return Response.json("User not found.", { status: 404 });
