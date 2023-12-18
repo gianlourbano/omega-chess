@@ -9,7 +9,8 @@
         "prod": "next build && next start",
         "lint": "next lint",
         "test": "jest --watch --coverage --runInBand --detectOpenHandles",
-        "test:ci": "jest --ci"
+        "test:ci": "jest --ci",
+        "test:watch": "jest --watch"
     },
     "dependencies": {
         "@emotion/react": "^11.11.1",
