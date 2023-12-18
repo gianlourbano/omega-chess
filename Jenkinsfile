@@ -7,6 +7,12 @@ node {
       sh 'mvn clean install -DskipTests'
     }
   }
+  stage('Test') {
+    dir('code/omega-chess') {
+      sh 'npm install'
+      sh 'npm run test'
+    }
+  }
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScannerMaven';
     withSonarQubeEnv() {
