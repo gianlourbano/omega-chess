@@ -4,22 +4,23 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.balottacpp.backend.constants.Constants;
-import com.balottacpp.backend.socket.SocketModule;
-
-import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketConfig;
-import com.corundumstudio.socketio.SocketIOServer;
 
 import ai.player.Darkboard;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SpringBootApplication
 public class BackendApplication {
 
+    private static final Logger logger = LoggerFactory.getLogger(BackendApplication.class);
+
     public static void main(String[] args) {
         String path = System.getProperty("user.home") + "/darkboard_data/";
-        if(Constants.DEBUG) System.out.println(path);
+        if (Constants.DEBUG) {
+            logger.info(path);
+        }
         Darkboard.initialize(path);
-        
+
         SpringApplication.run(BackendApplication.class, args);
     }
 

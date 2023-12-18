@@ -5,8 +5,6 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
-import theme from "@/../tailwind.config"
-
 interface CustomDialogProps {
     open: boolean;
     children?: React.ReactNode;
@@ -23,7 +21,7 @@ export default function CustomDialog({
     contentText,
     handleContinue,
     actions,
-}: CustomDialogProps) {
+}: Readonly<CustomDialogProps>) {
     return (
         <Dialog open={open}
         sx={{

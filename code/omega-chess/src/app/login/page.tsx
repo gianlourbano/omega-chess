@@ -11,7 +11,6 @@ const LoginPage = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const [register, setRegister] = useState(false);
     
     const router = useRouter();
 

@@ -1,11 +1,6 @@
 "use client";
 
-import React from "react";
-import Button from "@/components/Button";
-import { useState } from "react";
-
 function QuickRules() {
-    const[show, setShow] = useState(false);
     return (
         <main className="flex flex-col overflow-y-auto gap-y-3">
             <div className="rounded-lg bg-zinc-600 mr-2">

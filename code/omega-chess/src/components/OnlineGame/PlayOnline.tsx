@@ -2,10 +2,9 @@
 
 import Button from "../Button";
 import Spinner from "../Spinner";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
-import GameLobby from "@/db/models/GameLobby"
+import { useEffect, useState } from "react";
 
 /*
 returns the id of the lobby found
@@ -27,7 +26,7 @@ export const useGame =  () =>  {
             method: "POST",
             body: JSON.stringify({
                 gameType : "online",
-                player: session && session.user && session.user.username,
+                player: session?.user?.username
             }),
             headers: {
                 "Content-Type": "application/json",
@@ -38,11 +37,7 @@ export const useGame =  () =>  {
                 return data.id
         })
         .catch((err) => console.log(err))
-        //TODO: handle error (non so se serve effettivamente gestirlo)
         .finally(() => setIsLoading(false));
-            /* TODO:
-            consider ELO rating
-            */
         
             
         return lobbyId;
@@ -66,7 +61,7 @@ const PlayOnlineButton = () =>{
     
     const[status, setStatus] = useState("");
 
-    /*
+    
     useEffect(()=>{
         
         fetch(`${process.env.NEXT_PUBLIC_DB_BACKEND_BASE_URL}/healthcheck}`)
@@ -77,7 +72,7 @@ const PlayOnlineButton = () =>{
                 }
             }).catch((err)=>{ setStatus("Server offline")});
     },[]);
-    */
+    
 
     const { isLoading, startGame } = useGame();
 

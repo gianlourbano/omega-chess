@@ -206,17 +206,6 @@ const OnlineGame = ({ room, joining_from_link }) => {
 
                     s.on("disconnect", (reason) => {
                         addMessage("Disconnected! " + reason);
-
-                        // s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
-                        //     reconnection: false,
-                        //     query: {
-                        //         gameType: "online",
-                        //         username: session && session.user.username,
-                        //         color: playerColor.current,
-                        //         room: room,
-                        //     },
-                        //     path: process.env.NEXT_PUBLIC_SOCKETIO_PATH,
-                        // });
                     });
                 })
                 .catch((error) => {
@@ -277,6 +266,12 @@ const OnlineGame = ({ room, joining_from_link }) => {
         );
     };
 
+    GameOverDialog.propTypes = {
+        open: PropTypes.bool.isRequired,
+        setOpen: PropTypes.func.isRequired,
+        transcript: PropTypes.string.isRequired,
+    };
+
     const handleGameOver = (data) => {
         setGameOver(true);
         setTranscript(data);
@@ -303,11 +298,7 @@ const OnlineGame = ({ room, joining_from_link }) => {
     if (status === "error") {
         return <div>Error!</div>;
     }
-    /*
-    if (!opponentName) {
-        return <div className="h-full w-full flex items-center justify-center"> aspettando Liam </div>;
-    }
-    */
+
     return (
         <>
             <GameOverDialog
@@ -395,14 +386,14 @@ const OnlineGame = ({ room, joining_from_link }) => {
                                 className="hidden sm:block"
                             >
                                 {messages.map((message, index) => (
-                                    <p key={index} className="rounded p-1">
+                                    <p key={message + `-${index}`} className="rounded p-1">
                                         {message}
                                     </p>
                                 ))}
                             </AutoScrollBox>
                             <div className="sm:hidden flex flex-col-reverse gap-1 overflow-y-auto">
                                 {messages.map((message, index) => (
-                                    <p key={index} className="rounded p-2">
+                                    <p key={message + `-${index}`} className="rounded p-2">
                                         {message}
                                     </p>
                                 ))}

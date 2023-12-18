@@ -15,13 +15,13 @@ function Friends() {
     const [notAdded, setNotAdded] = useState("");
 
     const fetcher = (url: string) => fetch(url).then((r) => r.json());
-    const { data, error, isLoading, mutate } = useSWR(
+    const { data, mutate } = useSWR(
         session ? `/api/users/${session?.user.username}` : null,
         fetcher
     );
 
     async function addFriend(us: string) {
-        const response = await fetch(`/api/users/${session?.user.username}`, {
+        fetch(`/api/users/${session?.user.username}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -44,7 +44,7 @@ function Friends() {
     }
 
     async function removeFriend(us: string) {
-        const response = await fetch(`/api/users/${session?.user.username}`, {
+        fetch(`/api/users/${session?.user.username}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -88,7 +88,7 @@ function Friends() {
             >
                 <Menu.Button
                     onClick={() => {
-                        handleOpen;
+                        handleOpen();
                     }}
                     onTouchStart={(e) => e.preventDefault()}
                     className="mx-auto rounded-md bg-green-500 hover:bg-green-600 font-bold py-2 px-4 items-center gap-1"

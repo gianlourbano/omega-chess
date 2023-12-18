@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 
 interface AutoScrollBoxProps {
     children?: React.ReactNode;
-    className?: String;
+    className?: string;
     items: any[];
 }
 

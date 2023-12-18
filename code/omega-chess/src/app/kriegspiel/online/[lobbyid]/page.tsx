@@ -1,9 +1,7 @@
 "use client";
 
 import OnlineGame from "@/components/OnlineGame/OnlineGame";
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from "next/navigation";
-import Spinner from "@/components/Spinner";
+import { useSearchParams } from "next/navigation";
 
 const Page = ({params}: {params: {lobbyid: string}}) => {
     /*
@@ -21,9 +19,7 @@ const Page = ({params}: {params: {lobbyid: string}}) => {
     const join = searchParams.has('join')
    
     return (
-        <>
             <OnlineGame room={params.lobbyid} joining_from_link={join}/>
-        </>
     )};
 
 export default Page;

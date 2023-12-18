@@ -12,8 +12,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useSession } from "next-auth/react";
 
 function Edit () {
-    const [newUsername, setUsername] = useState("");
-    const [newEmail, setEmail] = useState("");
+    const [newUsername, setNewUsername] = useState("");
+    const [newEmail, setNewEmail] = useState("");
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [error, setError] = useState("");
@@ -21,11 +21,10 @@ function Edit () {
     const { data: session, update } = useSession();
     const [open, setOpen] = useState(false);
 
-    const theme = createTheme
-    ({ components: { MuiDialog: { styleOverrides: { paper: { backgroundColor: '#262424', }, }, }, }, });
+    const theme = createTheme({ components: { MuiDialog: { styleOverrides: { paper: { backgroundColor: '#262424', }, }, }, }, });
 
     async function updateUser(us: string, mail: string, oldpw: string, newpw:string) {
-        const response = await fetch(`/api/users/${session?.user.username}`, {
+        fetch(`/api/users/${session?.user.username}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -79,7 +78,7 @@ function Edit () {
                                     id="Username"
                                     type="username"
                                     name="Username"
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    onChange={(e) => setNewUsername(e.target.value)}
                                 />
                             </div>
                             <div className="sm:flex sm:gap-5 justify-between"> 
@@ -88,7 +87,7 @@ function Edit () {
                                     id="Username"
                                     type="username"
                                     name="Username"
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => setNewEmail(e.target.value)}
                                 />
                             </div>
                             <div className="sm:flex sm:gap-5 justify-between"> 

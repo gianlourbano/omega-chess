@@ -1,6 +1,7 @@
 package com.balottacpp.backend.model;
 
 import com.corundumstudio.socketio.SocketIOClient;
+import com.balottacpp.backend.constants.Constants;
 
 public class Game {
 
@@ -17,60 +18,70 @@ public class Game {
 
     public int setStatusBitOn(int bit) {
         status |= bit;
-         System.out.println("Status: " + Integer.toBinaryString(status) + ", Bit on: " + Integer.toBinaryString(bit));
+         if (Constants.DEBUG) System.out.println("Status: " + Integer.toBinaryString(status) + ", Bit on: " + Integer.toBinaryString(bit));
         return status;
     }
 
     public int setStatusBitOff(int bit) {
         status &= ~bit;
-        System.out.println("Status: " + Integer.toBinaryString(status) + ", Bit off: " + Integer.toBinaryString(bit));
+        if (Constants.DEBUG) System.out.println("Status: " + Integer.toBinaryString(status) + ", Bit off: " + Integer.toBinaryString(bit));
         return status;
     }
 
     public int getStatusBit(int bit) {
-        System.out.println("Status: " + Integer.toBinaryString(status) + ", Bit: " + Integer.toBinaryString(bit));
+        if (Constants.DEBUG) System.out.println("Status: " + Integer.toBinaryString(status) + ", Bit: " + Integer.toBinaryString(bit));
         return (status & bit) >> (int)(Math.log(bit) / Math.log(2));
     }
 
     public int addConnectedPlayer() {
         int conns = status & CONNECTED >> 7;
-        status = status |= ((conns + 1) << 7);
-        System.out.println("Status connections +1 (conns: " + conns + ", status: " + status + ")");
+        status |= ((conns + 1) << 7);
+        if (Constants.DEBUG) System.out.println("Status connections +1 (conns: " + conns + ", status: " + status + ")");
         return status;
     }
 
     public int removeConnectedPlayer() {
-        System.out.println("Status connections -1");
+        if (Constants.DEBUG) System.out.println("Status connections -1");
         int conns = status & CONNECTED;
-        return status &= (conns - (1<<7));
+        status &= (conns - (1<<7));
+        return status;
     }
 
     public int getConnectedPlayers() {
-        System.out.println("Status connections: " + ((status & CONNECTED) >> 7));
+        if (Constants.DEBUG) System.out.println("Status connections: " + ((status & CONNECTED) >> 7));
         return (status & CONNECTED) >> 7;
     }
 
     public void makeMove(String move, String username) {
-    };
+         // must be implemented by subclass
+    }
 
     public void resignGame(String username) {
-    };
+         // must be implemented by subclass
+    }
 
     public void startGame() {
-    };
+         // must be implemented by subclass
+    }
 
-    public void initGame() {}
+    public void initGame() {
+         // must be implemented by subclass
+    }
 
     public void stopTimers() {
-    };
+      // must be implemented by subclass
+    }
 
     public void whiteConnected(SocketIOClient whiteClient, String username) {
-    };
+         // must be implemented by subclass
+    }
 
     public void blackConnected(SocketIOClient blackClient, String username) {
-    };
+         // must be implemented by subclass
+    }
 
     public void handleReconnect(SocketIOClient client, String username) {
+         // must be implemented by subclass
     }
 
     public String getUsername(String pl) {

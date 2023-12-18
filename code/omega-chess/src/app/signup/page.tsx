@@ -5,7 +5,6 @@ import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container } from "@mui/material";
-import User from "../../db/models/User";
 import { useRouter } from "next/navigation";
 //devo capire come unire il tutto
 

@@ -48,7 +48,7 @@ const Menu = (props: MenuProps) => {
                 <h1 className="text-3xl">Omega Chess</h1>
             </CustomLink>
             <hr />
-            {session && session.user && (
+            {session?.user && (
                 <>
                     <div className="p-4 gap-2 flex flex-col items-center justify-evenly">
                         <div className="font-bold">Welcome back, {session?.user.username}</div>
@@ -94,7 +94,7 @@ const Info = () => {
             .then((res) => res.json())
             .then((data) => {
                 if (data.status === "OK") {
-                    setDbStatus("Online");
+                    setBotStatus("Online");
                 }
             }).catch(err => {});
 

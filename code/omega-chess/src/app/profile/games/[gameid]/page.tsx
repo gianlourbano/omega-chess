@@ -8,7 +8,6 @@ import Button from "@/components/Button"
 
 import pgnParser from "pgn-parser";
 import { motion } from "framer-motion";
-import Image from "next/image"
 import Spinner from "@/components/Spinner";
 
 const PgnLoader = ({props}: {props: {pgnstring: string}}) => {
@@ -29,25 +28,6 @@ const PgnLoader = ({props}: {props: {pgnstring: string}}) => {
         console.log(pgn)
         setPgn(pgn[0])
     }, [])
-
-    /**
-     * 
-     * 
-     * {pgn && pgn.moves.map((move: any, i: number) => {
-                        const style = i < pointer.current ? "" : "hidden";
-                        return (
-                            <div key={i} className={style}>
-                                <p>{i%2 == 0 && <span>{i+1}</span>} {move.comments.map((comment: any, index: number) => {
-                                    return (
-                                        <span key={`comment-${i}-${index}`}>{comment.text}</span>
-                                    )
-                                })}</p>
-                            </div>
-                        )
-                    })}
-     */
-
-
 
     const onAdvance = () => {
         if (autoBackActive && autoBackIntervalId.current !== null) {
@@ -161,7 +141,7 @@ const PgnLoader = ({props}: {props: {pgnstring: string}}) => {
                 <div className="flex flex-col">
                     <p> Tries: {pgn && pointer.current < pgn.moves.length &&  pgn.moves[pointer.current].comments.map((comment: any, index: number) => {
                                     return (
-                                        <span key={index}>{comment.text}</span>
+                                        <span key={comment.text}>{comment.text}</span>
                                     )
                                 })}</p>
                     <Chessboard position={fen} boardOrientation={orientation}/>
@@ -175,11 +155,12 @@ const PgnLoader = ({props}: {props: {pgnstring: string}}) => {
                 </div>
                 <div>{pointer.current}</div>
                 <div className="overflow-auto p-4 border border-gray-200 rounded" style={{ maxHeight: "calc(100vh - 8rem)" }}>
-                    {pgn && pgn.moves.map((move: any, i: number) => {
+                    {pgn?.moves.map((move: any, i: number) => {
                         const style = i >= pointer.current ? "" : "bg-zinc-700";
+                        const uniqueKey = `move-${i}`; // Generate a unique key for each mapped element
                         return (
-                            <motion.span key={i} className={style} onClick={() => {moveFor(i)}} whileHover={{scale:1.4}}>
-                                {i % 2 == 0 && <span>{i / 2}.</span>} {move.move} {"  "}
+                            <motion.span key={uniqueKey} className={style} onClick={() => {moveFor(i)}} whileHover={{scale:1.4}}>
+                                {i % 2 === 0 && <span>{i / 2}.</span>} {move.move} {"  "}
                             </motion.span>
                         )
                     })}
@@ -196,7 +177,7 @@ const PgnLoader = ({props}: {props: {pgnstring: string}}) => {
 }
     
 
-export default function ReplayPage({params}: {params: {gameid: string}}) {
+export default function ReplayPage({params}: {readonly params: {gameid: string}}) {
     
     const fetcher = (url: string) => fetch(url).then((r) => r.json()).then((res) => {
         if(res.error) throw new Error(res.error)

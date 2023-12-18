@@ -31,37 +31,15 @@ public class SocketModule {
 
     private final HashMap<String, Game> games = new HashMap<>();
 
-    @Data
-    @AllArgsConstructor
-    public class SocketClientData {
-        public SocketIOClient client;
-        public String username;
-        public String room;
-        public String gameType;
-        public String token;
-
-        public boolean equals(SocketClientData other) {
-            return this.client.getSessionId().equals(other.client.getSessionId());
-        }
-    }
-
     private final SocketIOServer server;
 
     public SocketModule(SocketIOServer server) {
         this.server = server;
         server.addConnectListener(onConnected());
         server.addDisconnectListener(onDisconnected());
-        // server.addEventListener("send_message", Message.class, onChatReceived());
         server.addEventListener("make_move", String.class, onMoveReceived());
         server.addEventListener("resign_game", String.class, onResignReceived());
         server.addEventListener("ready", String.class, onPlayerReady());
-    }
-
-    // TODO: implement offer draw
-    private DataListener<String> onOfferDrawReceived() {
-        return (client, data, ackSender) -> {
-
-        };
     }
 
     private DataListener<String> onResignReceived() {
@@ -74,7 +52,9 @@ public class SocketModule {
                 client.sendEvent("error", "gameType is required");
                 client.disconnect();
             }
-            String room, username, token;
+            String room;
+            String username;
+            String token;
 
             switch (gameType) {
                 case Constants.GAME_TYPE_DARKBOARD:
@@ -138,7 +118,9 @@ public class SocketModule {
                 client.sendEvent("error", "gameType is required");
                 client.disconnect();
             }
-            String room, username, token;
+            String room;
+            String username;
+            String token;
 
             switch (gameType) {
                 case Constants.GAME_TYPE_DARKBOARD:
@@ -155,9 +137,7 @@ public class SocketModule {
 
                     // start the game in a different thread
 
-                    new Thread(() -> {
-                        dbgame.startGame();
-                    }).start();
+                    new Thread(dbgame::startGame).start();
 
                     break;
                 case Constants.GAME_TYPE_DEVELOPER:
@@ -184,9 +164,7 @@ public class SocketModule {
                     games.put(room, devgame);
 
                     // start the game in a different thread
-                    new Thread(() -> {
-                        devgame.startGame();
-                    }).start();
+                    new Thread(devgame::startGame).start();
 
                     break;
                 case Constants.GAME_TYPE_ONLINE: {
@@ -209,7 +187,7 @@ public class SocketModule {
                             client.disconnect();
                             return;
                         } else {
-                            System.out.println("Reconnecting player: " + username);
+                            if (Constants.DEBUG) log.info("Reconnecting player: " + username);
                             g.handleReconnect(client, username);
                             return;
                         }
@@ -268,8 +246,6 @@ public class SocketModule {
 
     private ConnectListener onConnected() {
         return (client) -> {
-            // String room = client.getHandshakeData().getSingleUrlParam("room");
-            // String username = client.getHandshakeData().getSingleUrlParam("room");
             var params = client.getHandshakeData().getUrlParams();
             String gameType = "";
             try {
@@ -278,7 +254,9 @@ public class SocketModule {
                 client.sendEvent("error", "gameType is required");
                 gameType = "darkboard";
             }
-            String room, username, token;
+            String room;
+            String username;
+            String token;
 
             switch (gameType) {
                 case Constants.GAME_TYPE_DARKBOARD:
@@ -324,7 +302,7 @@ public class SocketModule {
                                 client.getSessionId().toString(), room, username, gameType);
                     client.joinRoom(room);
                     int size = server.getRoomOperations(room).getClients().size();
-                    System.out.println(size);
+                    if (Constants.DEBUG) log.info("Room size: " + size);
 
                     break;
                 }
@@ -333,7 +311,6 @@ public class SocketModule {
                     client.disconnect();
                     return;
             }
-            // socketService.createNewGame(client, room);
         };
 
     }
@@ -348,7 +325,9 @@ public class SocketModule {
                 client.sendEvent("error", "gameType is required");
                 gameType = "darkboard";
             }
-            String room, username, token;
+            String room;
+            String username;
+            String token;
 
             switch (gameType) {
                 case Constants.GAME_TYPE_DARKBOARD:
@@ -357,10 +336,10 @@ public class SocketModule {
                     Game dbgame = games.get(room);
                     if (dbgame != null) {
                         dbgame.makeMove(data, username);
-                        System.out.println("Move: " + data);
+                        if (Constants.DEBUG) log.info("Move: " + data);
                     }
                     else {
-                        System.out.println("Move received but refused (game not yet initialized)");
+                        if (Constants.DEBUG) log.info("Move received but refused (game not yet initialized)");
                     }
                     break;
                 case Constants.GAME_TYPE_DEVELOPER:
@@ -369,7 +348,7 @@ public class SocketModule {
                     room = token + username;
                     Game gamedev = games.get(room);
                     gamedev.makeMove(data, username);
-                    System.out.println("Move: " + data);
+                    if (Constants.DEBUG) log.info("Move: " + data);
                     break;
                 case Constants.GAME_TYPE_ONLINE: {
                     room = params.get("room").stream().collect(Collectors.joining());

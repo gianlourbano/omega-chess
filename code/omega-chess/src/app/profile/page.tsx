@@ -4,7 +4,6 @@ import Image from "next/image";
 import Friends from "@/components/Friends";
 import Edit from "./Edit";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
 import { redirect } from "next/navigation";
 import styles from "@/styles/Profile.module.css";
 import useSWR from "swr";
@@ -20,7 +19,7 @@ function calculateWinRate(wins: number, losses: number, draws: number) {
 }
 
 function ProfilePage() {
-    const { data: session, status, update } = useSession();
+    const { data: session} = useSession();
     const fetcher = (url: string) => fetch(url).then((r) => r.json());
     const { data, isLoading } = useSWR(
         session ? `/api/users/${session?.user.username}` : null,
@@ -108,7 +107,7 @@ function ProfilePage() {
                             return (
                                 <CustomLink
                                     href={`/profile/games/${game._id}`}
-                                    key={index}
+                                    key={game._id}
                                     className="flex justify-between items-center pb-3"
                                 >
                                     <div className="text-md font-bold">

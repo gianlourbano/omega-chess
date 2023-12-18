@@ -49,7 +49,7 @@ async function getPostData(id) {
     };
 }
 
-const Error = () => {
+const ErrorComponent = () => {
     return (
         <div className="flex justify-center items-center h-screen bg-zinc-900">
             <div className="text-center">
@@ -77,6 +77,6 @@ export default async function Page({ params }) {
     return postData ? (
         <Content contentHtml={postData.contentHtml} />
     ) : (
-        <Error />
+        <ErrorComponent />
     );
 }

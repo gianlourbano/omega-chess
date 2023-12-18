@@ -3,7 +3,7 @@
 import Spinner from "@/components/Spinner";
 import Button from "@/components/Button";
 import { useSession } from "next-auth/react";
-import API from "@/components/Developer/API";
+import Api from "@/components/Developer/API";
 import useSWR from "swr";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -162,7 +162,7 @@ const MiniContainer = ({
     );
 };
 
-export default function Page({ params }: { params: { username: string } }) {
+export default function Page({ params }: { readonly params: { readonly username: string } }) {
     const fetcher = (url: string) => fetch(url).then((r) => r.json());
     const { data, isLoading, mutate } = useSWR(
         `/api/users/${params.username}/developer`,
@@ -183,7 +183,7 @@ export default function Page({ params }: { params: { username: string } }) {
             }),
         })
             .catch((err) => console.log(err))
-            .finally(() => mutate());
+            .finally(() =>{ mutate()});
     };
 
     const deleteBot = async (name: string) => {
@@ -197,7 +197,7 @@ export default function Page({ params }: { params: { username: string } }) {
             }),
         })
             .catch((err) => console.log(err))
-            .finally(() => mutate());
+            .finally(() => {mutate()});
     };
 
     if (isLoading)
@@ -232,7 +232,7 @@ export default function Page({ params }: { params: { username: string } }) {
                     </Button>
                 </>
             )}
-            <API />
+            <Api />
 
             <section className="grid grid-areas-dev-content gap-4 p-4 grid-cols-2">
                 <MiniContainer className="grid-in-opts">
@@ -253,10 +253,10 @@ export default function Page({ params }: { params: { username: string } }) {
                         </div>
                     )}
                     {data.user.developer.customs.map(
-                        (custom: any, index: number) => {
+                        (custom: any) => {
                             return (
                                 <div
-                                    key={index}
+                                    key={custom.name}
                                     className="rounded-md bg-zinc-600 p-5 flex flex-row items-center"
                                 >
                                     <div>

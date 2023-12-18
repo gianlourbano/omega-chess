@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/Button";
-import API from "@/components/Developer/API";
+import Api from "@/components/Developer/API";
 import { useSession } from "next-auth/react";
 
 import { redirect } from "next/navigation";
@@ -58,7 +58,7 @@ export default function Page() {
         <main className="p-5">
             <h1 className="text-4xl">Omega Chess API</h1>
             {status === "authenticated" ? <UserView /> : <GuestView />}
-            <API />
+            <Api />
         </main>
     );
 }

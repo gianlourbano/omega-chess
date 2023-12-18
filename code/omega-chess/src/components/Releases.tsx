@@ -1,4 +1,3 @@
-import Link from "next/link";
 import useSWR from "swr";
 import CustomLink from "./CustomLink";
 import Image from "next/image";
@@ -54,7 +53,7 @@ const Releases = () => {
                     <div className="flex flex-col gap-3">
                         {data.map((release: any, index: number) => (
                             <ReleaseItem
-                                key={index}
+                                key={release.title}
                                 title={release.title}
                                 description={release.description}
                                 new={index === 0}

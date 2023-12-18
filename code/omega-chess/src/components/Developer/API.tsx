@@ -18,14 +18,13 @@ const apis = [
     },
 ];
 
-const API = () => {
+const Api = () => {
     return (
-        <>
             <div className="grid grid-cols-2 gap-4 p-4">
-                {apis.map((api, index) => {
+                {apis.map((api) => {
                     return (
                         <div
-                            key={index}
+                            key={api.title}
                             className="p-5 border-2 border-gray-500 rounded-md flex flex-col gap-1"
                         >
                             <h1 className="text-2xl">{api.title}</h1>
@@ -40,8 +39,7 @@ const API = () => {
                     );
                 })}
             </div>
-        </>
     );
 };
 
-export default API;
+export default Api;

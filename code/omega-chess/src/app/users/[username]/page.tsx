@@ -12,7 +12,7 @@ function calculateWinRate(wins: number, losses: number, draws: number) {
             ((wins + 0.5 * draws) / (wins + losses + draws)) * 100
         );
 }
-export default function Page({ params }: { params: { username: string } }) {
+export default function Page({ params }: { readonly params: { readonly username: string } }) {
     const fetcher = (url: string) => fetch(url).then((r) => r.json());
     const { data, error, isLoading } = useSWR(
         `/api/users/${params.username}`,
