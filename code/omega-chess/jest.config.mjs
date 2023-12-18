@@ -16,6 +16,7 @@ const config = {
     "^@/db/(.*)$": "<rootDir>/src/db/$1",
     "^@/db/models/(.*)$": "<rootDir>/src/db/models/$1",
   },
+  globalTeardown: '<rootDir>/test-teardown-globals.js',
 
   reporters: ['default',  ['jest-sonar', {
     outputDirectory: '../../jest',
