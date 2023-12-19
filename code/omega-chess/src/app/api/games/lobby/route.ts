@@ -80,7 +80,7 @@ export async function PUT(req: Request) {
     const blackPlayer = getHeaderValue(game.headers, "Black"); 
 
     //null controls for darkboard game
-    //if one of players is "Darkboard", he doesn't exist, so mongodb returns null
+    //if any of the two players is "Darkboard", he doesn't exist, so mongodb returns null
     const whiteUser = await User.findOne({ username: whitePlayer });
     const blackUser = await User.findOne({ username: blackPlayer });
 

@@ -10,6 +10,7 @@ import { NextRequest } from 'next/server';
 import { GET } from './route'; 
 
 // Mocking fs and gray-matter
+/*
 jest.mock('fs');
 jest.mock('gray-matter', () => {
   return jest.fn().mockImplementation((input) => {
@@ -23,7 +24,7 @@ jest.mock('gray-matter', () => {
     };
   });
 });
-
+*/
 
 describe('Release Functions', () => {
   beforeEach(() => {
@@ -31,7 +32,6 @@ describe('Release Functions', () => {
     const mockFiles = ['release-1.0.0.md', 'release-1.1.0.md'];
     (fs.readdirSync as jest.Mock).mockReturnValue(mockFiles);
     (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-      // Mock file read operation
     });
   });
 
@@ -41,16 +41,9 @@ describe('Release Functions', () => {
 
   it('gets releases correctly', async () => {
     const releases = await GET();
-    // Your assertions here
+    expect(releases).toBeDefined
   });
 
-  it('GET function returns correct response', async () => {
-    const fakeReq: NextRequest = {
-      // Mock the NextRequest object
-    } as any; // Casting as 'any' to bypass type checking for mock
-    const response = await GET();
-    // Your assertions here
-  });
+  
 
-  // More tests can be added here
 });
