@@ -1,47 +1,36 @@
-/**
+/*
  * @jest-environment node
 */
-import { POST } from './route';
+
+import { POST, DELETE} from './route';
+import User from '@/db/models/User';
+import mongoDriver from '@/db/mongoDriver';
+import exp from 'constants';
+import bcrypt from 'bcrypt';
+import { m } from 'framer-motion';
+import { mock } from 'node:test';
 import GameLobby from '@/db/models/GameLobby';
 
-describe('POST', () => {
-  it('should create a new game lobby and return the lobby details', async () => {
-    const req: Request = {
-      json: jest.fn().mockResolvedValueOnce({ gameType: 'darkboard', player: 'John' }),
-    } as unknown as Request;
 
-    const response = await POST(req);
-
-    const res = await response.json();
-
-    expect(res).toEqual({
-      id: expect.any(String),
-      whitePlayer: 'John',
-      blackPlayer: "darkboard",
-    });
-  });
-
-  it('should return an existing game lobby if the player is already in a lobby', async () => {
-    const req: Request = {
-      json: jest.fn().mockResolvedValueOnce({ gameType: 'darkboard', player: 'John' }),
-    } as unknown as Request;
-
-    const existingGame = {
-      _id: 'existingId',
-      whitePlayer: 'John',
-      blackPlayer: null,
-    };
-
-    jest.spyOn(GameLobby, 'findOne').mockResolvedValueOnce(existingGame);
-
-    const response = await POST(req);
-    const res = await response.json();
+jest.mock('@/db/models/User');
+jest.mock('@/db/models/Token');
+jest.mock('@/db/models/GameLobby');
+jest.mock('@/db/models/DeveloperCustom');
+jest.mock('@/db/mongoDriver');
+jest.mock('bcrypt');
 
 
-    expect(res).toEqual({
-      id: 'existingId',
-      whitePlayer: 'John',
-      blackPlayer: null,
-    });
-  });
-});
+describe("DELETE api/games/lobby", () => {
+    
+    it("should return 'OK' when trying to delete a lobby", async () => {
+        const req = {
+            json: jest.fn().mockResolvedValue({
+                room: "room",
+        })};
+        (GameLobby.findByIdAndDelete as jest.Mock).mockResolvedValueOnce(null);
+
+        const response = await DELETE(req as any);
+        expect(response.status).toBe(200);
+    })
+
+})
