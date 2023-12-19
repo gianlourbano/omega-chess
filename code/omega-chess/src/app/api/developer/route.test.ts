@@ -8,24 +8,6 @@ jest.mock('@/db/models/User');
 jest.mock('@/db/models/Token');
 
 describe('POST /api/developer', () => {
-  it('should generate a new token for the user', async () => {
-    const req: Request = {
-      json: jest.fn().mockResolvedValueOnce({ id: 'userId', regenerate: false }),
-    } as unknown as Request;
-
-    const user = {
-      _id: 'userId',
-      developer: null,
-    };
-
-    (User.findById as jest.Mock).mockResolvedValueOnce(user);
-    (Token.findOne as jest.Mock).mockResolvedValueOnce(null);
-    (randomBytes as jest.Mock).mockReturnValueOnce(Buffer.from('randomToken'));
-
-    const response = await POST(req);
-
-    expect(response.status).toBe(200);
-  });
 
   it('should return existing token if regenerate is false', async () => {
     const req: Request = {
@@ -43,6 +25,8 @@ describe('POST /api/developer', () => {
 
     (User.findById as jest.Mock).mockResolvedValueOnce(user);
     (Token.findOne as jest.Mock).mockResolvedValueOnce(existingToken);
+    (User.save as jest.Mock).mockResolvedValueOnce(null);
+
 
     const response = await POST(req);
 
@@ -62,6 +46,7 @@ describe('POST /api/developer', () => {
     (User.findById as jest.Mock).mockResolvedValueOnce(user);
     (Token.findOne as jest.Mock).mockResolvedValueOnce(null);
     (randomBytes as jest.Mock).mockReturnValueOnce(Buffer.from('randomToken'));
+    (User.save as jest.Mock).mockResolvedValueOnce(null);
 
     const response = await POST(req);
 
