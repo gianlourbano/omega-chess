@@ -19,8 +19,6 @@ export const useGame =  () =>  {
     
     const findLobby =  async () => {
         
-        
-
         //first, look if there are open lobbies
         let lobbyId = await fetch("api/games/lobby",{
             method: "POST",
@@ -38,8 +36,7 @@ export const useGame =  () =>  {
         })
         .catch((err) => console.log(err))
         .finally(() => setIsLoading(false));
-        
-            
+                    
         return lobbyId;
     }
 
@@ -61,10 +58,9 @@ const PlayOnlineButton = () =>{
     
     const[status, setStatus] = useState("");
 
-    
     useEffect(()=>{
         
-        fetch(`${process.env.NEXT_PUBLIC_DB_BACKEND_BASE_URL}/healthcheck}`)
+        fetch(`${process.env.NEXT_PUBLIC_DB_BACKEND_BASE_URL}/healthcheck`)
             .then((res)=> res.json())
             .then((data)=>{
                 if(data.status !== "OK"){
@@ -72,7 +68,6 @@ const PlayOnlineButton = () =>{
                 }
             }).catch((err)=>{ setStatus("Server offline")});
     },[]);
-    
 
     const { isLoading, startGame } = useGame();
 
@@ -87,9 +82,7 @@ const PlayOnlineButton = () =>{
                 {isLoading ? <Spinner/> : "Play Online"}
             </Button>
             {status !== "" && <div className="text-red-500">{status}</div>}
-        </div>        
+        </div>
     );
 };
-
-
 export default PlayOnlineButton;

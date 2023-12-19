@@ -266,12 +266,6 @@ const OnlineGame = ({ room, joining_from_link }) => {
         );
     };
 
-    GameOverDialog.propTypes = {
-        open: PropTypes.bool.isRequired,
-        setOpen: PropTypes.func.isRequired,
-        transcript: PropTypes.string.isRequired,
-    };
-
     const handleGameOver = (data) => {
         setGameOver(true);
         setTranscript(data);
@@ -347,8 +341,8 @@ const OnlineGame = ({ room, joining_from_link }) => {
                         <DarkboardTimer
                             timer={
                                 playerColor.current === "white"
-                                    ? blackPlayerTimer
-                                    : whitePlayerTimer
+                                    ? whitePlayerTimer
+                                    : blackPlayerTimer
                             }
                         />
                     </div>
