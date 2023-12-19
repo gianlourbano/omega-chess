@@ -17,6 +17,7 @@ describe('POST /api/developer', () => {
     const user = {
       _id: 'userId',
       developer: null,
+      save: jest.fn().mockResolvedValueOnce(null)
     };
 
     const existingToken = {
@@ -25,7 +26,7 @@ describe('POST /api/developer', () => {
 
     (User.findById as jest.Mock).mockResolvedValueOnce(user);
     (Token.findOne as jest.Mock).mockResolvedValueOnce(existingToken);
-    (User.save as jest.Mock).mockResolvedValueOnce(null);
+    (user.save as jest.Mock).mockResolvedValueOnce(null);
 
 
     const response = await POST(req);
@@ -45,7 +46,7 @@ describe('POST /api/developer', () => {
 
     (User.findById as jest.Mock).mockResolvedValueOnce(user);
     (Token.findOne as jest.Mock).mockResolvedValueOnce(null);
-    (randomBytes as jest.Mock).mockReturnValueOnce(Buffer.from('randomToken'));
+    (randomBytes as jest.Mock).mockReturnValueOnce('randomToken');
     (User.save as jest.Mock).mockResolvedValueOnce(null);
 
     const response = await POST(req);
@@ -58,9 +59,9 @@ describe('POST /api/developer', () => {
       json: jest.fn().mockResolvedValueOnce({ id: 'nonExistingUserId', regenerate: false }),
     } as unknown as Request;
 
-    (User.findById as jest.Mock).mockResolvedValueOnce(null);
-
     const response = await POST(req);
+    
+    (User.findById as jest.Mock).mockResolvedValueOnce(null);
 
     expect(response.status).toBe(404);
   });
