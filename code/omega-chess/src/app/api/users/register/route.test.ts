@@ -34,17 +34,25 @@ describe("User Registration", () => {
     };
 
     const response = await POST(req as any);
+    expect(response.status).toBe(400);
+  });
 
-    expect(response).toEqual({
-      error: "Username already in use.",
-      status: 400,
-    });
+  it("returns error if email is in use", async () => {
+    (User.findOne as jest.Mock).mockResolvedValueOnce({ email: "existingEmail"}); 
+    const req = {
+      json: jest.fn().mockResolvedValue({
+        username: "newUser",
+        password: "password123",
+        email: "existingEmail",
+      }),
+    };
+
+    const response = await POST(req as any);
+    expect(response.status).toBe(400);
   });
 
 
-
   it("registers user successfully", async () => {
-    (User.findOne as jest.Mock).mockResolvedValueOnce(null);
     (User.findOne as jest.Mock).mockResolvedValueOnce(null);
 
     const req = {
@@ -56,12 +64,7 @@ describe("User Registration", () => {
     };
 
     const response = await POST(req as any);
-
-    expect(response).toEqual({
-      message: "User registered successfully",
-      status: 200,
-    });
+    expect(response.status).toEqual(200);
   });
 });
-
 

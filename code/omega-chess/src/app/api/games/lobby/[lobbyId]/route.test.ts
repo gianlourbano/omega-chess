@@ -28,7 +28,7 @@ describe("GET Game Lobby", () => {
     });
 
     it("returns lobby details if lobby is found and user is logged in", async () => {
-        
+     
         const req = {
             nextUrl: new URL("http://localhost/api/games/lobby/mockLobbyId"),
         } as unknown as NextRequest;
@@ -40,5 +40,6 @@ describe("GET Game Lobby", () => {
         expect(await result.json()).toBeDefined();
     });
 
+    
 });
 
