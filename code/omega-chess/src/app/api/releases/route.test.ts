@@ -27,6 +27,7 @@ jest.mock('gray-matter', () => {
 */
 
 describe('Release Functions', () => {
+/*
   beforeEach(() => {
     // Set up your mock data
     const mockFiles = ['release-1.0.0.md', 'release-1.1.0.md'];
@@ -34,6 +35,7 @@ describe('Release Functions', () => {
     (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
     });
   });
+  */
 
   afterEach(() => {
     jest.clearAllMocks();
