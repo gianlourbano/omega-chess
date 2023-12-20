@@ -12,7 +12,8 @@ jest.mock('@/db/models/GameLobby', () => {
     return jest.fn().mockImplementation(() => {
       return {
         save: jest.fn().mockResolvedValue({_id: 'mockId'}),
-        findByIdAndDelete: jest.fn().mockResolvedValue(null)
+        findByIdAndDelete: jest.fn().mockResolvedValue(null),
+        findOne: jest.fn().mockResolvedValue(null)
       };
     });
 });
@@ -95,13 +96,14 @@ describe('DELETE api/games/lobby', () => {
 
     const response = await DELETE(mockRequest);
 
-    //(GameLobby.findByIdAndDelete as jest.Mock).mockResolvedValueOnce(null);
+    (GameLobby.findByIdAndDelete as jest.Mock).mockResolvedValueOnce(true);
     
     expect(response.json()).toBe("OK");
   });
 });
 
 /*
+
 
 
 */
@@ -313,7 +315,7 @@ describe('PUT api/games/lobby', () => {
         result: "result",
         save: jest.fn().mockResolvedValue(true)
     };
-    (Game.create as jest.Mock).mockResolvedValueOnce(mockGameData);
+    (Game.create as jest.Mock).mockResolvedValue(mockGameData);
 
 
     (mockUser1.games.push as jest.Mock).mockResolvedValueOnce(null);
