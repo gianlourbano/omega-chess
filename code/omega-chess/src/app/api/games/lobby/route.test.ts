@@ -3,18 +3,29 @@
 */
 
 import { POST, DELETE, PUT } from './route';
-import GameLobby from '@/db/models/GameLobby';
+
 import User from "@/db/models/User";
 import Game from "@/db/models/Game";
 import mongoDriver from "@/db/mongoDriver";
+
+jest.mock('@/db/models/GameLobby', () => {
+    return jest.fn().mockImplementation(() => {
+      return {save: jest.fn().mockResolvedValue({_id: 'mockId'})};
+    });
+  });
+import GameLobby from '@/db/models/GameLobby';
 
 import { parse } from "pgn-parser";
 import { getUpdatedRatings } from "@/utils/ELO/EloRating";
 
 jest.mock("@/db/models/User");
-jest.mock("@/db/models/GameLobby");
+//jest.mock("@/db/models/GameLobby");
 jest.mock("@/db/models/Game");
 jest.mock("@/db/mongoDriver");
+
+
+  
+ 
 
 describe('POST api/games/lobby', () => {
     beforeEach(() => {
@@ -69,8 +80,8 @@ describe('DELETE api/games/lobby', () => {
     });
 
   it('should delete an existing game lobby', async () => {
-    const mockRequest = {
-      json: {room: "existingLobby"}
+    const mockRequest: Request = {
+        json: jest.fn().mockResolvedValueOnce({room: "existingLobby"}),
     } as unknown as Request;
 
     const response = await DELETE(mockRequest);
@@ -81,6 +92,26 @@ describe('DELETE api/games/lobby', () => {
   });
 });
 
+/*
+
+FAIL src/app/api/games/lobby/route.test.ts (10.554 s)
+  ● POST api/games/lobby › should create a new game lobby and return the lobby details
+
+    TypeError: Cannot destructure property '_id' of '((cov_2zza5vrli(...).s[30]++) , (intermediate value))' as it is undefined.
+
+      57 |     });
+      58 |
+    > 59 |     const { _id } = await newGame.save();
+         |             ^
+      60 |     return Response.json({
+      61 |         id: _id,
+      62 |         whitePlayer: newGame.whitePlayer,
+
+      at _id (src/app/api/games/lobby/route.ts:59:13)
+      at Object.<anonymous> (src/app/api/games/lobby/route.test.ts:29:22)
+
+
+*/
 
 
 describe('PUT api/games/lobby', () => {
@@ -264,8 +295,8 @@ describe('PUT api/games/lobby', () => {
         draws: 0,
       },
       eloScore: 1000,
-      games: []
-
+      games: [],
+      save: jest.fn().mockResolvedValue(true),
     };
     const mockUser2 = {
       scores: {
@@ -274,19 +305,27 @@ describe('PUT api/games/lobby', () => {
         draws: 0,
       },
       eloScore: 1000,
-      games: []
+      games: [],
+      save: jest.fn().mockResolvedValue(true),
     };
 
     (User.findOne as jest.Mock).mockResolvedValueOnce(mockUser1);
     (User.findOne as jest.Mock).mockResolvedValueOnce(mockUser2);
 
-    (Game.create as jest.Mock).mockResolvedValueOnce(null);
+    const  mockGameData = {
+        gamemode: "kriegspiel",
+        whitePlayer: "whitePlayer",
+        blackPlayer: "blackPlayer",
+        pgn: "pgn",
+        result: "result",
+        save: jest.fn().mockResolvedValue(true)
+    };
+    (Game.create as jest.Mock).mockResolvedValueOnce(mockGameData);
 
-    (User.games.push as jest.Mock).mockResolvedValueOnce(null);
-    (User.games.push as jest.Mock).mockResolvedValueOnce(null);
 
-    (User.save as jest.Mock).mockResolvedValueOnce(null);
-    (User.save as jest.Mock).mockResolvedValueOnce(null);
+    (mockUser1.games.push as jest.Mock).mockResolvedValueOnce(null);
+    (mockUser2.games.push as jest.Mock).mockResolvedValueOnce(null);
+
 
     expect(response.status).toBe(200);
   });
