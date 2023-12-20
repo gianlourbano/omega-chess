@@ -19,6 +19,10 @@ import umpire.local.ChessboardStateListener;
 import umpire.local.LocalUmpire;
 import umpire.local.StepwiseLocalUmpire;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class DeveloperGame extends Game {
 
     SocketIOClient botClient;
@@ -79,7 +83,40 @@ public class DeveloperGame extends Game {
             umpire.stepwiseArbitrate(m);
         }
         System.out.println("Game Over!");
+
+        try {
+                        /* save game */
+            System.out.println("Saving game to databsase...");
+            
+            URL url = new URL("http://chess:3000/api/games/lobby");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("PUT");
+            con.setDoOutput(true);
+            con.setRequestProperty("Content-Type", "text/plain");
+            System.out.println("Game: " + umpire.transcript.toString());
+
+            try (OutputStream os = con.getOutputStream()) {
+                String jsonInputString = umpire.transcript.toString();
+                byte[] body = jsonInputString.getBytes("utf-8");
+                os.write(body, 0, body.length);
+            }
+
+            int code = con.getResponseCode();
+            // if (Constants.DEBUG) {
+            if (code == 200) {
+                System.out.println("Game saved");
+            } else {
+                System.out.println("Error saving game");
+            }
+
+        } catch (Exception e) {
+
+            System.out.println("Error saving game");
+            
+        }
+
         // client.sendEvent("game_over", umpire.transcript.toString());
+        System.out.println("Game: " + umpire.transcript.toString());
         this.status = FINISHED;
     }
 
