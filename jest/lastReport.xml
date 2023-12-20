@@ -1,62 +1,13 @@
 <testExecutions version="1">
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts">
-<testCase name="POST should create a new game lobby and return the lobby details" duration="5006">
-<failure message="Error"><![CDATA[Error: thrown: &quot;Exceeded timeout of 5000 ms for a test.
-Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout.&quot;
-    at it (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts:8:3)
-    at _dispatchDescribe (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/index.js:91:26)
-    at describe (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/index.js:55:5)
-    at Object.describe (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts:7:1)
-    at Runtime._execModule (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runtime/build/index.js:1439:24)
-    at Runtime._loadModule (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runtime/build/index.js:1022:12)
-    at Runtime.requireModule (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runtime/build/index.js:882:12)
-    at jestAdapter (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:77:13)
-    at runTestInternal (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runner/build/runTest.js:367:16)
-    at runTest (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runner/build/runTest.js:444:34)]]></failure>
+<testCase name="POST api/games/lobby should create a new game lobby and return the lobby details" duration="7">
+<failure message="Error"><![CDATA[TypeError: _GameLobby.default.findOne is not a function
+    at findOne (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.ts:19:33)
+    at Object.&lt;anonymous&gt; (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts:44:22)]]></failure>
 </testCase>
-<testCase name="POST should return an existing game lobby if the player is already in a lobby" duration="5002">
-<failure message="Error"><![CDATA[Error: thrown: &quot;Exceeded timeout of 5000 ms for a test.
-Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout.&quot;
-    at it (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts:24:3)
-    at _dispatchDescribe (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/index.js:91:26)
-    at describe (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/index.js:55:5)
-    at Object.describe (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts:7:1)
-    at Runtime._execModule (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runtime/build/index.js:1439:24)
-    at Runtime._loadModule (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runtime/build/index.js:1022:12)
-    at Runtime.requireModule (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runtime/build/index.js:882:12)
-    at jestAdapter (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:77:13)
-    at runTestInternal (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runner/build/runTest.js:367:16)
-    at runTest (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runner/build/runTest.js:444:34)]]></failure>
-</testCase>
-</file>
-<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/register/route.test.ts">
-<testCase name="User Registration returns error if username is in use" duration="36">
-<failure message="Error"><![CDATA[TypeError: Method Map.prototype.entries called on incompatible receiver #&lt;Map&gt;
-    at Object.toEqual (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/register/route.test.ts:38:22)]]></failure>
-</testCase>
-<testCase name="User Registration registers user successfully" duration="7">
-<failure message="Error"><![CDATA[TypeError: Method Map.prototype.entries called on incompatible receiver #&lt;Map&gt;
-    at Object.toEqual (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/register/route.test.ts:60:22)]]></failure>
-</testCase>
-</file>
-<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/readfile/[filename]/route.test.ts">
-<testCase name="GET function returns file content and metadata when file exists" duration="13">
-<failure message="Error"><![CDATA[TypeError: Method Map.prototype.entries called on incompatible receiver #&lt;Map&gt;
-    at Object.toEqual (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/readfile/[filename]/route.test.ts:41:20)]]></failure>
-</testCase>
-<testCase name="GET function returns error if file does not exist" duration="6">
-<failure message="Error"><![CDATA[TypeError: Method Map.prototype.entries called on incompatible receiver #&lt;Map&gt;
-    at Object.toEqual (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/readfile/[filename]/route.test.ts:59:20)]]></failure>
-</testCase>
-</file>
-<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.test.ts">
-<testCase name="Release Functions gets releases correctly" duration="4">
-<failure message="Error"><![CDATA[TypeError: Cannot read properties of undefined (reading &apos;match&apos;)
-    at match (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.ts:27:32)
-    at Array.sort (&lt;anonymous&gt;)
-    at sort (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.ts:26:14)
-    at getReleases (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.ts:55:26)
-    at Object.&lt;anonymous&gt; (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.test.ts:43:31)
+<testCase name="POST api/games/lobby should return an existing game lobby if the player is already in a lobby" duration="2">
+<failure message="Error"><![CDATA[TypeError: Cannot read properties of undefined (reading &apos;mockResolvedValue&apos;)
+    at Object.mockResolvedValue (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts:68:38)
     at Promise.then.completed (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/utils.js:298:28)
     at new Promise (&lt;anonymous&gt;)
     at callAsyncCircusFn (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/utils.js:231:10)
@@ -70,41 +21,69 @@ Add a timeout value to this test to increase the timeout, if this is a long-runn
     at runTestInternal (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runner/build/runTest.js:367:16)
     at runTest (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runner/build/runTest.js:444:34)]]></failure>
 </testCase>
-<testCase name="Release Functions GET function returns correct response" duration="3">
-<failure message="Error"><![CDATA[TypeError: Cannot read properties of undefined (reading &apos;match&apos;)
-    at match (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.ts:27:32)
-    at Array.sort (&lt;anonymous&gt;)
-    at sort (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.ts:26:14)
-    at getReleases (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.ts:55:26)
-    at Object.&lt;anonymous&gt; (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.test.ts:51:31)
-    at Promise.then.completed (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/utils.js:298:28)
-    at new Promise (&lt;anonymous&gt;)
-    at callAsyncCircusFn (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/utils.js:231:10)
-    at _callCircusTest (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/run.js:316:40)
-    at _runTest (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/run.js:252:3)
-    at _runTestsForDescribeBlock (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/run.js:126:9)
-    at _runTestsForDescribeBlock (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/run.js:121:9)
-    at run (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/run.js:71:3)
-    at runAndTransformResultsToJestFormat (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
-    at jestAdapter (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
-    at runTestInternal (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runner/build/runTest.js:367:16)
-    at runTest (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/node_modules/jest-runner/build/runTest.js:444:34)]]></failure>
+<testCase name="DELETE api/games/lobby should delete an existing game lobby" duration="26">
+<failure message="Error"><![CDATA[TypeError: _GameLobby.default.findByIdAndDelete is not a function
+    at findByIdAndDelete (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.ts:134:21)
+    at Object.&lt;anonymous&gt; (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts:97:22)]]></failure>
 </testCase>
+<testCase name="PUT api/games/lobby should store game data" duration="16">
+<failure message="Error"><![CDATA[TypeError: Cannot read properties of undefined (reading &apos;save&apos;)
+    at save (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.ts:120:20)
+    at Object.&lt;anonymous&gt; (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/route.test.ts:284:22)]]></failure>
+</testCase>
+</file>
+<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/leaderboard/route.test.ts">
+<testCase name="leaderboard route should return an ordered list of users, based on their elo score" duration="2">
+<failure message="Error"><![CDATA[TypeError: _User.default.find(...).limit is not a function
+    at limit (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/leaderboard/route.ts:7:60)
+    at Object.&lt;anonymous&gt; (/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/leaderboard/route.test.ts:13:24)]]></failure>
+</testCase>
+</file>
+<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/[username]/developer/route.test.ts">
+<testCase name="GET function api/user/[username]/developer returns 200 when file exists" duration="20" />
+</file>
+<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/[username]/route.test.ts">
+<testCase name="api/users/[username] PUT function returns 200 when user exists" duration="6" />
+<testCase name="api/users/[username] PUT function should return 400 when username is already in use" duration="3" />
+<testCase name="api/users/[username] PUT function should return 400 when email is already in use" duration="2" />
+<testCase name="api/users/[username] PUT function should return 400 when old password is not provided" duration="2" />
+<testCase name="api/users/[username] PUT function should return 400 when passwords do not match" duration="2" />
+<testCase name="api/users/[username] PUT function should return 400 when new friend is not provided" duration="4" />
+<testCase name="api/users/[username] PUT function should return 400 when new friend is not found" duration="4" />
+</file>
+<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/developer/route.test.ts">
+<testCase name="POST /api/developer should return existing token if regenerate is false" duration="4" />
+<testCase name="POST /api/developer should generate a new token if regenerate is true" duration="3" />
+<testCase name="POST /api/developer should return 404 if user is not found" duration="2" />
 </file>
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/lobby/[lobbyId]/route.test.ts">
 <testCase name="GET Game Lobby returns lobby details if lobby is found and user is logged in" duration="7" />
 </file>
-<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/utils/ELO/EloRating.test.ts">
-<testCase name="getUpdatedRatings should update ratings correctly when white wins" duration="4" />
-<testCase name="getUpdatedRatings should update ratings correctly when black wins" duration="2" />
-<testCase name="getUpdatedRatings should update ratings correctly when it is a draw" duration="1" />
-<testCase name="getUpdatedRatings should update ratings correctly when the first player is a medium" duration="1" />
-<testCase name="getUpdatedRatings should update ratings correctly when the first player is a pro" duration="2" />
-<testCase name="getUpdatedRatings should update ratings correctly when the players have the same rating" duration="2" />
-</file>
-<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/healthcheck/route.test.ts">
-<testCase name="GET should return a JSON response with status 200" duration="4" />
+<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/users/register/route.test.ts">
+<testCase name="User Registration returns error if username is in use" duration="4" />
+<testCase name="User Registration returns error if email is in use" duration="2" />
+<testCase name="User Registration registers user successfully" duration="2" />
 </file>
 <file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/games/[gameid]/route.test.ts">
+<testCase name="GET API Endpoint should return a game when it exists" duration="3" />
+<testCase name="GET API Endpoint should return an error when the game is not found" duration="1" />
+</file>
+<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/releases/route.test.ts">
+<testCase name="Release Functions gets releases correctly" duration="8" />
+</file>
+<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/utils/ELO/EloRating.test.ts">
+<testCase name="getUpdatedRatings should update ratings correctly when white wins" duration="3" />
+<testCase name="getUpdatedRatings should update ratings correctly when black wins" duration="0" />
+<testCase name="getUpdatedRatings should update ratings correctly when it is a draw" duration="0" />
+<testCase name="getUpdatedRatings should update ratings correctly when the first player is a medium" duration="0" />
+<testCase name="getUpdatedRatings should update ratings correctly when the first player is a pro" duration="1" />
+<testCase name="getUpdatedRatings should update ratings correctly when the players have the same rating" duration="1" />
+</file>
+<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/readfile/[filename]/route.test.ts">
+<testCase name="GET function returns 200 when file exists" duration="3" />
+<testCase name="GET function returns 404 when file does not exist" duration="1" />
+</file>
+<file path="/home/gianlorenzo/Desktop/omega-chess/code/omega-chess/src/app/api/healthcheck/route.test.ts">
+<testCase name="GET should return a JSON response with status 200" duration="2" />
 </file>
 </testExecutions>

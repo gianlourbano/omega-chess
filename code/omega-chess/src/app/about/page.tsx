@@ -1,9 +1,8 @@
 import React from 'react';
-import '../globals.css'; // Make sure to import your custom CSS file
 
-const Page: React.FC = () => {
+const Page = () => {
     return (
-        <div className="p-6 bg-gray-100 rounded-lg shadow-lg">
+        <div className="p-6 bg-zinc-600 shadow-lg">
             <p className="md-paragraph">Alessandro Testa – <a href="mailto:alessandro.testa8@studio.unibo.it" className="md-link">alessandro.testa8@studio.unibo.it</a> - 0001043390</p>
             <p className="md-paragraph">Fabio Chiarini – <a href="mailto:fabio.chiarini2@studio.unibo.it" className="md-link">fabio.chiarini2@studio.unibo.it</a> - 0001028936</p>
             <p className="md-paragraph">Gianlorenzo Urbano – <a href="mailto:gianlorenzo.urbano@studio.unibo.it" className="md-link">gianlorenzo.urbano@studio.unibo.it</a> - 0001020458</p>
