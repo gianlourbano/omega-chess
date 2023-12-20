@@ -62,7 +62,6 @@ const Menu = (props: MenuProps) => {
             <div className="p-4 flex flex-col gap-2">
                 { session && <MenuItem title="Profile" href="/profile" />}
                 {!session && <MenuItem title="Login / SignUp" href="/login" />}
-                <MenuItem title="Leaderboard" href="/leaderboard" />
                 <MenuItem title="Developer"  href="/developer" icon="/experiment.png"/>
                 <MenuItem title="Releases" href="/releases" />
                 <MenuItem title="About" href="/about" />

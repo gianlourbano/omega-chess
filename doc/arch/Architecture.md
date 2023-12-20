@@ -26,7 +26,7 @@ We will use **Nextjs** to build the frontend and the backend of the web applicat
 
 ## Mongodb
 
-We will use **Mongodb** to store the data. It will be used to store the data of the users, the games, the leaderboard, and so on.
+We will use **Mongodb** to store the data. It will be used to store the data of the users, the games, and so on.
 
 ## AI
 
