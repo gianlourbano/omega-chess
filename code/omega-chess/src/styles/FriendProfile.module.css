@@ -10,13 +10,13 @@
     .container {
         display: grid;
         gap: 1rem;
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         grid-template-rows: repeat(4, 1fr);
         grid-template-areas:
-            "profile"
-            "stats"
-            "stats"
-            "stats"
+            "profile profile profile profile"
+            "stats stats stats stats"
+            "stats stats stats stats"
+            "stats stats stats stats"
     }
 }
 
@@ -25,9 +25,11 @@
         display: grid;
         gap: 1rem;
         grid-template-columns: repeat(1, 1fr);
-        grid-template-rows: repeat(2, 1fr);
+        grid-template-rows: repeat(4, 1fr);
         grid-template-areas:
             "profile"
+            "stats"
+            "stats"
             "stats"
     }
 }

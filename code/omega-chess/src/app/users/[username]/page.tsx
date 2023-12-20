@@ -54,7 +54,7 @@ export default function Page({ params }: { readonly params: { readonly username:
                 </div>
             </div>
             <div
-                className={`sm:pt-10 sm:pl-10 pt-5 pr-5 pl-5 sm:text-5xl flex-col ${styles.stats} justify-center`}
+                className={`sm:pt-10 sm:pl-10 pt-5 pr-5 pl-5 sm:text-3xl flex-col ${styles.stats} justify-center`}
             >
                 <div className="text-xl font-bold">
                     Elo: {data.user.eloScore}
