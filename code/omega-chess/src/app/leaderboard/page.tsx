@@ -38,7 +38,7 @@ export default function Page() {
                 {data &&
                     data.map((user: any, index: number) => {
                         return (
-                            <div className="flex items-center py-3">
+                            <div className="flex items-center py-3" key={user.username}>
                                 <div>#{index + 1}</div>
                                 <div className="ml-4 flex-1">
                                     <CustomLink
