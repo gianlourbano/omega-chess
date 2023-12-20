@@ -6,6 +6,7 @@ import { POST, DELETE, PUT } from './route';
 import GameLobby from '@/db/models/GameLobby';
 import User from "@/db/models/User";
 import Game from "@/db/models/Game";
+import mongoDriver from "@/db/mongoDriver";
 
 import { parse } from "pgn-parser";
 import { getUpdatedRatings } from "@/utils/ELO/EloRating";
@@ -13,6 +14,7 @@ import { getUpdatedRatings } from "@/utils/ELO/EloRating";
 jest.mock("@/db/models/User");
 jest.mock("@/db/models/GameLobby");
 jest.mock("@/db/models/Game");
+jest.mock("@/db/mongoDriver");
 
 describe('POST api/games/lobby', () => {
   it('should create a new game lobby and return the lobby details', async () => {
