@@ -289,62 +289,6 @@ describe('PUT api/games/lobby', () => {
 
 
 /*
-
-import { Game } from 'path-to-your-game-model';
-import { User } from 'path-to-your-user-model';
-
-jest.mock('path-to-your-game-model');
-jest.mock('path-to-your-user-model');
-
-describe('Game creation', () => {
-  it('should create a game and add it to the users\' games', async () => {
-    const mockGameData = {
-      _id: 'mockGameId',
-      save: jest.fn(),
-    };
-    const mockUser = {
-      games: {
-        push: jest.fn(),
-      },
-    };
-
-    (Game.create as jest.Mock).mockResolvedValue(mockGameData);
-    const whiteUser = mockUser;
-    const blackUser = mockUser;
-
-    const gameData = await Game.create({
-      gamemode: "kriegspiel",
-      whitePlayer: 'whitePlayer',
-      blackPlayer: 'blackPlayer',
-      pgn: 'pgn',
-      result: 'result',
-    });
-
-    await gameData.save();
-    if(whiteUser) whiteUser.games.push(gameData._id);
-    if(blackUser) blackUser.games.push(gameData._id);
-
-    expect(Game.create).toHaveBeenCalledWith({
-      gamemode: "kriegspiel",
-      whitePlayer: 'whitePlayer',
-      blackPlayer: 'blackPlayer',
-      pgn: 'pgn',
-      result: 'result',
-    });
-    expect(gameData.save).toHaveBeenCalled();
-    expect(whiteUser.games.push).toHaveBeenCalledWith('mockGameId');
-    expect(blackUser.games.push).toHaveBeenCalledWith('mockGameId');
-  });
-});
-
-
-
-
-
-
-
-
-
 [Event "ICC w16"]
 [Site ""]
 [Date "2023.12.19"]

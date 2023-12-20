@@ -2,7 +2,6 @@
  * @jest-environment node
  */
 
-import supertest from "supertest";
 import { GET } from "./route";
 import mongoDriver from "@/db/mongoDriver";
 import Game from "@/db/models/Game";
