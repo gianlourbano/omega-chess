@@ -6,6 +6,9 @@ import { POST } from "./route";
 jest.mock('@/db/mongoDriver');
 jest.mock('@/db/models/User');
 jest.mock('@/db/models/Token');
+jest.mock('crypto', () => ({
+  randomBytes: jest.fn(),
+}));
 
 describe('POST /api/developer', () => {
 
@@ -61,7 +64,7 @@ describe('POST /api/developer', () => {
 
     const response = await POST(req);
     
-    (User.findById as jest.Mock).mockResolvedValueOnce(null);
+    (User.findById as jest.Mock).mockResolvedValue(null);
 
     expect(response.status).toBe(404);
   });
@@ -69,7 +72,6 @@ describe('POST /api/developer', () => {
 
 
 /*
-
 
 FAIL src/app/api/developer/route.test.ts
   ● POST /api/developer › should generate a new token if regenerate is true
