@@ -45,12 +45,13 @@ describe('POST /api/developer', () => {
     const user = {
       _id: 'userId',
       developer: null,
+      save: jest.fn().mockResolvedValueOnce(null)
     };
 
     (User.findById as jest.Mock).mockResolvedValueOnce(user);
     (Token.findOne as jest.Mock).mockResolvedValueOnce(null);
-    (randomBytes as jest.Mock).mockReturnValueOnce('randomToken');
-    (User.save as jest.Mock).mockResolvedValueOnce(null);
+    (randomBytes as jest.Mock).mockReturnValueOnce(Buffer.from('randomToken'));
+    (user.save as jest.Mock).mockResolvedValueOnce(null);
 
     const response = await POST(req);
 
@@ -72,21 +73,20 @@ describe('POST /api/developer', () => {
 
 
 /*
-
 FAIL src/app/api/developer/route.test.ts
   ● POST /api/developer › should generate a new token if regenerate is true
 
-    TypeError: _crypto.randomBytes.mockReturnValueOnce is not a function
+    TypeError: Cannot read properties of undefined (reading 'mockResolvedValueOnce')
 
-      47 |     (User.findById as jest.Mock).mockResolvedValueOnce(user);
-      48 |     (Token.findOne as jest.Mock).mockResolvedValueOnce(null);
-    > 49 |     (randomBytes as jest.Mock).mockReturnValueOnce('randomToken');
-         |                                ^
-      50 |     (User.save as jest.Mock).mockResolvedValueOnce(null);
-      51 |
-      52 |     const response = await POST(req);
+      51 |     (Token.findOne as jest.Mock).mockResolvedValueOnce(null);
+      52 |     (randomBytes as jest.Mock).mockReturnValueOnce('randomToken');
+    > 53 |     (User.save as jest.Mock).mockResolvedValueOnce(null);
+         |                              ^
+      54 |
+      55 |     const response = await POST(req);
+      56 |
 
-      at Object.mockReturnValueOnce (src/app/api/developer/route.test.ts:49:32)
+      at Object.mockResolvedValueOnce (src/app/api/developer/route.test.ts:53:30)
 
   ● POST /api/developer › should return 404 if user is not found
 
@@ -101,6 +101,5 @@ FAIL src/app/api/developer/route.test.ts
       43 |
 
       at save (src/app/api/developer/route.ts:40:16)
-      at Object.<anonymous> (src/app/api/developer/route.test.ts:62:22)
-
+      at Object.<anonymous> (src/app/api/developer/route.test.ts:65:22)
 */
