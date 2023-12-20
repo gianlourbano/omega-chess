@@ -10,6 +10,7 @@ import { parse } from "pgn-parser";
 import { getUpdatedRatings } from "@/utils/ELO/EloRating";
 
 jest.mock("@/db/models/User");
+jest.mock("@/db/models/GameLobby");
 
 describe('POST api/games/lobby', () => {
   it('should create a new game lobby and return the lobby details', async () => {
