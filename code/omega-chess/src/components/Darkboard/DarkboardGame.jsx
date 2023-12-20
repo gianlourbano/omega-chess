@@ -64,6 +64,10 @@ const DarkboardGame = ({ room }) => {
 
     const [quickRules, setQuickRules] = useState(false);
 
+    const [isWhiteTurn, setIsWhiteTurn] = useState(false);
+
+    const [isTurnZero, setIsTurnZero] = useState(true);
+
     useEffect(() => {
         const s = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL, {
             reconnection: false,
@@ -85,8 +89,15 @@ const DarkboardGame = ({ room }) => {
 
         s.on("chessboard_changed", (data) => {
             setGamePosition(data);
+
+            setIsTurnZero(false);
+            
             //get turn from FEN string
             const turn = data.split(" ")[1];
+
+            const isWhiteTurn = turn === 'w';
+            setIsWhiteTurn(isWhiteTurn);
+
             console.log(turn);
         });
 
@@ -112,8 +123,6 @@ const DarkboardGame = ({ room }) => {
     const handleGameOver = (data) => {
         setGameOver(true);
         setTranscript(data);
-        blackPlayerTimer.stop();
-        whitePlayerTimer.stop();
 
         // escape all quotes in the pgn
         //const escaped = data.replace(/"/g, '\"')
@@ -164,9 +173,6 @@ const DarkboardGame = ({ room }) => {
     const [customPieces, setCustomPieces] = useState(hidden);
     const [messages, setMessages] = useState([]);
 
-    const whitePlayerTimer = useStopwatch(10 * 60);
-    const blackPlayerTimer = useStopwatch(10 * 60);
-
     if (status === "loading") {
         return <div>Loading...</div>;
     }
@@ -187,72 +193,94 @@ const DarkboardGame = ({ room }) => {
                 transcript={transcript}
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
-                <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
-                    {status === "authenticated" && (
-                        <div className="text-center text-2xl">
-                            Playing as {session.user.username}
-                        </div>
-                    )}
-                    <Button color="primary" onClick={() => setCustomPieces({})}>
-                        Show opponent
-                    </Button>
-                    <Chessboard
-                        id="PlayVsStockfish"
-                        position={gamePosition}
-                        onPieceDrop={onDrop}
-                        customPieces={customPieces}
-                        customBoardStyle={{
-                            borderRadius: "5px",
-                        }}
-                    />
-                </div>
-                <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
-                    <div className="flex flex-row justify-center gap-3">
-                        <Button
-                            className="text-2xl text-center"
-                            color="primary"
-                            onClick={() => setQuickRules(false)}
-                        >
-                            Umpire
-                        </Button>
-                        <Button
-                            className="text-2xl text-center"
-                            color="primary"
-                            onClick={() => setQuickRules(true)}
-                        >
-                            Quick Rules
-                        </Button>
+            <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
+                {status === "authenticated" && (
+                    <div className="text-center text-2xl">
+                        Playing as {session.user.username}
                     </div>
-                    {!quickRules && (
-                        <>
-                            <Button
-                                color="secondary"
-                                onClick={() => socket.emit("resign_game")}
-                            >
-                                Resign
-                            </Button>
-
-                            <AutoScrollBox
-                                items={messages}
-                                className="hidden sm:block"
-                            >
-                                {messages.map((message, index) => (
-                                    <p key={index} className="rounded p-1">
-                                        {message}
-                                    </p>
-                                ))}
-                            </AutoScrollBox>
-                            <div className="sm:hidden flex flex-col-reverse gap-1 overflow-y-auto">
-                                {messages.map((message, index) => (
-                                    <p key={index} className="rounded p-2">
-                                        {message}
-                                    </p>
-                                ))}
+                )}
+                {
+                    !isTurnZero && (
+                        isWhiteTurn ? (
+                            <div className="text-center text-2xl font-bold">
+                                IT&apos;S YOUR TURN
                             </div>
-                        </>
-                    )}
-                    {quickRules && <QuickRules />}
+                        ) : (
+                            <div className="text-center text-2xl font-bold">
+                                DARKBOARD IS PLAYING
+                            </div>
+                        )
+                    )
+                }
+
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 p-4 gap-5 max-h-screen">
+                    <div className="sm:col-span-3 flex flex-col gap-2 max-w-screen">
+                        {status === "authenticated" && (
+                            <div className="text-center text-2xl">
+                                Playing as {session.user.username}
+                            </div>
+                        )}
+                        <Button color="primary" onClick={() => setCustomPieces({})}>
+                            Show opponent
+                        </Button>
+                        <Chessboard
+                            id="PlayVsStockfish"
+                            position={gamePosition}
+                            onPieceDrop={onDrop}
+                            customPieces={customPieces}
+                            customBoardStyle={{
+                                borderRadius: "5px",
+                            }}
+                        />
+                    </div>
+                    <div className="rounded-lg bg-zinc-700 sm:col-span-2 flex flex-col gap-3 h-[80vh] self-center p-3 shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
+                        <div className="flex flex-row justify-center gap-3">
+                            <Button
+                                className="text-2xl text-center"
+                                color="primary"
+                                onClick={() => setQuickRules(false)}
+                            >
+                                Umpire
+                            </Button>
+                            <Button
+                                className="text-2xl text-center"
+                                color="primary"
+                                onClick={() => setQuickRules(true)}
+                            >
+                                Quick Rules
+                            </Button>
+                        </div>
+                        {!quickRules && (
+                            <>
+                                <Button
+                                    color="secondary"
+                                    onClick={() => socket.emit("resign_game")}
+                                >
+                                    Resign
+                                </Button>
+
+                                <AutoScrollBox
+                                    items={messages}
+                                    className="hidden sm:block"
+                                >
+                                    {messages.map((message, index) => (
+                                        <p key={index} className="rounded p-1">
+                                            {message}
+                                        </p>
+                                    ))}
+                                </AutoScrollBox>
+                                <div className="sm:hidden flex flex-col-reverse gap-1 overflow-y-auto">
+                                    {messages.map((message, index) => (
+                                        <p key={index} className="rounded p-2">
+                                            {message}
+                                        </p>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                        {quickRules && <QuickRules />}
+                    </div>
                 </div>
             </div>
         </>

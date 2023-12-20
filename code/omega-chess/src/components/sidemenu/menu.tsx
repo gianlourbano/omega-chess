@@ -60,15 +60,11 @@ const Menu = (props: MenuProps) => {
                 </>
             )}
             <div className="p-4 flex flex-col gap-2">
-                <MenuItem title="Kriegspiel Rules" href="/kriegspiel/rules" />
-                <MenuItem title="Releases" href="/releases" />
                 { session && <MenuItem title="Profile" href="/profile" />}
                 {!session && <MenuItem title="Login / SignUp" href="/login" />}
                 <MenuItem title="Developer"  href="/developer" icon="/experiment.png"/>
-                <MenuItem disabled title="Games" />
-                <MenuItem disabled title="Leaderboard" />
-                <MenuItem disabled title="Settings" />
-                <MenuItem disabled title="About" />
+                <MenuItem title="Releases" href="/releases" />
+                <MenuItem title="About" href="/about" />
             </div>
             <Info />
         </motion.div>
@@ -112,7 +108,7 @@ const Info = () => {
     return (
         <div className="flex flex-col text-md mt-auto">
             <div className="flex flex-row items-center"><span className={`w-1 h-[90%] rounded-sm mr-1 ${serverStatus === "Offline" ? "bg-red-600" : "bg-green-500"}`}/>Server status: {serverStatus} </div>
-            <div className="flex flex-row items-center"><span className={`w-1 h-[90%] rounded-sm mr-1 ${botStatus === "Offline" ? "bg-red-600" : "bg-green-500"}`}/>Bot status: {botStatus} </div>
+            <div className="flex flex-row items-center"><span className={`w-1 h-[90%] rounded-sm mr-1 ${botStatus === "Offline" ? "bg-red-600" : "bg-green-500"}`}/>Telegram bot status: {botStatus} </div>
             <div className="flex flex-row items-center"><span className={`w-1 h-[90%] rounded-sm mr-1 ${dbStatus === "Offline" ? "bg-red-600" : "bg-green-500"}`}/>Darkboard status: {dbStatus} </div>
             <div>Client version: v{clientVersion} </div>
         </div>

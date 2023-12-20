@@ -31,7 +31,6 @@ export default function Home() {
                         </p>
                         {data && `There ${Number(data.message) === 1 ? "is" : "are"} ${data.message} player${Number(data.message) === 1 ? "" : "s"} online.`}
                         <div className="flex flex-col gap-2 w-[50%] pt-2">
-                            <Button color= "primary">Play with Friends</Button>
                             <PlayOnlineButton />
                             <PlayDarkboardButton />
                         </div>

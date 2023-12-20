@@ -4,6 +4,7 @@ import Spinner from "@/components/Spinner";
 import useSWR from "swr";
 import styles from "@/styles/FriendProfile.module.css";
 import Image from "next/image";
+import CustomLink from "@/components/CustomLink";
 
 function calculateWinRate(wins: number, losses: number, draws: number) {
     if (wins + losses + draws === 0) return 0;
@@ -87,6 +88,38 @@ export default function Page({ params }: { readonly params: { readonly username:
                         {" "}
                         Draws: {data.user.scores?.draws}{" "}
                     </h1>
+                </div>
+                <h1 className="sm:text-3xl font-bold pt-5"> Match replays </h1>
+                <div className="overflow-y-auto pt-4">
+                    {data.user.games?.reverse().map((game: any, index: number) => {
+                        return (
+                            <CustomLink
+                                href={`/profile/games/${game._id}`}
+                                key={game._id}
+                                className="flex justify-between items-center pb-3"
+                            >
+                                <div className="text-md font-bold">
+                                    {game.whitePlayer} - {game.blackPlayer}
+                                </div>
+                                <span className="text-gray-600">
+                                    {new Date(
+                                        game.createdAt
+                                    ).toLocaleDateString("en-EN", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                    })}
+                                    -
+                                    {new Date(
+                                        game.createdAt
+                                    ).toLocaleTimeString("en-EN", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
+                                </span>
+                            </CustomLink>
+                        );
+                    })}
                 </div>
             </div>
         </main>
