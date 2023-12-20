@@ -1,2 +1,3 @@
 # jest output folder
 jest
+.vscode
