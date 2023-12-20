@@ -10,9 +10,12 @@ import mongoDriver from "@/db/mongoDriver";
 
 jest.mock('@/db/models/GameLobby', () => {
     return jest.fn().mockImplementation(() => {
-      return {save: jest.fn().mockResolvedValue({_id: 'mockId'})};
+      return {
+        save: jest.fn().mockResolvedValue({_id: 'mockId'}),
+        findByIdAndDelete: jest.fn().mockResolvedValue(null)
+      };
     });
-  });
+});
 import GameLobby from '@/db/models/GameLobby';
 
 import { parse } from "pgn-parser";
@@ -39,6 +42,8 @@ describe('POST api/games/lobby', () => {
 
     const response = await POST(req);
 
+    (GameLobby.findOne as jest.Mock).mockResolvedValue(null);
+
     const res = await response.json();
 
     expect(res).toEqual({
@@ -59,7 +64,11 @@ describe('POST api/games/lobby', () => {
       blackPlayer: null,
     };
 
-    jest.spyOn(GameLobby, 'findOne').mockResolvedValueOnce(existingGame);
+    (GameLobby.findOne as jest.Mock).mockResolvedValue({
+        id: 'existingId',
+        whitePlayer: 'John',
+        blackPlayer: null,
+      });
 
     const response = await POST(req);
     const res = await response.json();
@@ -86,29 +95,13 @@ describe('DELETE api/games/lobby', () => {
 
     const response = await DELETE(mockRequest);
 
-    (GameLobby.findByIdAndDelete as jest.Mock).mockResolvedValueOnce(null);
+    //(GameLobby.findByIdAndDelete as jest.Mock).mockResolvedValueOnce(null);
     
     expect(response.json()).toBe("OK");
   });
 });
 
 /*
-
-FAIL src/app/api/games/lobby/route.test.ts (10.554 s)
-  ● POST api/games/lobby › should create a new game lobby and return the lobby details
-
-    TypeError: Cannot destructure property '_id' of '((cov_2zza5vrli(...).s[30]++) , (intermediate value))' as it is undefined.
-
-      57 |     });
-      58 |
-    > 59 |     const { _id } = await newGame.save();
-         |             ^
-      60 |     return Response.json({
-      61 |         id: _id,
-      62 |         whitePlayer: newGame.whitePlayer,
-
-      at _id (src/app/api/games/lobby/route.ts:59:13)
-      at Object.<anonymous> (src/app/api/games/lobby/route.test.ts:29:22)
 
 
 */
