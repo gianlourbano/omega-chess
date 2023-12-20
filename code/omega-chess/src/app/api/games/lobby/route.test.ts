@@ -69,7 +69,7 @@ describe('DELETE api/games/lobby', () => {
   });
 });
 
-/*
+
 describe('PUT api/games/lobby', () => {
     beforeEach(() => {
         (mongoDriver as jest.Mock).mockResolvedValue(null);
@@ -242,8 +242,6 @@ describe('PUT api/games/lobby', () => {
       text: jest.fn().mockResolvedValueOnce(pgnGame),
     };
 
-    const response = await PUT(mockRequest as Request);
-
     const mockUser1 = {
       scores: {
         wins: 0,
@@ -277,12 +275,13 @@ describe('PUT api/games/lobby', () => {
         save: jest.fn().mockResolvedValue(true)
     };
     (Game.create as jest.Mock).mockResolvedValue(mockGameData);
+    (mockGameData.save as jest.Mock).mockResolvedValueOnce(true);
 
 
-    (mockUser1.games.push as jest.Mock).mockResolvedValueOnce(null);
-    (mockUser2.games.push as jest.Mock).mockResolvedValueOnce(null);
-
-
+    //(mockUser1.games.push as jest.Mock).mockResolvedValueOnce(null);
+    //(mockUser2.games.push as jest.Mock).mockResolvedValueOnce(null);
+    
+    const response = await PUT(mockRequest as Request);
     expect(response.status).toBe(200);
   });
 });
