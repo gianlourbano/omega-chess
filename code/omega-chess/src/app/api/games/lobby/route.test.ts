@@ -5,12 +5,14 @@
 import { POST, DELETE, PUT } from './route';
 import GameLobby from '@/db/models/GameLobby';
 import User from "@/db/models/User";
+import Game from "@/db/models/Game";
 
 import { parse } from "pgn-parser";
 import { getUpdatedRatings } from "@/utils/ELO/EloRating";
 
 jest.mock("@/db/models/User");
 jest.mock("@/db/models/GameLobby");
+jest.mock("@/db/models/Game");
 
 describe('POST api/games/lobby', () => {
   it('should create a new game lobby and return the lobby details', async () => {
@@ -62,14 +64,72 @@ describe('DELETE api/games/lobby', () => {
     } as unknown as Request;
 
     const response = await DELETE(mockRequest);
+
+    (GameLobby.findByIdAndDelete as jest.Mock).mockResolvedValueOnce(null);
     
     expect(response.json()).toBe("OK");
   });
 });
+/*
+
+
+
+/*
+FAIL src/app/api/games/lobby/route.test.ts (30.332 s)
+  ● POST api/games/lobby › should create a new game lobby and return the lobby details
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      14 |
+      15 | describe('POST api/games/lobby', () => {
+    > 16 |   it('should create a new game lobby and return the lobby details', async () => {
+         |   ^
+      17 |     const req: Request = {
+      18 |       json: jest.fn().mockResolvedValueOnce({ gameType: 'darkboard', player: 'John' }),
+      19 |     } as unknown as Request;
+
+      at it (src/app/api/games/lobby/route.test.ts:16:3)
+      at Object.describe (src/app/api/games/lobby/route.test.ts:15:1)
+
+  ● POST api/games/lobby › should return an existing game lobby if the player is already in a lobby
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      30 |   });
+      31 |
+    > 32 |   it('should return an existing game lobby if the player is already in a lobby', async () => {
+         |   ^
+      33 |     const req: Request = {
+      34 |       json: jest.fn().mockResolvedValueOnce({ gameType: 'darkboard', player: 'John' }),
+      35 |     } as unknown as Request;
+
+      at it (src/app/api/games/lobby/route.test.ts:32:3)
+      at Object.describe (src/app/api/games/lobby/route.test.ts:15:1)
+
+  ● PUT api/games/lobby › should delete an existing game lobby
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      70 |
+      71 | describe('PUT api/games/lobby', () => {
+    > 72 |   it('should delete an existing game lobby', async () => {
+         |   ^
+      73 |     const pgnGame = `
+      74 |                 [Event "ICC w16"]
+      75 |                 [Site ""]
+
+      at it (src/app/api/games/lobby/route.test.ts:72:3)
+      at Object.describe (src/app/api/games/lobby/route.test.ts:71:1)
+
+*/
+
 
 
 describe('PUT api/games/lobby', () => {
-  it('should delete an existing game lobby', async () => {
+  it('should store game data', async () => {
     const pgnGame = `
                 [Event "ICC w16"]
                 [Site ""]
@@ -260,6 +320,8 @@ describe('PUT api/games/lobby', () => {
 
     (User.findOne as jest.Mock).mockResolvedValueOnce(mockUser1);
     (User.findOne as jest.Mock).mockResolvedValueOnce(mockUser2);
+
+    (Game.create as jest.Mock).mockResolvedValueOnce(null);
 
     (User.games.push as jest.Mock).mockResolvedValueOnce(null);
     (User.games.push as jest.Mock).mockResolvedValueOnce(null);
