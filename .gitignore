@@ -1,3 +1,4 @@
 # jest output folder
 jest
-.vscodecode/omega-chess/node_modules/
+.vscode
+code/omega-chess/node_modules/
