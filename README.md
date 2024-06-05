@@ -28,3 +28,7 @@ Date le [tecnologie scelte per lo sviluppo](./doc/arch/Architecture.md), i lingu
 - **Javascript/Typescript** per lo sviluppo del backend
 - Altri linguaggi come **Java, C++, Python** per lo sviluppo delle AI (se necessario)
 - **Bash** per eventuali script di automazione
+
+# NOTA
+
+Il codice del bot Darkboard è stato omesso, in quanto proprietario.
