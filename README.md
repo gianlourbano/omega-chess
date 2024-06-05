@@ -2,14 +2,14 @@
 
 ## Componenti
 ### Product Owner
-- Fabio Chiarini – fabio.chiarini2@studio.unibo.it - 0001028936 
+- Fabio Chiarini – fabio.chiarini2@studio.unibo.it 
 ### Scrum Master
-- Matteo Patella – matteo.patella@studio.unibo.it - 0001020848
+- Matteo Patella – matteo.patella@studio.unibo.it
 ### Developers
-- Alessandro Testa – alessandro.testa8@studio.unibo.it - 0001043390
-- Gianlorenzo Urbano – gianlorenzo.urbano@studio.unibo.it - 0001020458
-- Liam Busnelli – liam.busnelliurso@studio.unibo.it - 0001019817
-- Simone Folli – simone.folli2@studio.unibo.it – 0000974629
+- Alessandro Testa – alessandro.testa8@studio.unibo.it 
+- Gianlorenzo Urbano – gianlorenzo.urbano@studio.unibo.it
+- Liam Busnelli – liam.busnelliurso@studio.unibo.it
+- Simone Folli – simone.folli2@studio.unibo.it
 ## Descrizione
 Il sistema che verrà realizzato sarà una webapp che permetterà di giocare a versioni "non standard" degli scacchi, consentendo di giocare contro dei bot oppure in tempo reale con un avversario casuale o uno degli amici in gioco.
 ## Note
